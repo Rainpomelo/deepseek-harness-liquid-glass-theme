@@ -4,6 +4,19 @@
 
 ---
 
+## 效果预览
+
+### 1. 主界面液态透镜（Layer 2 物理折射与动态壁纸）
+![主界面液态透镜效果](docs/images/chat_liquid_lens_preview.png)
+
+### 2. 实时光学参数控制面板（Layer 0 ~ Layer 3 全参数调节）
+![控制面板效果](docs/images/settings_controls_preview.png)
+
+### 3. 内置推荐 4K 壁纸库与视频壁纸管理
+![壁纸库效果](docs/images/wallpaper_gallery_preview.png)
+
+---
+
 ## 插件特性
 
 ### 1. 三层光学分层架构
