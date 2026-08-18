@@ -685,6 +685,208 @@ html[data-dsh-liquid-glass] [class*="rail"] [class*="searchButton"] {
   color: var(--dsw-alias-label-primary) !important;
   box-sizing: border-box !important;
 }
+
+/* ============================================================================
+ * 桌面端自带插件市场 (Community Market) 高品质深色 VisionOS 玻璃与文本渲染层
+ * ========================================================================== */
+
+/* 1. 遮罩暗化底板 (仅深色压暗背景，不使用 DOM 滤镜模糊) */
+html[data-dsh-liquid-glass] .dshMarketOverlayMask,
+html[data-dsh-liquid-glass] [class*="dshMarketOverlayMask"] {
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgba(4, 8, 16, 0.75) !important;
+  z-index: 0 !important;
+}
+
+/* 2. 插件市场主面板实体 (高质感深色玻璃底板，彻底阻断背景亮光干扰) */
+html[data-dsh-liquid-glass] .dshMarketOverlayPanel,
+html[data-dsh-liquid-glass] [class*="dshMarketOverlayPanel"],
+html[data-dsh-liquid-glass] .dshMarketModal,
+html[data-dsh-liquid-glass] [class*="dshMarketModal"] {
+  position: relative !important;
+  z-index: 1 !important;
+  background: rgba(13, 18, 30, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255, 255, 255, 0.30) !important;
+  border-radius: 24px !important;
+  color: #ffffff !important;
+  overflow: hidden !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* 3. 面板头部与主体 */
+html[data-dsh-liquid-glass] .dshMarketOverlayHeader,
+html[data-dsh-liquid-glass] [class*="dshMarketOverlayHeader"] {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10) !important;
+  padding: 18px 24px 14px !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketOverlayBody,
+html[data-dsh-liquid-glass] [class*="dshMarketOverlayBody"],
+html[data-dsh-liquid-glass] .dshMarketMain,
+html[data-dsh-liquid-glass] [class*="dshMarketMain"],
+html[data-dsh-liquid-glass] .dshMarketContent,
+html[data-dsh-liquid-glass] [class*="dshMarketContent"] {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+/* 4. 标题与文字层次 (高对比度纯白与浅灰) */
+html[data-dsh-liquid-glass] .dshMarketHeaderTitle,
+html[data-dsh-liquid-glass] [class*="dshMarketHeaderTitle"],
+html[data-dsh-liquid-glass] .dshMarketCardName,
+html[data-dsh-liquid-glass] [class*="dshMarketCardName"],
+html[data-dsh-liquid-glass] .dshMarketReceiptTitle h3,
+html[data-dsh-liquid-glass] [class*="dshMarketReceiptTitle"] h3,
+html[data-dsh-liquid-glass] [class*="dshMarket"] h1,
+html[data-dsh-liquid-glass] [class*="dshMarket"] h2,
+html[data-dsh-liquid-glass] [class*="dshMarket"] h3,
+html[data-dsh-liquid-glass] [class*="dshMarket"] h4 {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketSummary,
+html[data-dsh-liquid-glass] [class*="dshMarketSummary"],
+html[data-dsh-liquid-glass] .dshMarketDetails p,
+html[data-dsh-liquid-glass] [class*="dshMarketDetails"] p,
+html[data-dsh-liquid-glass] [class*="dshMarket"] p {
+  color: #cbd5e1 !important;
+  line-height: 1.55 !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketReceiptMeta,
+html[data-dsh-liquid-glass] [class*="dshMarketReceiptMeta"],
+html[data-dsh-liquid-glass] .dshMarketIndexMeta,
+html[data-dsh-liquid-glass] [class*="dshMarketIndexMeta"],
+html[data-dsh-liquid-glass] .dshMarketCurrentSource,
+html[data-dsh-liquid-glass] [class*="dshMarketCurrentSource"],
+html[data-dsh-liquid-glass] [class*="dshMarket"] span,
+html[data-dsh-liquid-glass] [class*="dshMarket"] label,
+html[data-dsh-liquid-glass] [class*="dshMarket"] dt {
+  color: #94a3b8 !important;
+}
+
+html[data-dsh-liquid-glass] [class*="dshMarket"] dd {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* 5. 插件卡片 (实体深色卡片，保证卡片内部文字清晰凸显) */
+html[data-dsh-liquid-glass] .dshMarketCard,
+html[data-dsh-liquid-glass] [class*="dshMarketCard"],
+html[data-dsh-liquid-glass] .dshMarketReceipt,
+html[data-dsh-liquid-glass] [class*="dshMarketReceipt"],
+html[data-dsh-liquid-glass] .dshMarketSource,
+html[data-dsh-liquid-glass] [class*="dshMarketSource"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 16px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.20), 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  padding: 16px !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketCard:hover,
+html[data-dsh-liquid-glass] [class*="dshMarketCard"]:hover,
+html[data-dsh-liquid-glass] .dshMarketReceipt:hover,
+html[data-dsh-liquid-glass] [class*="dshMarketReceipt"]:hover {
+  background: rgba(255, 255, 255, 0.09) !important;
+  border-color: rgba(255, 255, 255, 0.30) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 28px rgba(0, 0, 0, 0.50) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* 6. 搜索框与输入控件 */
+html[data-dsh-liquid-glass] .dshMarketSearch input,
+html[data-dsh-liquid-glass] [class*="dshMarketSearch"] input,
+html[data-dsh-liquid-glass] [class*="dshMarket"] input,
+html[data-dsh-liquid-glass] [class*="dshMarket"] select,
+html[data-dsh-liquid-glass] [class*="dshMarket"] textarea {
+  background: rgba(0, 0, 0, 0.50) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+  padding: 8px 14px !important;
+  font-size: 13px !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketSearch input::placeholder,
+html[data-dsh-liquid-glass] [class*="dshMarketSearch"] input::placeholder {
+  color: rgba(255, 255, 255, 0.50) !important;
+}
+
+/* 7. 标签胶囊与分类按钮 */
+html[data-dsh-liquid-glass] .dshMarketTags span,
+html[data-dsh-liquid-glass] [class*="dshMarketTags"] span {
+  background: rgba(56, 189, 248, 0.15) !important;
+  border: 1px solid rgba(56, 189, 248, 0.30) !important;
+  color: #38bdf8 !important;
+  border-radius: 999px !important;
+  padding: 2px 8px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+html[data-dsh-liquid-glass] [class*="dshMarketCategories"] button,
+html[data-dsh-liquid-glass] .dshMarketCategories button {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #cbd5e1 !important;
+  border-radius: 999px !important;
+  padding: 4px 12px !important;
+  font-size: 12px !important;
+  transition: all 0.14s ease !important;
+}
+
+html[data-dsh-liquid-glass] [class*="dshMarketCategories"] button:hover,
+html[data-dsh-liquid-glass] .dshMarketCategories button:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+html[data-dsh-liquid-glass] [class*="dshMarketCategories"] button[data-active="true"],
+html[data-dsh-liquid-glass] .dshMarketCategories button[data-active="true"] {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.35) 0%, rgba(37, 99, 235, 0.35) 100%) !important;
+  border-color: rgba(56, 189, 248, 0.60) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.30) !important;
+}
+
+/* 8. 选项卡切换器 (浏览/已安装/源管理) */
+html[data-dsh-liquid-glass] .dshMarketViewSwitch,
+html[data-dsh-liquid-glass] [class*="dshMarketViewSwitch"] {
+  background: rgba(0, 0, 0, 0.40) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 12px !important;
+  padding: 3px !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketViewSwitch button,
+html[data-dsh-liquid-glass] [class*="dshMarketViewSwitch"] button {
+  color: #94a3b8 !important;
+  border-radius: 9px !important;
+  transition: all 0.14s ease !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketViewSwitch button[data-active="true"],
+html[data-dsh-liquid-glass] [class*="dshMarketViewSwitch"] button[data-active="true"] {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.30) !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketCommand code,
+html[data-dsh-liquid-glass] [class*="dshMarketCommand"] code {
+  background: rgba(0, 0, 0, 0.50) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #38bdf8 !important;
+}
 `
   }
 

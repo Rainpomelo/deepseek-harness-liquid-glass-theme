@@ -6,27 +6,15 @@
   background: transparent !important;
 }
 
-/* 模态弹窗 (Layer 3) 开启时，仅对底层背景列与环境画布应用高斯模糊 (绝不模糊父容器 AppFrame / #root / overlayLayer) */
-:global([data-dsh-modal-open] [class*='AppFrame_centerCol']),
-:global([data-dsh-modal-open] [class*='AppFrame_sidebarCol']),
-:global([data-dsh-modal-open] [class*='AppFrame_detailsCol']),
-:global([data-dsh-modal-open] [data-dsh-glass-ambient]),
-:global([data-dsh-modal-open] canvas[data-dsh-glass-canvas]),
-:global([data-dsh-settings-open] [class*='AppFrame_centerCol']),
-:global([data-dsh-settings-open] [class*='AppFrame_sidebarCol']),
-:global([data-dsh-settings-open] [class*='AppFrame_detailsCol']),
-:global([data-dsh-settings-open] [data-dsh-glass-ambient]),
-:global([data-dsh-settings-open] canvas[data-dsh-glass-canvas]) {
-  filter: blur(var(--dsh-modal-blur, 24px)) !important;
-  pointer-events: none !important;
-  transition: filter 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
+/* 模态弹窗 (Layer 3) — DOM 物理模糊层已按需关闭，保证全界面 DOM 滤镜 100% 直通锐利 */
 :global(#root),
 :global(html #root),
 :global(body #root),
 :global([data-dsh-frame]),
 :global([class*='AppFrame_frame']),
+:global([class*='AppFrame_centerCol']),
+:global([class*='AppFrame_sidebarCol']),
+:global([class*='AppFrame_detailsCol']),
 :global([data-shell-overlay]),
 :global([class*='overlayLayer']),
 :global([class*='dshMarket']) {
