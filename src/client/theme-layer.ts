@@ -40,12 +40,34 @@ export class LiquidGlassLayer {
   private tokenDisposer: (() => void) | undefined
   private seamDisposer: (() => void) | undefined
   private readonly ctx: any
+  private saveDebounceTimer: any = null
 
   constructor(ctx: Context) {
     this.ctx = ctx
     this.loadState()
     this.sync()
     void this.hydrateWallpaperOnBoot()
+    void this.hydrateSettingsFromDisk()
+  }
+
+  private async hydrateSettingsFromDisk(): Promise<void> {
+    try {
+      const res = await fetch('/api/liquid-glass/settings')
+      if (res.ok) {
+        const disk = await res.json()
+        if (disk && typeof disk === 'object' && Object.keys(disk).length > 0) {
+          if (typeof disk.enabled === 'boolean') {
+            this.enabled = disk.enabled
+          }
+          const { enabled: _en, wallpaper: _wp, ...restSettings } = disk
+          this.settings = { ...this.settings, ...restSettings }
+          if (this.enabled) {
+            this.applySettings()
+          }
+          this.sync()
+        }
+      }
+    } catch {}
   }
 
   private async hydrateWallpaperOnBoot(): Promise<void> {
@@ -80,7 +102,7 @@ export class LiquidGlassLayer {
       const raw = localStorage.getItem('dsh.ui-liquid-glass.settings')
       if (raw) {
         this.settings = { ...LIQUID_GLASS_DEFAULTS, ...JSON.parse(raw) }
-        this.settings.wallpaper = '' // 启动时不预读旧壁纸，全权由 IndexedDB 权威异步加载
+        this.settings.wallpaper = '' // 启动时不预读旧壁纸，全权由 IndexedDB/Disk 权威异步加载
         if (typeof this.settings.modalBlur !== 'number' || isNaN(this.settings.modalBlur)) {
           this.settings.modalBlur = 24
         }
@@ -100,6 +122,24 @@ export class LiquidGlassLayer {
       const cleanSettings = { ...this.settings, wallpaper: '' }
       localStorage.setItem('dsh.ui-liquid-glass.settings', JSON.stringify(cleanSettings))
     } catch {}
+
+    if (this.saveDebounceTimer) {
+      clearTimeout(this.saveDebounceTimer)
+    }
+    this.saveDebounceTimer = setTimeout(() => {
+      try {
+        const payload = {
+          enabled: this.enabled,
+          ...this.settings,
+          wallpaper: ''
+        }
+        fetch('/api/liquid-glass/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).catch(() => {})
+      } catch {}
+    }, 150)
   }
 
   public sync(): void {

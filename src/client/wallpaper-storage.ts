@@ -90,6 +90,24 @@ export async function saveWallpaperStore(state: WallpaperStoreState): Promise<vo
   try {
     localStorage.setItem(LOCAL_FALLBACK_KEY, JSON.stringify(payload))
   } catch {}
+
+  try {
+    fetch('/api/liquid-glass/wallpapers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        activeBuiltinId: state.activeBuiltinId,
+        activeCustomId: state.activeCustomId,
+        customWallpapers: rawItems.map(it => ({
+          id: it.id,
+          name: it.name,
+          type: it.type,
+          url: it.url,
+          poster: it.poster,
+        }))
+      })
+    }).catch(() => {})
+  } catch {}
 }
 
 export async function loadWallpaperStore(): Promise<WallpaperStoreState> {
@@ -147,6 +165,32 @@ export async function loadWallpaperStore(): Promise<WallpaperStoreState> {
     }
   }
 
+  // Fallback / sync from disk API if local storage has default/empty state
+  try {
+    const res = await fetch('/api/liquid-glass/wallpapers')
+    if (res.ok) {
+      const disk = await res.json()
+      if (disk && typeof disk === 'object') {
+        if (disk.activeBuiltinId && BUILTIN_WALLPAPERS.some(w => w.id === disk.activeBuiltinId)) {
+          activeBuiltinId = disk.activeBuiltinId
+        }
+        if (typeof disk.activeCustomId === 'string' && disk.activeCustomId) {
+          activeCustomId = disk.activeCustomId
+        }
+        if (customWallpapers.length === 0 && Array.isArray(disk.customWallpapers) && disk.customWallpapers.length > 0) {
+          customWallpapers = disk.customWallpapers.map((it: any) => ({
+            id: it.id,
+            name: it.name,
+            type: it.type,
+            url: it.url || '',
+            poster: it.poster,
+            isBuiltin: false,
+          }))
+        }
+      }
+    }
+  } catch {}
+
   const result: WallpaperStoreState = {
     customWallpapers: Array.isArray(customWallpapers) ? customWallpapers : [],
     activeBuiltinId,
@@ -155,3 +199,4 @@ export async function loadWallpaperStore(): Promise<WallpaperStoreState> {
   memoryStoreCache = result
   return result
 }
+
