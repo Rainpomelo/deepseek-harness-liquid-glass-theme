@@ -88,17 +88,19 @@
  * ========================================================================== */
 /* 1. 新建会话 (Layer 2 物理透镜驱动) */
 [data-dsh-liquid-glass] [data-dsh-surface],
-[data-dsh-liquid-glass] button[class*='newSession'] {
+[data-dsh-liquid-glass] button[class*='newSession'],
+[data-dsh-liquid-glass] [class*='projectRow'] {
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.16)) !important;
-  border-radius: 12px !important;
+  border-radius: 10px !important;
   box-shadow: none !important;
   transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), border-color 160ms ease !important;
 }
 
-[data-dsh-liquid-glass] button[class*='newSession']:hover {
+[data-dsh-liquid-glass] button[class*='newSession']:hover,
+[data-dsh-liquid-glass] [class*='projectRow']:hover {
   border-color: var(--dsh-l2-rim, rgba(255, 255, 255, 0.32)) !important;
   transform: translateY(-1px);
 }
