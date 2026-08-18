@@ -1,0 +1,1970 @@
+/* ============================================================================
+ * Liquid Glass Theme Layer — Multi-Tier VisionOS Architecture
+ * ========================================================================== */
+
+[data-dsh-liquid-glass] body {
+  background: transparent !important;
+}
+
+/* 模态弹窗 (Layer 3) 开启时，为底层主界面根节点与环境画布/壁纸/Canvas 应用硬件级 DOM 物理高斯模糊 */
+:global([data-dsh-modal-open] #root),
+:global([data-dsh-settings-open] #root),
+:global(html[data-dsh-modal-open] #root),
+:global(body[data-dsh-modal-open] #root),
+:global(html[data-dsh-modal-open] [data-dsh-glass-ambient]),
+:global(html[data-dsh-modal-open] canvas[data-dsh-glass-canvas]) {
+  filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  pointer-events: none !important;
+  transition: filter 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Ambient canvas backdrop (Layer 0 + Layer 1 + Layer 2) */
+[data-dsh-liquid-glass] [data-dsh-glass-ambient] {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background: #060b18;
+}
+
+/* Frame and layout transparency piercing */
+[data-dsh-liquid-glass] [data-dsh-frame],
+[data-dsh-liquid-glass] [class*='AppFrame_frame'],
+[data-dsh-liquid-glass] [class*='frame'],
+[data-dsh-liquid-glass] [class*='AppFrame_centerCol'],
+[data-dsh-liquid-glass] [class*='centerCol'],
+[data-dsh-liquid-glass] [class*='centerSurface'],
+[data-dsh-liquid-glass] [data-phase],
+[data-dsh-liquid-glass] [data-primary-page],
+[data-dsh-liquid-glass] [data-primary-page] > div {
+  background: transparent !important;
+}
+
+/* ============================================================================
+ * Layer 1: 右侧详情抽屉 / 代码面板 / 工具面板 (Layer 1 雾面毛玻璃底板)
+ * ========================================================================== */
+[data-dsh-liquid-glass] [class*='AppFrame_detailsCol'],
+[data-dsh-liquid-glass] [class*='detailsCol'],
+[data-dsh-liquid-glass] [data-dsh-details],
+[data-dsh-liquid-glass] [class*='DetailsPanel_root'] {
+  background: var(--dsh-l1-bg, rgba(10, 16, 28, 0.45)) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  border-left: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.16)) !important;
+}
+
+/* ============================================================================
+ * Layer 1: 左侧边栏底板 (由 WebGL 直接渲染高斯雾面玻璃，DOM 穿透为 100% 透明)
+ * ========================================================================== */
+[data-dsh-liquid-glass] [class*='AppFrame_sidebarCol'],
+[data-dsh-liquid-glass] [class*='sidebarCol'],
+[data-dsh-liquid-glass] [class*='SidebarRoot_root'],
+[data-dsh-liquid-glass] [class*='SidebarRoot'],
+[data-dsh-liquid-glass] [data-dsh-sidebar-root] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-right: none !important;
+  box-shadow: none !important;
+}
+
+[data-dsh-liquid-glass] [class*='sidebarCol'] > div,
+[data-dsh-liquid-glass] [class*='SidebarRoot_root'] > div,
+[data-dsh-liquid-glass] [class*='SidebarRoot'] [class*='regionArea'],
+[data-dsh-liquid-glass] [class*='SidebarRoot'] [class*='listArea'],
+[data-dsh-liquid-glass] [class*='SidebarRoot'] [class*='treeBody'],
+[data-dsh-liquid-glass] [class*='sidebarCol'] [class*='listArea'],
+[data-dsh-liquid-glass] [class*='sidebarCol'] [class*='treeBody'] {
+  background: transparent !important;
+}
+
+/* ============================================================================
+ * Layer 2: 侧边栏 2层 泡泡卡片 (新会话、工作区泡泡框由 WebGL 物理液态玻璃直接渲染)
+ * ========================================================================== */
+/* 1. 新建会话 (Layer 2 物理透镜驱动) */
+[data-dsh-liquid-glass] [data-dsh-surface],
+[data-dsh-liquid-glass] button[class*='newSession'] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.16)) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), border-color 160ms ease !important;
+}
+
+[data-dsh-liquid-glass] button[class*='newSession']:hover {
+  border-color: var(--dsh-l2-rim, rgba(255, 255, 255, 0.32)) !important;
+  transform: translateY(-1px);
+}
+
+/* 2. 侧边栏一级入口 (任务看板、SSH、插件中心等) */
+[data-dsh-liquid-glass] [class*='primaryActions'] button,
+[data-dsh-liquid-glass] [class*='primaryActions'] a {
+  border-radius: 10px !important;
+  transition: all 140ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [class*='primaryActions'] button:hover,
+[data-dsh-liquid-glass] [class*='primaryActions'] a:hover {
+  background: var(--dsh-l2-bg, rgba(255, 255, 255, 0.08)) !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.12)) !important;
+}
+
+/* 3. 工作区 2层 物理液态透镜泡泡框 (由 WebGL 物理折射接管渲染) */
+[data-dsh-liquid-glass] [class*='groupSection'] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.12)) !important;
+  border-radius: 14px !important;
+  padding: 4px 6px !important;
+  margin-bottom: 8px !important;
+  box-shadow: none !important;
+  transition: border-color 180ms ease !important;
+}
+
+[data-dsh-liquid-glass] [class*='groupSection']:hover {
+  border-color: var(--dsh-l2-rim, rgba(255, 255, 255, 0.22)) !important;
+}
+
+/* 4. 会话行与当前选中会话高亮 */
+[data-dsh-liquid-glass] [class*='sessionRow'] {
+  border-radius: 8px !important;
+  transition: all 120ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [class*='sessionRow']:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-dsh-liquid-glass] [class*='sessionRow'][class*='selected'],
+[data-dsh-liquid-glass] [class*='_sessionRow'][class*='_selected'],
+[data-dsh-liquid-glass] [class*='projectRow'][class*='selected'],
+[data-dsh-liquid-glass] [class*='_projectRow'][class*='_selected'],
+[data-dsh-liquid-glass] [class*='searchResultRow'][class*='selected'],
+[data-dsh-liquid-glass] [class*='_searchResultRow'][class*='_selected'],
+html[data-dsh-liquid-glass] [class*='sessionRow'][class*='selected'],
+html[data-dsh-liquid-glass] [class*='projectRow'][class*='selected'],
+html[data-dsh-liquid-glass] [class*='searchResultRow'][class*='selected'] {
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.75)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
+  box-shadow: inset 0 1px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.30)), 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  border-radius: 8px !important;
+}
+
+/* ============================================================================
+ * Layer 2: 二层悬浮液态透镜 (Chat Composer): 100% 晶莹通透，由 WebGL 物理透镜驱动
+ * ========================================================================== */
+[data-dsh-liquid-glass] [data-phase] [class*='composerSeat'][class*='composerSeat'] {
+  background: none !important;
+}
+
+[data-dsh-liquid-card],
+[data-dsh-liquid-glass] [class*='InputTrigger_box'],
+[data-dsh-liquid-glass] [class*='ChatInput_container'],
+[data-dsh-liquid-glass] [data-dsh-inputbar] > div {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.18)) !important;
+  box-shadow: none !important;
+  border-radius: 20px !important;
+}
+
+
+[data-dsh-liquid-glass] [data-composer-card] textarea,
+[data-dsh-liquid-glass] [class*='InputTrigger_box'] textarea {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+/* ============================================================================
+ * Layer 1: 一层基底模糊玻璃层 (设置主窗体、模态弹窗外壳)
+ * 严格绑定并响应 Layer 1 参数:
+ * - 基底模糊: var(--dsh-l1-blur)
+ * - 基底暗化: var(--dsh-l1-bg)
+ * - 边缘光泽: var(--dsh-l1-border)
+ * ========================================================================== */
+
+/* 1. 全屏遮罩层 (纯净暗化底板，虚化由底层的 #root 物理高斯滤镜提供，0 backdrop-filter 噪点) */
+[data-dsh-liquid-glass] [class*='Modal_mask'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_mask'],
+[data-dsh-liquid-glass] [class*='mask'],
+[data-dsh-liquid-glass] [class*='overlay'] > [class*='mask'],
+[data-dsh-liquid-glass] [data-radix-portal] [class*='mask'],
+html[data-dsh-liquid-glass] [class*='mask'],
+html[data-dsh-liquid-glass] [class*='overlay'] > [class*='mask'] {
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.45)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  transition: opacity 240ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [role='dialog'][aria-modal='true'],
+[data-dsh-liquid-glass] [aria-modal='true'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_panel'],
+[data-dsh-liquid-glass] [class*='Modal_dialog'],
+html[data-dsh-liquid-glass] [role='dialog'][aria-modal='true'],
+html[data-dsh-liquid-glass] [aria-modal='true'],
+html[data-dsh-liquid-glass] [class*='SettingsRoot_panel'],
+html[data-dsh-liquid-glass] [class*='Modal_dialog'],
+html[data-dsh-liquid-glass] [class*='Modal_panel'] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
+  box-shadow: inset 0 1px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.28)), 0 24px 64px rgba(0, 0, 0, 0.55) !important;
+  border-radius: 24px !important;
+}
+
+/* 3. 设置面板内部中间容器与插槽包装层彻底透明无边框，只保留各个选项卡片自身玻璃质感 */
+[data-dsh-liquid-glass] [class*='nav'],
+[data-dsh-liquid-glass] [class*='content'],
+[data-dsh-liquid-glass] [class*='nav'],
+[data-dsh-liquid-glass] [class*='content'],
+[data-dsh-liquid-glass] [class*='options'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_nav'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_content'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'],
+[data-dsh-liquid-glass] [class*='Modal_content'],
+[data-dsh-liquid-glass] [class*='Modal_body'],
+[data-dsh-liquid-glass] [class*='SettingsDocumentAction_root'],
+[data-dsh-liquid-glass] [class*='PluginsSettingsSection_section'],
+[data-dsh-liquid-glass] [class*='PluginsSettingsSection_panel'],
+[data-dsh-liquid-glass] [class*='PluginsSettingsSection_cards'],
+[data-dsh-liquid-glass] [class*='PluginInventorySettingsTab_section'],
+[data-dsh-liquid-glass] [class*='PluginInventorySettingsTab_catalog'],
+[data-dsh-liquid-glass] [class*='PluginInventorySettingsTab_cards'],
+[data-dsh-liquid-glass] [class*='GeneralSection_section'],
+[data-dsh-liquid-glass] [class*='GeneralSection_panel'],
+[data-dsh-liquid-glass] [class*='ModelsSection_section'],
+[data-dsh-liquid-glass] [class*='ModelsSection_panel'],
+[data-dsh-liquid-glass] [class*='ModelsSection_cards'],
+[data-dsh-liquid-glass] [class*='options'] [data-slot],
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [data-slot],
+html[data-dsh-liquid-glass] [class*='PluginsSettingsSection_section'],
+html[data-dsh-liquid-glass] [class*='PluginsSettingsSection_panel'],
+html[data-dsh-liquid-glass] [class*='PluginsSettingsSection_cards'],
+html[data-dsh-liquid-glass] [class*='PluginInventorySettingsTab_section'],
+html[data-dsh-liquid-glass] [class*='PluginInventorySettingsTab_catalog'],
+html[data-dsh-liquid-glass] [class*='PluginInventorySettingsTab_cards'],
+html[data-dsh-liquid-glass] [class*='GeneralSection_section'],
+html[data-dsh-liquid-glass] [class*='GeneralSection_panel'],
+html[data-dsh-liquid-glass] [class*='ModelsSection_section'],
+html[data-dsh-liquid-glass] [class*='ModelsSection_panel'],
+html[data-dsh-liquid-glass] [class*='ModelsSection_cards'],
+html[data-dsh-liquid-glass] [class*='SettingsRoot_content'],
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-dsh-liquid-glass] nav,
+[data-dsh-liquid-glass] nav[class*='_nav'],
+[data-dsh-liquid-glass] nav[class*='SettingsRoot_nav'] {
+  border-right: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.12)) !important;
+  background: transparent !important;
+}
+
+[data-dsh-liquid-glass] [class*='_navIcon'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_navTitle'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_navList'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_navLabel'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_navIcon'] {
+  border: none !important;
+}
+
+[data-dsh-liquid-glass] [class*='_header'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_header'] {
+  border-bottom: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.08)) !important;
+  background: transparent !important;
+}
+
+/* 4. 设置面板导航项 (Nav Cells - 选中项严格采用 Layer 2 悬浮液态透镜规范) */
+[data-dsh-liquid-glass] [class*='_navCell'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_navCell'],
+[data-dsh-liquid-glass] [class*='navCell'] {
+  border-radius: 12px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [class*='_navCell']:hover:not([class*='_active']):not([class*='active']):not([aria-current='true']),
+[data-dsh-liquid-glass] [class*='SettingsRoot_navCell']:hover:not([class*='_active']):not([class*='active']):not([aria-current='true']),
+[data-dsh-liquid-glass] [class*='navCell']:hover:not([class*='_active']):not([class*='active']):not([aria-current='true']) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* 选中的导航项 (Layer 2 悬浮透镜实体) */
+[data-dsh-liquid-glass] [class*='_navCell'][class*='_active'],
+[data-dsh-liquid-glass] [class*='_navCell'][class*='active'],
+[data-dsh-liquid-glass] [class*='_navCell'][aria-current='true'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_navCell'][class*='_active'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_navCell'][class*='active'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_navCell'][aria-current='true'],
+[data-dsh-liquid-glass] [class*='navCell'][class*='_active'],
+[data-dsh-liquid-glass] [class*='navCell'][class*='active'],
+[data-dsh-liquid-glass] [class*='navCell'][aria-current='true'] {
+  background: var(--dsh-l2-glass-tint, linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 100%)), var(--dsh-l2-bg, rgba(10, 16, 28, 0.55)) !important;
+  backdrop-filter: blur(var(--dsh-l2-blur, 0px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l2-blur, 0px)) !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.26)) !important;
+  box-shadow: var(--dsh-l2-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.40), 0 4px 14px rgba(0, 0, 0, 0.20)) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* ============================================================================
+ * Layer 3: 下拉弹窗菜单 (_list, _viewport)
+ * 归入 L3 模态弹窗层，同步 L3 物理虚化与遮罩暗化
+ * ========================================================================== */
+[data-dsh-liquid-glass] [class*='Menu_list'],
+[data-dsh-liquid-glass] [class*='Menu_submenu'],
+[data-dsh-liquid-glass] [class*='AgentPresetSeat_menu'],
+[data-dsh-liquid-glass] [class*='AgentPresetSeat_popover'],
+[data-dsh-liquid-glass] [class*='PresetMenu_menu'] {
+  background: transparent !important;
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
+  border-radius: 18px !important;
+  box-shadow: inset 0 1px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.28)), 0 24px 64px rgba(0, 0, 0, 0.55) !important;
+  padding: 8px !important;
+}
+
+[data-dsh-liquid-glass] [class*='Menu_viewport'] {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+[data-dsh-liquid-glass] [class*='Menu_item'],
+[data-dsh-liquid-glass] [class*='MenuView_item'],
+[data-dsh-liquid-glass] [role='menuitem'] {
+  border-radius: 12px !important;
+  color: rgba(255, 255, 255, 0.90) !important;
+  transition: all 120ms ease !important;
+}
+
+[data-dsh-liquid-glass] [class*='Menu_item']:hover,
+[data-dsh-liquid-glass] [class*='MenuView_item']:hover,
+[data-dsh-liquid-glass] [role='menuitem']:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+/* 内部折叠区：同步 L3 模态弹窗毛玻璃与暗化 */
+[data-dsh-liquid-glass] [class*='ModelSelect_modelInlinePanel'],
+[data-dsh-liquid-glass] [class*='ModelSelect_effortInlinePanel'],
+[data-dsh-liquid-glass] [class*='modelInlinePanel'],
+[data-dsh-liquid-glass] [class*='effortInlinePanel'] {
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.40)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.16)) !important;
+  border-radius: 14px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-dsh-liquid-glass] [class*='ModelSelect_cell'] {
+  border-radius: 14px !important;
+  color: #ffffff !important;
+  transition: background 140ms ease !important;
+}
+
+[data-dsh-liquid-glass] [class*='ModelSelect_cell']:hover,
+[data-dsh-liquid-glass] [class*='ModelSelect_cell'][aria-expanded='true'],
+[data-dsh-liquid-glass] [class*='ModelSelect_cellActive'] {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-dsh-liquid-glass] [class*='ModelSelect_option'] {
+  border-radius: 12px !important;
+  color: rgba(255, 255, 255, 0.90) !important;
+  transition: all 120ms ease !important;
+}
+
+[data-dsh-liquid-glass] [class*='ModelSelect_option']:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  transform: translateX(2px);
+}
+
+[data-dsh-liquid-glass] [class*='ModelSelect_option'][class*='selected'],
+[data-dsh-liquid-glass] [class*='ModelSelect_selected'] {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(99, 102, 241, 0.12) 100%), rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.20) !important;
+  color: #ffffff !important;
+}
+
+[data-dsh-liquid-glass] [class*='ModelSelect_groupTitle'] {
+  color: #38bdf8 !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em !important;
+  font-size: 11px !important;
+}
+
+/* 推理滑块轨道背景：同步 L3 模态毛玻璃 */
+[data-dsh-liquid-glass] [class*='ModelSelect_segmentedSliderTrack'],
+[data-dsh-liquid-glass] [class*='segmentedSliderTrack'] {
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.55)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
+  border-radius: 12px !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* 推理滑块活动胶囊归入 Layer 2 (纯正 L2 晶莹透镜配色，去除蓝色) */
+[data-dsh-liquid-glass] [class*='ModelSelect_slidingIndicator'] {
+  background: var(--dsh-l2-glass-tint, linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 100%)), var(--dsh-l2-bg, transparent) !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.28)) !important;
+  box-shadow: var(--dsh-l2-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 2px 8px rgba(0, 0, 0, 0.25)) !important;
+  backdrop-filter: blur(var(--dsh-l2-blur, 12px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l2-blur, 12px)) !important;
+  border-radius: 9px !important;
+}
+
+[data-dsh-liquid-glass] [class*='ModelSelect_effortCurrentLabel'] {
+  color: #ffffff !important;
+}
+
+[data-dsh-liquid-glass] [class*='ModelSelect_effortGlowDot'] {
+  background: rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.60) !important;
+}
+
+[data-dsh-liquid-glass] [class*='ModelSelect_segmentButton'] {
+  color: rgba(255, 255, 255, 0.65) !important;
+  transition: color 140ms ease !important;
+}
+
+[data-dsh-liquid-glass] [class*='ModelSelect_segmentButton']:hover {
+  color: #ffffff !important;
+}
+
+[data-dsh-liquid-glass] [class*='ModelSelect_segmentButtonActive'] {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  text-shadow: none !important;
+}
+
+/* ============================================================================
+ * Layer 2: 真实的独立卡片实体 (精确归入 Layer 2，绝不多层叠加)
+ * 100% 自动响应 L2 变量:
+ * - 晶莹底色: var(--dsh-l2-bg)
+ * - 透镜模糊: var(--dsh-l2-blur)
+ * - 倒角光泽: var(--dsh-l2-border)
+ * - 顶边高光: var(--dsh-l2-rim)
+ * - 物理阴影: var(--dsh-l2-shadow)
+ * ========================================================================== */
+
+/* ============================================================================
+ * 通用设置项与插件卡片自动化规范 (Auto-Adapting Plugin & Option Card Contract)
+ * 无论未来新增任何陌生插件或自定义表单项，只要放置在设置面板 options 内：
+ * 1. 中间容器 100% 自动透明穿透，绝不多层嵌套；
+ * 2. 直属卡片/列表项 100% 自动注入统一定制的 Layer 2 液态玻璃实体外观与微交互；
+ * 3. 卡片内表单控件与头部标题 100% 自动适配与规整。
+ * ========================================================================== */
+
+/* 1. 设置区域中间容器统一步骤 (容器层全透明) */
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] > div,
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] section,
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [role='tabpanel'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] ul,
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [data-slot],
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] > div,
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] section,
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [role='tabpanel'],
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] ul,
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [data-slot] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* 2. 泛化卡片实体规范 (自动匹配设置页下的所有选项/插件直属卡片) */
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] ul > li,
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [data-slot] > *,
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='card']:not([class*='cards']),
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='Card']:not([class*='cards']),
+html[data-dsh-liquid-glass] [class*='PluginsSettingsSection_cards'] > li,
+html[data-dsh-liquid-glass] [class*='PluginInventorySettingsTab_cards'] > li,
+html[data-dsh-liquid-glass] [class*='ModelsSection_rowCard'],
+html[data-dsh-liquid-glass] [class*='ModelsSection_addCard'],
+html[data-dsh-liquid-glass] [class*='ModelsSection_setupCard'],
+html[data-dsh-liquid-glass] [class*='ModelsSection_editor'],
+html[data-dsh-liquid-glass] [class*='AgentPresetSection_card'],
+html[data-dsh-liquid-glass] [class*='settings-card'],
+html[data-dsh-liquid-glass] [class*='RemoteSettingsCard'],
+html[data-dsh-liquid-glass] .qwen-vision-card,
+html[data-dsh-liquid-glass] [class*='qwen-vision-card'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] ul > li,
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [data-slot] > *,
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='card']:not([class*='cards']),
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='Card']:not([class*='cards']),
+[data-dsh-liquid-glass] [class*='PluginsSettingsSection_cards'] > li,
+[data-dsh-liquid-glass] [class*='PluginInventorySettingsTab_cards'] > li,
+[data-dsh-liquid-glass] [class*='ModelsSection_rowCard'],
+[data-dsh-liquid-glass] [class*='ModelsSection_addCard'],
+[data-dsh-liquid-glass] [class*='ModelsSection_setupCard'],
+[data-dsh-liquid-glass] [class*='ModelsSection_editor'],
+[data-dsh-liquid-glass] [class*='AgentPresetSection_card'],
+[data-dsh-liquid-glass] [class*='settings-card'],
+[data-dsh-liquid-glass] [class*='RemoteSettingsCard'],
+[data-dsh-liquid-glass] .qwen-vision-card,
+[data-dsh-liquid-glass] [class*='qwen-vision-card'] {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  list-style: none !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.22)) !important;
+  border-radius: 16px !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 16px rgba(0, 0, 0, 0.18) !important;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  overflow: hidden !important;
+}
+
+/* 3. 卡片悬浮高光动效规范 */
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] ul > li:hover,
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [data-slot] > *:hover,
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='card']:not([class*='cards']):hover,
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='Card']:not([class*='cards']):hover,
+html[data-dsh-liquid-glass] [class*='PluginsSettingsSection_cards'] > li:hover,
+html[data-dsh-liquid-glass] [class*='PluginInventorySettingsTab_cards'] > li:hover,
+html[data-dsh-liquid-glass] [class*='ModelsSection_rowCard']:hover,
+html[data-dsh-liquid-glass] [class*='AgentPresetSection_card']:hover,
+html[data-dsh-liquid-glass] .qwen-vision-card:hover,
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] ul > li:hover,
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [data-slot] > *:hover,
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='card']:not([class*='cards']):hover,
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='Card']:not([class*='cards']):hover,
+[data-dsh-liquid-glass] [class*='PluginsSettingsSection_cards'] > li:hover,
+[data-dsh-liquid-glass] [class*='PluginInventorySettingsTab_cards'] > li:hover,
+[data-dsh-liquid-glass] [class*='ModelsSection_rowCard']:hover,
+[data-dsh-liquid-glass] [class*='AgentPresetSection_card']:hover,
+[data-dsh-liquid-glass] .qwen-vision-card:hover {
+  border-color: var(--dsh-l2-rim, rgba(255, 255, 255, 0.38)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+  transform: translateY(-2px);
+}
+
+html[data-dsh-liquid-glass] [class*='PluginCard_cardOpen'],
+html[data-dsh-liquid-glass] [class*='PluginInventorySettingsTab_card'][data-open='true'],
+html[data-dsh-liquid-glass] [class*='AgentPresetSection_cardActive'],
+html[data-dsh-liquid-glass] [class*='cardActive'],
+[data-dsh-liquid-glass] [class*='PluginCard_cardOpen'],
+[data-dsh-liquid-glass] [class*='PluginInventorySettingsTab_card'][data-open='true'],
+[data-dsh-liquid-glass] [class*='AgentPresetSection_cardActive'],
+[data-dsh-liquid-glass] [class*='cardActive'] {
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 24px)) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 24px)) saturate(140%) !important;
+  border-color: var(--dsh-l2-rim, rgba(255, 255, 255, 0.48)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.50), 0 12px 32px rgba(0, 0, 0, 0.28) !important;
+}
+
+/* 4. 自动规整所有卡片内首个头部/标题区域 (确保对齐与合适内边距) */
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='card'] > button:first-child,
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='card'] > div:first-child,
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='Card'] > button:first-child,
+html[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='Card'] > div:first-child,
+html[data-dsh-liquid-glass] .qwen-vision-header,
+[data-dsh-liquid-glass] .qwen-vision-header {
+  padding: 14px 16px !important;
+  box-sizing: border-box !important;
+}
+
+/* 2. 卡片内部所有结构子元素彻底透明穿透 (严禁内部嵌套额外框) */
+[data-dsh-liquid-glass] [class*='cardMain'],
+[data-dsh-liquid-glass] [class*='cardHead'],
+[data-dsh-liquid-glass] [class*='cardName'],
+[data-dsh-liquid-glass] [class*='cardDesc'],
+[data-dsh-liquid-glass] [class*='cardId'],
+[data-dsh-liquid-glass] [class*='cardFoot'],
+[data-dsh-liquid-glass] [class*='cardContent'],
+[data-dsh-liquid-glass] [class*='cardDetails'],
+[data-dsh-liquid-glass] [class*='cardHeader'],
+[data-dsh-liquid-glass] [class*='cardTrailing'],
+[data-dsh-liquid-glass] [class*='cardBrokenReason'],
+[data-dsh-liquid-glass] [class*='head']:not([class*='groupHead']),
+[data-dsh-liquid-glass] [class*='text'],
+[data-dsh-liquid-glass] [class*='body']:not([class*='Modal_body']),
+[data-dsh-liquid-glass] .qwen-vision-header,
+[data-dsh-liquid-glass] .qwen-vision-body {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* 卡片内部底部操作区及详情分割线 */
+[data-dsh-liquid-glass] [class*='cardFoot'],
+[data-dsh-liquid-glass] [class*='cardDetails'],
+[data-dsh-liquid-glass] [class*='PluginCard_body'] {
+  border-top: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.12)) !important;
+}
+
+/* 4. 列表卡片内部输入框、搜索框与表单控件 (统一归入 Layer 1 基底雾面玻璃，排除已拥有独立数值胶囊的 slider/number 元素) */
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] input:not([class*='number']):not([class*='slider']),
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] select,
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] textarea,
+[data-dsh-liquid-glass] [class*='options'] input:not([class*='number']):not([class*='slider']),
+[data-dsh-liquid-glass] [class*='options'] select,
+[data-dsh-liquid-glass] [class*='options'] textarea,
+[data-dsh-liquid-glass] [class*='ModelsSection'] input,
+[data-dsh-liquid-glass] [class*='ModelsSection'] select,
+[data-dsh-liquid-glass] [class*='ModelsSection'] textarea,
+[data-dsh-liquid-glass] [class*='ModelsSection_input'],
+[data-dsh-liquid-glass] [class*='ModelsSection_selectInput'],
+[data-dsh-liquid-glass] .qwen-vision-input {
+  background: var(--dsh-l1-bg, rgba(10, 16, 28, 0.45)) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.16)) !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.20) !important;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] input:not([class*='number']):not([class*='slider']):focus,
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] select:focus,
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] textarea:focus,
+[data-dsh-liquid-glass] [class*='options'] input:not([class*='number']):not([class*='slider']):focus,
+[data-dsh-liquid-glass] [class*='options'] select:focus,
+[data-dsh-liquid-glass] [class*='options'] textarea:focus,
+[data-dsh-liquid-glass] [class*='ModelsSection'] input:focus,
+[data-dsh-liquid-glass] [class*='ModelsSection'] select:focus,
+[data-dsh-liquid-glass] [class*='ModelsSection'] textarea:focus,
+[data-dsh-liquid-glass] [class*='ModelsSection_input']:focus,
+[data-dsh-liquid-glass] [class*='ModelsSection_selectInput']:focus,
+[data-dsh-liquid-glass] .qwen-vision-input:focus {
+  border-color: #38bdf8 !important;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.20), 0 0 12px rgba(56, 189, 248, 0.35) !important;
+  outline: none !important;
+}
+
+/* 5. 列表卡片内标签、徽章与微标 (内置、自定义、当前使用 inUse 等) */
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='badge'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='Badge'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='tag'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='Tag'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='configTag'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='pending'],
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] [class*='inUse'],
+[data-dsh-liquid-glass] [class*='options'] [class*='badge'],
+[data-dsh-liquid-glass] [class*='options'] [class*='Badge'],
+[data-dsh-liquid-glass] [class*='options'] [class*='tag'],
+[data-dsh-liquid-glass] [class*='options'] [class*='Tag'],
+[data-dsh-liquid-glass] [class*='options'] [class*='configTag'],
+[data-dsh-liquid-glass] [class*='options'] [class*='pending'],
+[data-dsh-liquid-glass] [class*='options'] [class*='inUse'],
+[data-dsh-liquid-glass] [class*='AgentPresetSection_inUse'],
+[data-dsh-liquid-glass] [class*='inUse'],
+html[data-dsh-liquid-glass] [class*='AgentPresetSection_inUse'],
+html[data-dsh-liquid-glass] [class*='inUse'] {
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 16px)) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 16px)) saturate(140%) !important;
+  border: 1px solid var(--dsh-l2-rim, rgba(255, 255, 255, 0.32)) !important;
+  border-radius: 999px !important;
+  padding: 1px 8px !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  font-size: 11px !important;
+  line-height: 17px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.40), 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40) !important;
+}
+
+/* 6. 列表卡片内所有操作按钮通用规范 */
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] button:not([class*='trigger']):not([class*='close']):not([class*='tab']):not([class*='SegmentedControl_item']):not([class*='seg']),
+[data-dsh-liquid-glass] [class*='options'] button:not([class*='trigger']):not([class*='close']):not([class*='tab']):not([class*='SegmentedControl_item']):not([class*='seg']),
+[data-dsh-liquid-glass] [class*='selector'],
+[data-dsh-liquid-glass] button[class*='selector'] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.20)) !important;
+  border-radius: 12px !important;
+  color: rgba(255, 255, 255, 0.90) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.30) !important;
+  transition: all 140ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] button:not([class*='trigger']):not([class*='close']):not([class*='tab']):not([class*='SegmentedControl_item']):not([class*='seg']):hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='options'] button:not([class*='trigger']):not([class*='close']):not([class*='tab']):not([class*='SegmentedControl_item']):not([class*='seg']):hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='selector']:hover:not(:disabled),
+[data-dsh-liquid-glass] button[class*='selector']:hover:not(:disabled) {
+  border-color: var(--dsh-l2-rim, rgba(255, 255, 255, 0.45)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.50), 0 4px 12px rgba(0, 0, 0, 0.20) !important;
+  transform: translateY(-1px);
+}
+
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] button[class*='enable']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] button[class*='primary']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='SettingsRoot_options'] button[class*='save']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='options'] button[class*='enable']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='options'] button[class*='primary']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='options'] button[class*='save']:hover:not(:disabled),
+[data-dsh-liquid-glass] .qwen-vision-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.36) 0%, rgba(255, 255, 255, 0.14) 100%), var(--dsh-l2-bg, rgba(15, 23, 42, 0.75)) !important;
+  border-color: var(--dsh-l2-rim, rgba(255, 255, 255, 0.55)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.70), 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+  transform: translateY(-1px) scale(1.02) !important;
+}
+
+/* ============================================================================
+ * Layer 2 (外框) & Layer 1 (内框): 模型管理与提供方编辑/添加体系
+ * - 外框: 归入 Layer 2 (悬浮液态透镜，跟随 L2 模糊、高光倒角与微透镜)
+ * - 内框: 归入 Layer 1 (基底雾面玻璃，跟随 L1 模糊、暗化与凹陷内阴影)
+ * ========================================================================== */
+
+/* 1. 外框：提供方添加卡片、自定义提供方卡片、行卡片 (Layer 2 整体悬浮透镜) */
+[data-dsh-liquid-glass] [class*='_addCard'],
+[data-dsh-liquid-glass] [class*='_setupCard'],
+[data-dsh-liquid-glass] [class*='_rowCard'],
+[data-dsh-liquid-glass] [class*='addCard'],
+[data-dsh-liquid-glass] [class*='setupCard'],
+[data-dsh-liquid-glass] [class*='rowCard'] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.24)) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--dsh-l2-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.38), 0 6px 20px rgba(0, 0, 0, 0.20)) !important;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [class*='_addCard']:hover,
+[data-dsh-liquid-glass] [class*='_setupCard']:hover,
+[data-dsh-liquid-glass] [class*='_rowCard']:hover {
+  border-color: var(--dsh-l2-rim, rgba(255, 255, 255, 0.38)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* 消除嵌套在 rowCard / addCard / setupCard 内部的 editor 的重复背景与边框 (只保留一层外框) */
+[data-dsh-liquid-glass] [class*='_rowCard'] [class*='_editor'],
+[data-dsh-liquid-glass] [class*='_addCard'] [class*='_editor'],
+[data-dsh-liquid-glass] [class*='_setupCard'] [class*='_editor'],
+[data-dsh-liquid-glass] [class*='rowCard'] [class*='editor'],
+[data-dsh-liquid-glass] [class*='addCard'] [class*='editor'],
+[data-dsh-liquid-glass] [class*='setupCard'] [class*='editor'] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 10px 0 0 0 !important;
+}
+
+/* 独立存在的 editor 卡片 (不在 rowCard 等父级容器内时) 作为独立 L2 卡片 */
+[data-dsh-liquid-glass] [class*='_editor']:not([class*='_rowCard'] [class*='_editor']):not([class*='_addCard'] [class*='_editor']):not([class*='_setupCard'] [class*='_editor']) {
+  background: var(--dsh-l2-glass-tint, linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.03) 100%)), var(--dsh-l2-bg, rgba(10, 16, 28, 0.55)) !important;
+  backdrop-filter: blur(var(--dsh-l2-blur, 0px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l2-blur, 0px)) !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.24)) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--dsh-l2-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.38), 0 6px 20px rgba(0, 0, 0, 0.20)) !important;
+}
+
+/* 2. 行头部信息与操作按钮 (rowHead, rowName, rowTag, credentialDot, iconButton) */
+[data-dsh-liquid-glass] [class*='_rowName'],
+[data-dsh-liquid-glass] [class*='rowName'] {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-dsh-liquid-glass] [class*='_rowTag'],
+[data-dsh-liquid-glass] [class*='rowTag'] {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.16)) !important;
+  border-radius: 999px !important;
+  padding: 1px 8px !important;
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* 凭据连接状态指示灯微光 */
+[data-dsh-liquid-glass] [class*='_credentialDotConfigured'],
+[data-dsh-liquid-glass] [class*='credentialDotConfigured'] {
+  background: #22c55e !important;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.70) !important;
+}
+
+[data-dsh-liquid-glass] [class*='_credentialDotMissing'],
+[data-dsh-liquid-glass] [class*='credentialDotMissing'] {
+  background: #eab308 !important;
+  box-shadow: 0 0 6px rgba(234, 179, 8, 0.50) !important;
+}
+
+/* 行头部“编辑”、“删除”小胶囊按钮 (Layer 1 雾面微透镜，精准限定在设置行 rowCard 内部，绝不污染会话列表) */
+[data-dsh-liquid-glass] [class*='_rowCard'] [class*='_iconButton'],
+[data-dsh-liquid-glass] [class*='_rowHead'] [class*='_iconButton'],
+[data-dsh-liquid-glass] [class*='_rowCard'] [class*='_rowActions'] button,
+[data-dsh-liquid-glass] [class*='rowCard'] [class*='iconButton'],
+[data-dsh-liquid-glass] [class*='rowHead'] [class*='iconButton'],
+[data-dsh-liquid-glass] [class*='rowCard'] [class*='rowActions'] button {
+  background: var(--dsh-l1-bg, rgba(10, 16, 28, 0.45)) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.16)) !important;
+  border-radius: 8px !important;
+  padding: 3px 10px !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-size: 12px !important;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.15) !important;
+  transition: all 140ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [class*='_rowCard'] [class*='_iconButton']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='_rowHead'] [class*='_iconButton']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='_rowCard'] [class*='_rowActions'] button:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='rowCard'] [class*='iconButton']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='rowHead'] [class*='iconButton']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='rowCard'] [class*='rowActions'] button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.10) !important;
+  border-color: rgba(255, 255, 255, 0.30) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 侧边栏工作区与会话列表行内的更多操作（三点 ...）图标按钮：纯净无外框，清晰显示三点图标并支持微交互高亮 */
+[data-dsh-liquid-glass] [class*='sessionRow'] [class*='rowActions'] button,
+[data-dsh-liquid-glass] [class*='_sessionRow'] [class*='_rowActions'] button,
+[data-dsh-liquid-glass] [class*='projectRow'] [class*='rowActions'] button,
+[data-dsh-liquid-glass] [class*='_projectRow'] [class*='_rowActions'] button {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 2px !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: rgba(255, 255, 255, 0.70) !important;
+  box-shadow: none !important;
+}
+
+[data-dsh-liquid-glass] [class*='sessionRow'] [class*='rowActions'] button:hover,
+[data-dsh-liquid-glass] [class*='_sessionRow'] [class*='_rowActions'] button:hover,
+[data-dsh-liquid-glass] [class*='projectRow'] [class*='rowActions'] button:hover,
+[data-dsh-liquid-glass] [class*='_projectRow'] [class*='_rowActions'] button:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+[data-dsh-liquid-glass] [class*='sessionRow'] [class*='rowActions'] button svg,
+[data-dsh-liquid-glass] [class*='_sessionRow'] [class*='_rowActions'] button svg,
+[data-dsh-liquid-glass] [class*='projectRow'] [class*='rowActions'] button svg,
+[data-dsh-liquid-glass] [class*='_projectRow'] [class*='_rowActions'] button svg {
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+  color: inherit !important;
+  fill: currentColor !important;
+}
+
+[data-dsh-liquid-glass] [class*='_rowCard'] [class*='_iconButtonDanger']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='_rowHead'] [class*='_iconButtonDanger']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='_rowCard'] [class*='_dangerButton']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='rowCard'] [class*='iconButtonDanger']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='rowCard'] [class*='dangerButton']:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+  color: #f87171 !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.25) !important;
+}
+
+/* 侧边栏与工作区管理区小图标按钮保持原本干净的圆形/圆角无外框 */
+[data-dsh-liquid-glass] [class*='WorkspaceBrowser'] [class*='iconButton'],
+[data-dsh-liquid-glass] [class*='WorkspaceBrowser'] [class*='_iconButton'],
+[data-dsh-liquid-glass] [class*='sectionHeader'] [class*='iconButton'],
+[data-dsh-liquid-glass] [class*='sectionHeader'] [class*='_iconButton'],
+[data-dsh-liquid-glass] [class*='SidebarRoot'] [class*='iconButton'],
+[data-dsh-liquid-glass] [class*='SidebarRoot'] [class*='_iconButton'] {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  width: 28px !important;
+  height: 28px !important;
+  color: var(--dsw-alias-label-secondary, rgba(255, 255, 255, 0.70)) !important;
+}
+
+[data-dsh-liquid-glass] [class*='WorkspaceBrowser'] [class*='iconButton']:hover,
+[data-dsh-liquid-glass] [class*='WorkspaceBrowser'] [class*='_iconButton']:hover,
+[data-dsh-liquid-glass] [class*='sectionHeader'] [class*='iconButton']:hover,
+[data-dsh-liquid-glass] [class*='sectionHeader'] [class*='_iconButton']:hover,
+[data-dsh-liquid-glass] [class*='SidebarRoot'] [class*='iconButton']:hover,
+[data-dsh-liquid-glass] [class*='SidebarRoot'] [class*='_iconButton']:hover {
+  background: rgba(255, 255, 255, 0.10) !important;
+  color: #ffffff !important;
+}
+
+/* 侧边栏折叠 Rail 模式下所有图标按钮严格保持 36x36px 水平与垂直绝对居中对齐 */
+[data-dsh-liquid-glass] [class*='SidebarRoot'][class*='collapsed'] [class*='primaryActions'],
+[data-dsh-liquid-glass] [class*='SidebarRoot'][class*='_collapsed'] [class*='_primaryActions'] {
+  margin-bottom: 12px !important;
+  gap: 12px !important;
+}
+
+[data-dsh-liquid-glass] [class*='collapsed'] [class*='regionArea'] [class*='sectionHeader'],
+[data-dsh-liquid-glass] [class*='_collapsed'] [class*='_regionArea'] [class*='_sectionHeader'],
+[data-dsh-liquid-glass] [class*='rail'] [class*='sectionHeader'],
+[data-dsh-liquid-glass] [class*='_rail'] [class*='_sectionHeader'],
+[data-dsh-liquid-glass] [class*='collapsed'] [class*='regionArea'] [class*='search'],
+[data-dsh-liquid-glass] [class*='_collapsed'] [class*='_regionArea'] [class*='_search'],
+[data-dsh-liquid-glass] [class*='rail'] [class*='search'],
+[data-dsh-liquid-glass] [class*='_rail'] [class*='_search'] {
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0 !important;
+  width: 36px !important;
+  max-width: 36px !important;
+  height: 36px !important;
+  margin: 0 auto 12px auto !important;
+  box-sizing: border-box !important;
+}
+
+[data-dsh-liquid-glass] [class*='collapsed'] [class*='regionArea'] [class*='headerActions'],
+[data-dsh-liquid-glass] [class*='_collapsed'] [class*='_regionArea'] [class*='_headerActions'],
+[data-dsh-liquid-glass] [class*='rail'] [class*='headerActions'],
+[data-dsh-liquid-glass] [class*='_rail'] [class*='_headerActions'],
+[data-dsh-liquid-glass] [class*='collapsed'] [class*='regionArea'] [class*='iconButton'],
+[data-dsh-liquid-glass] [class*='_collapsed'] [class*='_regionArea'] [class*='_iconButton'],
+[data-dsh-liquid-glass] [class*='rail'] [class*='iconButton'],
+[data-dsh-liquid-glass] [class*='_rail'] [class*='_iconButton'],
+[data-dsh-liquid-glass] [class*='collapsed'] [class*='regionArea'] [class*='searchButton'],
+[data-dsh-liquid-glass] [class*='_collapsed'] [class*='_regionArea'] [class*='_searchButton'],
+[data-dsh-liquid-glass] [class*='rail'] [class*='searchButton'],
+[data-dsh-liquid-glass] [class*='_rail'] [class*='_searchButton'] {
+  width: 36px !important;
+  max-width: 36px !important;
+  height: 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 0 !important;
+  color: var(--dsw-alias-label-primary) !important;
+  box-sizing: border-box !important;
+}
+
+/* 保证折叠状态下 toggle 按钮中鲸鱼图标 (railFish) 与展开面板图标 (panelIcon) 严格互斥显隐 */
+[data-dsh-liquid-glass] [class*='collapsed'] [class*='toggle'] [class*='panelIcon'],
+[data-dsh-liquid-glass] [class*='_collapsed'] [class*='_toggle'] [class*='_panelIcon'] {
+  display: none !important;
+}
+
+[data-dsh-liquid-glass] [class*='collapsed'] [class*='toggle']:hover [class*='panelIcon'],
+[data-dsh-liquid-glass] [class*='_collapsed'] [class*='_toggle']:hover [class*='_panelIcon'] {
+  display: block !important;
+}
+
+[data-dsh-liquid-glass] [class*='collapsed'] [class*='toggle']:hover [class*='railFish'],
+[data-dsh-liquid-glass] [class*='_collapsed'] [class*='_toggle']:hover [class*='_railFish'] {
+  display: none !important;
+}
+
+/* 3. 内框：表单输入框、密码框与下拉菜单 (Layer 1 雾面基底，严格限定在设置卡片与表单字段内部，绝不污染对话框 Composer) */
+[data-dsh-liquid-glass] [class*='_rowCard'] [class*='_input'],
+[data-dsh-liquid-glass] [class*='_addCard'] [class*='_input'],
+[data-dsh-liquid-glass] [class*='_setupCard'] [class*='_input'],
+[data-dsh-liquid-glass] [class*='_editor'] [class*='_input'],
+[data-dsh-liquid-glass] [class*='_selectInput'],
+[data-dsh-liquid-glass] [class*='_field'] input,
+[data-dsh-liquid-glass] [class*='_field'] select,
+[data-dsh-liquid-glass] [class*='_field'] textarea {
+  background: var(--dsh-l1-bg, rgba(10, 16, 28, 0.45)) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.16)) !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.20) !important;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [class*='_rowCard'] [class*='_input']:focus,
+[data-dsh-liquid-glass] [class*='_addCard'] [class*='_input']:focus,
+[data-dsh-liquid-glass] [class*='_setupCard'] [class*='_input']:focus,
+[data-dsh-liquid-glass] [class*='_editor'] [class*='_input']:focus,
+[data-dsh-liquid-glass] [class*='_selectInput']:focus,
+[data-dsh-liquid-glass] [class*='_field'] input:focus,
+[data-dsh-liquid-glass] [class*='_field'] select:focus,
+[data-dsh-liquid-glass] [class*='_field'] textarea:focus {
+  border-color: #38bdf8 !important;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.20), 0 0 12px rgba(56, 189, 248, 0.35) !important;
+  outline: none !important;
+}
+
+/* 底部对话输入框 (Composer Textarea) 纯透明穿透，绝不显示任何内层文本框边框与底色 */
+[data-dsh-liquid-glass] [class*='Composer'] textarea,
+[data-dsh-liquid-glass] [class*='composer'] textarea,
+[data-dsh-liquid-glass] [class*='Composer'] [class*='_input'],
+[data-dsh-liquid-glass] [class*='composer'] [class*='_input'],
+[data-dsh-liquid-glass] [class*='Composer_input'],
+[data-dsh-liquid-glass] [class*='Composer_editor'],
+[data-dsh-liquid-glass] textarea[placeholder*='描述你想要构建的内容'],
+[data-dsh-liquid-glass] textarea[class*='input'] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  outline: none !important;
+}
+
+/* 下拉菜单 options 暗色背景适配 */
+[data-dsh-liquid-glass] [class*='_selectInput'] option,
+[data-dsh-liquid-glass] [class*='_field'] select option {
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+/* 4. 内框：模型列表空状态虚线框 (Layer 1 雾面虚线凹槽) */
+[data-dsh-liquid-glass] [class*='_modelEmpty'],
+[data-dsh-liquid-glass] [class*='modelEmpty'] {
+  background: var(--dsh-l1-bg, rgba(10, 16, 28, 0.35)) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  border: 1px dashed var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
+  border-radius: 10px !important;
+  padding: 12px 16px !important;
+  color: rgba(255, 255, 255, 0.70) !important;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* 5. 外框底部操作项：添加提供方与自定义提供方大虚线卡片 (Layer 2) */
+[data-dsh-liquid-glass] [class*='_addButton'],
+[data-dsh-liquid-glass] [class*='addButton'] {
+  background: var(--dsh-l2-glass-tint, linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.01) 100%)), var(--dsh-l2-bg, transparent) !important;
+  border: 1px dashed var(--dsh-l2-border, rgba(255, 255, 255, 0.28)) !important;
+  border-radius: 14px !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  box-shadow: var(--dsh-l2-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 3px 10px rgba(0, 0, 0, 0.15)) !important;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [class*='_addButton']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='addButton']:hover:not(:disabled) {
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+  background: rgba(56, 189, 248, 0.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.40), 0 6px 18px rgba(56, 189, 248, 0.20) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 6. 内框次级按钮 (Layer 1: 取消、获取可用模型、添加模型) */
+[data-dsh-liquid-glass] [class*='_secondaryButton'],
+[data-dsh-liquid-glass] [class*='_linkButton'],
+[data-dsh-liquid-glass] [class*='_addModelButton'] {
+  background: var(--dsh-l1-bg, rgba(10, 16, 28, 0.45)) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.16)) !important;
+  border-radius: 10px !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.15) !important;
+  transition: all 140ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [class*='_secondaryButton']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='_linkButton']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='_addModelButton']:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.30) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 7. 主操作按钮 (保存、创建提供方 — 规范高质感液态微透镜) */
+[data-dsh-liquid-glass] [class*='_primaryButton'],
+[data-dsh-liquid-glass] [class*='primaryButton'] {
+  background: var(--dsh-l2-glass-tint, linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.08) 100%)), var(--dsh-l2-bg, rgba(15, 23, 42, 0.65)) !important;
+  backdrop-filter: blur(var(--dsh-l2-blur, 0px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l2-blur, 0px)) !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.32)) !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: var(--dsh-l2-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 4px 14px rgba(0, 0, 0, 0.25)) !important;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [class*='_primaryButton']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='primaryButton']:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.36) 0%, rgba(255, 255, 255, 0.14) 100%), var(--dsh-l2-bg, rgba(15, 23, 42, 0.75)) !important;
+  border-color: var(--dsh-l2-rim, rgba(255, 255, 255, 0.55)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.70), 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+  transform: translateY(-1px) scale(1.02) !important;
+}
+
+/* 8. 底部操作栏 (editorActions) 穿透 */
+[data-dsh-liquid-glass] [class*='_editorActions'],
+[data-dsh-liquid-glass] [class*='editorActions'] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 9. 自定义设置手风琴与标签文字高亮 */
+[data-dsh-liquid-glass] [class*='_customized'],
+[data-dsh-liquid-glass] [class*='customized'] {
+  border-top: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.12)) !important;
+}
+
+[data-dsh-liquid-glass] [class*='_customizedSummary'],
+[data-dsh-liquid-glass] [class*='customizedSummary'] {
+  color: rgba(255, 255, 255, 0.90) !important;
+  font-weight: 500 !important;
+}
+
+[data-dsh-liquid-glass] [class*='_customizedSummary']:hover,
+[data-dsh-liquid-glass] [class*='customizedSummary']:hover {
+  color: #38bdf8 !important;
+}
+
+[data-dsh-liquid-glass] [class*='_fieldLabel'],
+[data-dsh-liquid-glass] [class*='_editorTitle'],
+[data-dsh-liquid-glass] [class*='_modelCatalogTitle'],
+[data-dsh-liquid-glass] [class*='fieldLabel'],
+[data-dsh-liquid-glass] [class*='editorTitle'],
+[data-dsh-liquid-glass] [class*='modelCatalogTitle'] {
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* ============================================================================
+ * Layer 2: 通用交互控件与弹出浮层 (纯净透亮晶莹体系)
+ * 100% 实时响应：基底暗化 (--dsh-l2-bg), 透镜模糊 (--dsh-l2-blur), 倒角高光 (--dsh-l2-border), 投影 (--dsh-l2-shadow)
+ * ========================================================================== */
+
+/* 1. 下拉菜单与选择器触发框 (标准模式、Auto Mode、中文、插话发送等) */
+[data-dsh-liquid-glass] [role='dialog'] button[class*='trigger'],
+[data-dsh-liquid-glass] [role='dialog'] button[class*='select'],
+[data-dsh-liquid-glass] [role='dialog'] button[class*='Select'],
+[data-dsh-liquid-glass] [role='dialog'] [class*='CustomSelect_trigger'],
+[data-dsh-liquid-glass] [role='dialog'] [class*='customSelect_trigger'],
+[data-dsh-liquid-glass] [role='dialog'] [class*='SelectTrigger'],
+[data-dsh-liquid-glass] [role='dialog'] button[aria-haspopup='listbox'],
+[data-dsh-liquid-glass] [role='dialog'] button[aria-haspopup='menu'],
+[data-dsh-liquid-glass] button[aria-haspopup='listbox'],
+[data-dsh-liquid-glass] button[aria-haspopup='menu'] {
+  background: var(--dsh-l2-glass-tint, linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.03) 100%)), var(--dsh-l2-bg, transparent) !important;
+  backdrop-filter: blur(var(--dsh-l2-blur, 0px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l2-blur, 0px)) !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.25)) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--dsh-l2-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.38), 0 4px 14px rgba(0, 0, 0, 0.20)) !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40) !important;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [role='dialog'] button[class*='trigger']:hover,
+[data-dsh-liquid-glass] [role='dialog'] button[class*='select']:hover,
+[data-dsh-liquid-glass] [role='dialog'] [class*='CustomSelect_trigger']:hover,
+[data-dsh-liquid-glass] [role='dialog'] button[aria-haspopup='listbox']:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(56, 189, 248, 0.12) 100%), var(--dsh-l2-bg, transparent) !important;
+  border-color: var(--dsh-l2-rim, rgba(255, 255, 255, 0.45)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.50), 0 6px 18px rgba(0, 0, 0, 0.25) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 2. 打开配置文件、选择壁纸等头部与操作按钮 */
+[data-dsh-liquid-glass] [class*='SettingsDocumentAction_root'] button,
+[data-dsh-liquid-glass] [class*='SettingsRoot_header'] button,
+[data-dsh-liquid-glass] [class*='SettingsRoot_header'] button[class*='action'],
+[data-dsh-liquid-glass] [role='dialog'] button[class*='actionBtn'],
+[data-dsh-liquid-glass] [role='dialog'] button[class*='chooseBtn'],
+[data-dsh-liquid-glass] button[class*='chooseBtn'] {
+  background: var(--dsh-l2-glass-tint, linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.03) 100%)), var(--dsh-l2-bg, transparent) !important;
+  backdrop-filter: blur(var(--dsh-l2-blur, 0px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l2-blur, 0px)) !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.24)) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--dsh-l2-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 3px 10px rgba(0, 0, 0, 0.18)) !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40) !important;
+  transition: all 140ms ease !important;
+}
+
+[data-dsh-liquid-glass] [class*='SettingsDocumentAction_root'] button:hover,
+[data-dsh-liquid-glass] [class*='SettingsRoot_header'] button:hover,
+[data-dsh-liquid-glass] [role='dialog'] button[class*='actionBtn']:hover,
+[data-dsh-liquid-glass] [role='dialog'] button[class*='chooseBtn']:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(56, 189, 248, 0.12) 100%), var(--dsh-l2-bg, transparent) !important;
+  border-color: var(--dsh-l2-rim, rgba(255, 255, 255, 0.40)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.50), 0 5px 14px rgba(0, 0, 0, 0.25) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 3. 分段开关与外观模式卡片 (未选中项进 L1，选中项进 L2) */
+[data-dsh-liquid-glass] [role='dialog'] [class*='SegmentedControl_root'],
+[data-dsh-liquid-glass] [class*='SegmentedControl_root'] {
+  background: var(--dsh-l1-bg, rgba(10, 16, 28, 0.45)) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.16)) !important;
+  border-radius: 12px !important;
+  padding: 3px !important;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.20) !important;
+}
+
+[data-dsh-liquid-glass] [role='dialog'] [class*='AppearanceChoice_choice'],
+[data-dsh-liquid-glass] [role='dialog'] [class*='appearanceOption'],
+[data-dsh-liquid-glass] [role='dialog'] [class*='SegmentedControl_item'],
+[data-dsh-liquid-glass] [class*='SegmentedControl_item'] {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  color: rgba(255, 255, 255, 0.70) !important;
+  box-shadow: none !important;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [role='dialog'] [class*='AppearanceChoice_choice']:hover,
+[data-dsh-liquid-glass] [role='dialog'] [class*='appearanceOption']:hover,
+[data-dsh-liquid-glass] [class*='SegmentedControl_item']:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+[data-dsh-liquid-glass] [role='dialog'] [class*='AppearanceChoice_choice'][class*='selected'],
+[data-dsh-liquid-glass] [role='dialog'] [class*='appearanceOption'][class*='selected'],
+[data-dsh-liquid-glass] [role='dialog'] [class*='SegmentedControl_item'][class*='selected'],
+[data-dsh-liquid-glass] [role='dialog'] [class*='SegmentedControl_item'][class*='active'],
+[data-dsh-liquid-glass] [class*='SegmentedControl_item'][class*='selected'],
+[data-dsh-liquid-glass] [class*='SegmentedControl_item'][class*='active'] {
+  background: var(--dsh-l2-glass-tint, linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(56, 189, 248, 0.18) 100%)), var(--dsh-l2-bg, transparent) !important;
+  backdrop-filter: blur(var(--dsh-l2-blur, 0px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l2-blur, 0px)) !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.32)) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: var(--dsh-l2-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.50), 0 4px 12px rgba(56, 189, 248, 0.25)) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40) !important;
+}
+
+/* ============================================================================
+ * Layer 3: 下拉与弹窗选择菜单 (物理全屏高斯虚化 + L3 毛玻璃卡片)
+ * ========================================================================== */
+[data-dsh-liquid-glass] div[role='listbox'],
+[data-dsh-liquid-glass] [class*='Menu_list'],
+[data-dsh-liquid-glass] [class*='Menu_submenu'],
+[data-dsh-liquid-glass] [class*='CustomSelect_menu'],
+[data-dsh-liquid-glass] [class*='Dropdown_menu'],
+html[data-dsh-liquid-glass][data-dsh-liquid-glass] div[role='menu'],
+html[data-dsh-liquid-glass][data-dsh-liquid-glass] [data-dsh-model-menu],
+html[data-dsh-model-open] [data-dsh-model-menu] {
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.65)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.20)) !important;
+  box-shadow: var(--dsh-l1-shadow, 0 20px 48px rgba(0, 0, 0, 0.50)), inset 0 1.5px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.45)) !important;
+  border-radius: 20px !important;
+  padding: 8px !important;
+}
+
+/* ============================================================================
+ * Layer 3: 移动端远程控制窗口 (单层 UI 模态质感 & 链接完整展示)
+ * ========================================================================== */
+
+/* 1. 主弹窗外壳：唯一步入 Layer 3 虚化与暗化的 UI 玻璃层 */
+[data-dsh-liquid-glass] [class*='NxU6UG_overlay'],
+[data-dsh-liquid-glass] [class*='RemotePanel_overlay'],
+html[data-dsh-liquid-glass] [class*='NxU6UG_overlay'],
+html[data-dsh-liquid-glass] [class*='RemotePanel_overlay'] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_panel'],
+[data-dsh-liquid-glass] [class*='RemotePanel_panel'],
+html[data-dsh-liquid-glass] [class*='NxU6UG_panel'],
+html[data-dsh-liquid-glass] [class*='RemotePanel_panel'] {
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.75)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
+  border-radius: 24px !important;
+  box-shadow: var(--dsh-l1-shadow, 0 28px 72px rgba(0, 0, 0, 0.60)), inset 0 1.5px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.40)) !important;
+  color: var(--dsw-alias-label-primary) !important;
+  width: 560px !important;
+  max-width: calc(100vw - 48px) !important;
+  max-height: calc(100vh - 48px) !important;
+  padding: 24px !important;
+  gap: 14px !important;
+  overflow: hidden !important;
+}
+
+/* 2. 遮罩层 (全屏背景虚化层) */
+[data-dsh-liquid-glass] [class*='NxU6UG_mask'],
+[data-dsh-liquid-glass] [class*='RemotePanel_mask'],
+html[data-dsh-liquid-glass][data-dsh-liquid-glass] [class*='NxU6UG_mask'],
+html[data-dsh-liquid-glass][data-dsh-liquid-glass] [class*='RemotePanel_mask'] {
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.45)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 3. 顶部标题栏与关闭按钮 */
+[data-dsh-liquid-glass] [class*='NxU6UG_header'],
+[data-dsh-liquid-glass] [class*='RemotePanel_header'] {
+  align-items: center !important;
+  margin-bottom: 2px !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_title'],
+[data-dsh-liquid-glass] [class*='RemotePanel_title'] {
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  letter-spacing: -0.01em !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_subtitle'],
+[data-dsh-liquid-glass] [class*='RemotePanel_subtitle'] {
+  font-size: 13px !important;
+  color: rgba(255, 255, 255, 0.55) !important;
+  margin-top: 2px !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_close'],
+[data-dsh-liquid-glass] [class*='RemotePanel_close'] {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  transition: all 140ms ease !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_close']:hover,
+[data-dsh-liquid-glass] [class*='RemotePanel_close']:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  transform: scale(1.05) !important;
+}
+
+/* 4. 内部所有嵌套区块全扁平化 (剔除所有多余卡片边框、嵌套模糊与双层胶囊) */
+[data-dsh-liquid-glass] [class*='NxU6UG_card'],
+[data-dsh-liquid-glass] [class*='RemotePanel_card'],
+[data-dsh-liquid-glass] [class*='NxU6UG_cardHeader'],
+[data-dsh-liquid-glass] [class*='RemotePanel_cardHeader'],
+[data-dsh-liquid-glass] [class*='NxU6UG_cardTitle'],
+[data-dsh-liquid-glass] [class*='RemotePanel_cardTitle'],
+[data-dsh-liquid-glass] [class*='NxU6UG_badges'],
+[data-dsh-liquid-glass] [class*='RemotePanel_badges'],
+[data-dsh-liquid-glass] [class*='NxU6UG_banner'],
+[data-dsh-liquid-glass] [class*='RemotePanel_banner'],
+html[data-dsh-liquid-glass] [class*='NxU6UG_card'],
+html[data-dsh-liquid-glass] [class*='RemotePanel_card'],
+html[data-dsh-liquid-glass] [class*='NxU6UG_cardHeader'],
+html[data-dsh-liquid-glass] [class*='RemotePanel_cardHeader'],
+html[data-dsh-liquid-glass] [class*='NxU6UG_badges'],
+html[data-dsh-liquid-glass] [class*='RemotePanel_badges'] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_cardHeader'],
+[data-dsh-liquid-glass] [class*='RemotePanel_cardHeader'] {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_cardTitle'],
+[data-dsh-liquid-glass] [class*='RemotePanel_cardTitle'] {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: rgba(255, 255, 255, 0.90) !important;
+}
+
+/* 5. 状态胶囊徽标 (单层微光 Pill) */
+[data-dsh-liquid-glass] [class*='NxU6UG_badge'],
+[data-dsh-liquid-glass] [class*='RemotePanel_badge'] {
+  padding: 2px 8px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_badge-waiting'],
+[data-dsh-liquid-glass] [class*='RemotePanel_badge-waiting'] {
+  background: rgba(245, 158, 11, 0.10) !important;
+  border: 1px solid rgba(245, 158, 11, 0.25) !important;
+  color: #fbbf24 !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_badge-connected'],
+[data-dsh-liquid-glass] [class*='RemotePanel_badge-connected'] {
+  background: rgba(16, 185, 129, 0.10) !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+  color: #34d399 !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_badge-stopped'],
+[data-dsh-liquid-glass] [class*='RemotePanel_badge-stopped'] {
+  background: rgba(239, 68, 68, 0.10) !important;
+  border: 1px solid rgba(239, 68, 68, 0.25) !important;
+  color: #f87171 !important;
+}
+
+/* 6. 二维码居中纯白卡片 */
+[data-dsh-liquid-glass] [class*='NxU6UG_qrWrap'],
+[data-dsh-liquid-glass] [class*='RemotePanel_qrWrap'] {
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  padding: 12px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.30) !important;
+  margin: 6px auto !important;
+  border: none !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_expiry'],
+[data-dsh-liquid-glass] [class*='RemotePanel_expiry'] {
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.45) !important;
+  text-align: center !important;
+  margin: 0 !important;
+}
+
+/* 7. 中部直接打开链接：完整展示、自动折行、杜绝截断 */
+[data-dsh-liquid-glass] [class*='NxU6UG_hint'],
+[data-dsh-liquid-glass] [class*='RemotePanel_hint'] {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  margin: 4px 0 2px 0 !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_link'],
+[data-dsh-liquid-glass] [class*='RemotePanel_link'] {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background: rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-family: var(--dsw-font-mono, ui-monospace, monospace) !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  color: #38bdf8 !important;
+  white-space: normal !important;
+  word-break: break-all !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  user-select: all !important;
+  margin: 2px 0 4px 0 !important;
+}
+
+/* 8. 网络选择：扁平无框分组、链接完整展示 */
+[data-dsh-liquid-glass] fieldset[class*='NxU6UG_addresses'],
+[data-dsh-liquid-glass] fieldset[class*='RemotePanel_addresses'] {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 !important;
+  margin: 8px 0 0 0 !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_addresses'] legend,
+[data-dsh-liquid-glass] [class*='RemotePanel_addresses'] legend {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: rgba(255, 255, 255, 0.80) !important;
+  padding: 0 !important;
+  margin-bottom: 4px !important;
+}
+
+[data-dsh-liquid-glass] label[class*='NxU6UG_address'],
+[data-dsh-liquid-glass] label[class*='RemotePanel_address'] {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 8px !important;
+  padding: 5px 8px !important;
+  margin-top: 2px !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  transition: all 120ms ease !important;
+  cursor: pointer !important;
+}
+
+[data-dsh-liquid-glass] label[class*='NxU6UG_address']:hover,
+[data-dsh-liquid-glass] label[class*='RemotePanel_address']:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_address'] input[type='radio'],
+[data-dsh-liquid-glass] [class*='RemotePanel_address'] input[type='radio'] {
+  accent-color: #38bdf8 !important;
+  width: 14px !important;
+  height: 14px !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  position: relative !important;
+  top: 2px !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_address'] span,
+[data-dsh-liquid-glass] [class*='RemotePanel_address'] span {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: rgba(255, 255, 255, 0.90) !important;
+  white-space: nowrap !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_addressValue'],
+[data-dsh-liquid-glass] [class*='RemotePanel_addressValue'] {
+  font-family: var(--dsw-font-mono, ui-monospace, monospace) !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  white-space: normal !important;
+  word-break: break-all !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  flex: 1 !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_addressHint'],
+[data-dsh-liquid-glass] [class*='RemotePanel_addressHint'] {
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.40) !important;
+  margin: 6px 0 0 0 !important;
+  line-height: 16px !important;
+}
+
+/* 8.1 上下文占用展开卡片 (ContextMeter) Layer 3 毛玻璃 */
+html[data-dsh-liquid-glass] [data-dsh-context-panel],
+html[data-dsh-liquid-glass] [class*='H57FiG_panel'],
+html[data-dsh-liquid-glass] [class*='ContextMeter_panel'],
+[data-dsh-liquid-glass] [data-dsh-context-panel],
+[data-dsh-liquid-glass] [class*='H57FiG_panel'],
+[data-dsh-liquid-glass] [class*='ContextMeter_panel'] {
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.75)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.20)) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--dsh-l1-shadow, 0 28px 72px rgba(0, 0, 0, 0.60)), inset 0 1.5px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.40)) !important;
+  color: var(--dsw-alias-label-primary) !important;
+  overflow: hidden !important;
+}
+
+html[data-dsh-liquid-glass] [data-dsh-context-panel] [class*='headline'],
+html[data-dsh-liquid-glass] [class*='H57FiG_panel'] [class*='headline'],
+html[data-dsh-liquid-glass] [class*='ContextMeter_panel'] [class*='headline'],
+[data-dsh-liquid-glass] [data-dsh-context-panel] [class*='headline'],
+[data-dsh-liquid-glass] [class*='H57FiG_panel'] [class*='headline'],
+[data-dsh-liquid-glass] [class*='ContextMeter_panel'] [class*='headline'] {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+html[data-dsh-liquid-glass] [data-dsh-context-panel] [class*='percent'],
+html[data-dsh-liquid-glass] [data-dsh-context-panel] [class*='figures'],
+html[data-dsh-liquid-glass] [class*='H57FiG_panel'] [class*='percent'],
+html[data-dsh-liquid-glass] [class*='H57FiG_panel'] [class*='figures'],
+html[data-dsh-liquid-glass] [class*='ContextMeter_panel'] [class*='percent'],
+html[data-dsh-liquid-glass] [class*='ContextMeter_panel'] [class*='figures'],
+[data-dsh-liquid-glass] [data-dsh-context-panel] [class*='percent'],
+[data-dsh-liquid-glass] [data-dsh-context-panel] [class*='figures'],
+[data-dsh-liquid-glass] [class*='H57FiG_panel'] [class*='percent'],
+[data-dsh-liquid-glass] [class*='H57FiG_panel'] [class*='figures'],
+[data-dsh-liquid-glass] [class*='ContextMeter_panel'] [class*='percent'],
+[data-dsh-liquid-glass] [class*='ContextMeter_panel'] [class*='figures'] {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+html[data-dsh-liquid-glass] [data-dsh-context-panel] [class*='bar'],
+html[data-dsh-liquid-glass] [class*='H57FiG_panel'] [class*='bar'],
+html[data-dsh-liquid-glass] [class*='ContextMeter_panel'] [class*='bar'],
+[data-dsh-liquid-glass] [data-dsh-context-panel] [class*='bar'],
+[data-dsh-liquid-glass] [class*='H57FiG_panel'] [class*='bar'],
+[data-dsh-liquid-glass] [class*='ContextMeter_panel'] [class*='bar'] {
+  background: rgba(255, 255, 255, 0.10) !important;
+}
+
+html[data-dsh-liquid-glass] [data-dsh-context-panel] [class*='row'] dt,
+html[data-dsh-liquid-glass] [class*='H57FiG_panel'] [class*='row'] dt,
+html[data-dsh-liquid-glass] [class*='ContextMeter_panel'] [class*='row'] dt,
+[data-dsh-liquid-glass] [data-dsh-context-panel] [class*='row'] dt,
+[data-dsh-liquid-glass] [class*='H57FiG_panel'] [class*='row'] dt,
+[data-dsh-liquid-glass] [class*='ContextMeter_panel'] [class*='row'] dt {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+html[data-dsh-liquid-glass] [data-dsh-context-panel] [class*='row'] dd,
+html[data-dsh-liquid-glass] [class*='H57FiG_panel'] [class*='row'] dd,
+html[data-dsh-liquid-glass] [class*='ContextMeter_panel'] [class*='row'] dd,
+[data-dsh-liquid-glass] [data-dsh-context-panel] [class*='row'] dd,
+[data-dsh-liquid-glass] [class*='H57FiG_panel'] [class*='row'] dd,
+[data-dsh-liquid-glass] [class*='ContextMeter_panel'] [class*='row'] dd {
+  color: #ffffff !important;
+}
+
+/* 9. 底部操作按钮栏：外层容器彻底透明无框，仅保留按钮本身交互 */
+[data-dsh-liquid-glass] [class*='NxU6UG_actions'],
+[data-dsh-liquid-glass] [class*='RemotePanel_actions'],
+html[data-dsh-liquid-glass] [class*='NxU6UG_actions'],
+html[data-dsh-liquid-glass] [class*='RemotePanel_actions'] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_action'],
+[data-dsh-liquid-glass] [class*='RemotePanel_action'],
+html[data-dsh-liquid-glass] [class*='NxU6UG_action'],
+html[data-dsh-liquid-glass] [class*='RemotePanel_action'] {
+  height: 34px !important;
+  padding: 0 14px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: all 140ms ease !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: #ffffff !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_action']:first-child,
+[data-dsh-liquid-glass] [class*='RemotePanel_action']:first-child,
+html[data-dsh-liquid-glass] [class*='NxU6UG_action']:first-child,
+html[data-dsh-liquid-glass] [class*='RemotePanel_action']:first-child {
+  margin-right: auto !important;
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid rgba(239, 68, 68, 0.28) !important;
+  color: #fca5a5 !important;
+  box-shadow: none !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_action']:first-child:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='RemotePanel_action']:first-child:hover:not(:disabled),
+html[data-dsh-liquid-glass] [class*='NxU6UG_action']:first-child:hover:not(:disabled),
+html[data-dsh-liquid-glass] [class*='RemotePanel_action']:first-child:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.25) !important;
+  border-color: rgba(239, 68, 68, 0.50) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_action']:not(:first-child):hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='RemotePanel_action']:not(:first-child):hover:not(:disabled),
+html[data-dsh-liquid-glass] [class*='NxU6UG_action']:not(:first-child):hover:not(:disabled),
+html[data-dsh-liquid-glass] [class*='RemotePanel_action']:not(:first-child):hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: none !important;
+}
+
+/* 10. 检查更新面板样式 */
+[data-dsh-liquid-glass] [class*='NxU6UG_updateActions'],
+[data-dsh-liquid-glass] [class*='RemotePanel_updateActions'] {
+  display: flex !important;
+  justify-content: flex-end !important;
+  margin-top: 14px !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_updateRetry'],
+[data-dsh-liquid-glass] [class*='RemotePanel_updateRetry'] {
+  height: 34px !important;
+  padding: 0 16px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.20), 0 2px 6px rgba(0, 0, 0, 0.20) !important;
+  color: #ffffff !important;
+  transition: all 140ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_updateRetry']:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 255, 255, 0.30) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 12px rgba(0, 0, 0, 0.30) !important;
+}
+
+[data-dsh-liquid-glass] [class*='NxU6UG_updateOutput'],
+[data-dsh-liquid-glass] [class*='RemotePanel_updateOutput'] {
+  background: rgba(0, 0, 0, 0.40) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 10px !important;
+  padding: 10px 12px !important;
+  font-family: var(--dsw-font-mono, ui-monospace, monospace) !important;
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.70) !important;
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+}
+
+
+/* Radix Popover 内容 (对话模式选择器等)：L3 层毛玻璃 */
+/* 特异性高于 [role=dialog] 规则，确保不被覆盖 */
+[data-dsh-liquid-glass][data-dsh-liquid-glass] [data-radix-popper-content-wrapper],
+[data-dsh-liquid-glass][data-dsh-liquid-glass] [id^='popover-content'],
+[data-dsh-liquid-glass][data-dsh-liquid-glass] [id^='popover-content'] > div {
+  background: var(--dsh-l1-bg, rgba(10, 16, 28, 0.70)) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
+}
+
+[data-dsh-liquid-glass] button[role='menuitem'],
+[data-dsh-liquid-glass] [role='option'],
+[data-dsh-liquid-glass] [class*='Menu_item'],
+[data-dsh-liquid-glass] [class*='CustomSelect_option'] {
+  border-radius: 9px !important;
+  padding: 8px 10px !important;
+  margin: 1px 0 !important;
+  font-size: 13px !important;
+  color: rgba(255, 255, 255, 0.90) !important;
+  background: transparent !important;
+  transition: all 120ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40) !important;
+}
+
+[data-dsh-liquid-glass] button[role='menuitem']:hover:not(:disabled),
+[data-dsh-liquid-glass] [role='option']:hover,
+[data-dsh-liquid-glass] [class*='Menu_item']:hover:not(:disabled),
+[data-dsh-liquid-glass] [class*='CustomSelect_option']:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(56, 189, 248, 0.10) 100%), rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  transform: translateX(2px) !important;
+}
+
+[data-dsh-liquid-glass] [class*='Menu_item'][class*='selected'],
+[data-dsh-liquid-glass] [role='option'][class*='selected'],
+[data-dsh-liquid-glass] [class*='CustomSelect_option'][class*='selected'] {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.28) 0%, rgba(99, 102, 241, 0.16) 100%), rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 2px 8px rgba(56, 189, 248, 0.20) !important;
+}
+
+[data-dsh-liquid-glass] [class*='Menu_check'],
+[data-dsh-liquid-glass] [class*='check'] {
+  color: #38bdf8 !important;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.6)) !important;
+}
+
+[data-dsh-liquid-glass] [class*='Menu_separator'],
+[data-dsh-liquid-glass] [role='separator'] {
+  background: rgba(255, 255, 255, 0.12) !important;
+  height: 1px !important;
+  margin: 4px 2px !important;
+}
+
+[data-dsh-liquid-glass] [class*='Menu_label'] {
+  color: rgba(255, 255, 255, 0.55) !important;
+  font-size: 11px !important;
+}
+
+/* ============================================================================
+ * Layer 2: 弹窗与选择对话框中的复选框
+ * ========================================================================== */
+[data-dsh-liquid-glass] input[type='checkbox'] {
+  accent-color: #38bdf8 !important;
+  cursor: pointer;
+  transform: scale(1.1);
+  transition: transform 120ms ease;
+}
+
+[data-dsh-liquid-glass] input[type='checkbox']:hover {
+  transform: scale(1.2);
+}
+
+/* 5. Layer 1: 消息气泡、卡片与交互抽屉全面规范 */
+[data-dsh-liquid-glass] [class*='MessageItem_bubble'],
+[data-dsh-liquid-glass] [class*='userStack'] [class*='bubble'],
+[data-dsh-liquid-glass] [class*='bubble'][class*='bubble'],
+[data-dsh-liquid-glass] [class*='MessageBubble_bubble'],
+[data-dsh-liquid-glass] [class*='bubble_content'] {
+  background: var(--dsh-l1-bg, rgba(10, 16, 28, 0.45)) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.20), 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+  border-radius: 20px !important;
+}
+
+/* Layer 1: 任务看板、SSH 终端、扩展抽屉、确认面板 */
+[data-dsh-liquid-glass] [class*='TaskBoard'],
+[data-dsh-liquid-glass] [class*='taskBoard'],
+[data-dsh-liquid-glass] [class*='SSH'],
+[data-dsh-liquid-glass] [class*='ssh'],
+[data-dsh-liquid-glass] [class*='aionui'],
+[data-dsh-liquid-glass] [class*='ApprovalPanel_root'],
+[data-dsh-liquid-glass] [class*='TodoPanel_root'],
+[data-dsh-liquid-glass] [class*='QueueDock_root'],
+[data-dsh-liquid-glass] [class*='StatsLine_root'],
+[data-dsh-liquid-glass] [class*='TurnTailNodeView_root'] {
+  background: var(--dsh-l1-bg, rgba(10, 16, 28, 0.45)) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.16)) !important;
+  border-radius: 16px !important;
+}
+
+/* Layer 1: 推理折叠栏与上下文注入行 */
+[data-dsh-liquid-glass] [class*='ReasoningRow_root'],
+[data-dsh-liquid-glass] [class*='ContextInjectionRow_root'] {
+  background: var(--dsh-l1-bg, rgba(10, 16, 28, 0.35)) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 18px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 18px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.12)) !important;
+  border-radius: 12px !important;
+}
+
+/* ============================================================================
+ * L3 模态层: 命令提示菜单与选项弹窗 (Slash Commands MenuView & PopupSelectView)
+ * ========================================================================== */
+[data-dsh-liquid-glass] div[role='listbox'],
+[data-dsh-liquid-glass] [class*='MenuView_menu'],
+[data-dsh-liquid-glass] [class*='PopupSelectView_card'],
+[data-dsh-liquid-glass] div[aria-label*='suggestions'],
+[data-dsh-liquid-glass] div[aria-label*='建议'],
+[data-dsh-liquid-glass] div[aria-label*='命令'],
+html[data-dsh-liquid-glass] [class*='MenuView_menu'],
+html[data-dsh-liquid-glass] [class*='PopupSelectView_card'] {
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.75)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--dsh-l1-shadow, 0 28px 72px rgba(0, 0, 0, 0.60)), inset 0 1.5px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.40)) !important;
+  padding: 6px !important;
+}
+
+[data-dsh-liquid-glass] [class*='MenuView_item'],
+[data-dsh-liquid-glass] [class*='PopupSelectView_row'],
+html[data-dsh-liquid-glass] [class*='MenuView_item'],
+html[data-dsh-liquid-glass] [class*='PopupSelectView_row'] {
+  border-radius: 10px !important;
+  transition: all 120ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-dsh-liquid-glass] [class*='MenuView_item']:hover,
+[data-dsh-liquid-glass] [class*='MenuView_item'][class*='active'],
+[data-dsh-liquid-glass] [class*='PopupSelectView_row']:hover,
+[data-dsh-liquid-glass] [class*='PopupSelectView_rowActive'],
+html[data-dsh-liquid-glass] [class*='MenuView_item']:hover,
+html[data-dsh-liquid-glass] [class*='MenuView_item'][class*='active'],
+html[data-dsh-liquid-glass] [class*='PopupSelectView_row']:hover,
+html[data-dsh-liquid-glass] [class*='PopupSelectView_rowActive'] {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(56, 189, 248, 0.10) 100%), rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+[data-dsh-liquid-glass] [class*='MenuView_groupTitle'] {
+  color: rgba(255, 255, 255, 0.50) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  padding: 6px 10px 4px 10px !important;
+}
+
+[data-dsh-liquid-glass] [class*='MenuView_itemName'],
+[data-dsh-liquid-glass] [class*='PopupSelectView_label'] {
+  font-weight: 600 !important;
+  color: #ffffff !important;
+}
+
+[data-dsh-liquid-glass] [class*='MenuView_itemDescription'],
+[data-dsh-liquid-glass] [class*='PopupSelectView_detail'] {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+[data-dsh-liquid-glass] [class*='PopupSelectView_search'] {
+  background: rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  padding: 6px 10px !important;
+}
