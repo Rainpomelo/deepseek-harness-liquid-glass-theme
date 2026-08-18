@@ -685,6 +685,130 @@ html[data-dsh-liquid-glass] [class*="rail"] [class*="searchButton"] {
   color: var(--dsw-alias-label-primary) !important;
   box-sizing: border-box !important;
 }
+
+/* ============================================================================
+ * 桌面端自带插件市场 (Community Market / Plugin Inventory) 字体与卡片高对比度适配
+ * ========================================================================== */
+html[data-dsh-liquid-glass] .dshMarketRoot,
+html[data-dsh-liquid-glass] .dshMarketOverlay,
+html[data-dsh-liquid-glass] .dshMarketOverlayPanel,
+html[data-dsh-liquid-glass] .dshMarketModal,
+html[data-dsh-liquid-glass] [class*="dshMarket"] {
+  color: #ffffff !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketOverlayPanel,
+html[data-dsh-liquid-glass] [class*="dshMarketOverlayPanel"] {
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.88)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.20)) !important;
+  box-shadow: var(--dsh-l1-shadow, 0 28px 72px rgba(0, 0, 0, 0.65)), inset 0 1.5px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.35)) !important;
+  border-radius: 24px !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketHeaderTitle,
+html[data-dsh-liquid-glass] [class*="dshMarketHeaderTitle"],
+html[data-dsh-liquid-glass] .dshMarketCardName,
+html[data-dsh-liquid-glass] [class*="dshMarketCardName"],
+html[data-dsh-liquid-glass] .dshMarketReceiptTitle h3,
+html[data-dsh-liquid-glass] [class*="dshMarketReceiptTitle"] h3,
+html[data-dsh-liquid-glass] [class*="dshMarket"] h1,
+html[data-dsh-liquid-glass] [class*="dshMarket"] h2,
+html[data-dsh-liquid-glass] [class*="dshMarket"] h3,
+html[data-dsh-liquid-glass] [class*="dshMarket"] h4,
+html[data-dsh-liquid-glass] [class*="dshMarketModal"] h2,
+html[data-dsh-liquid-glass] [class*="dshMarketModal"] h3 {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.50) !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketSummary,
+html[data-dsh-liquid-glass] [class*="dshMarketSummary"],
+html[data-dsh-liquid-glass] .dshMarketDetails p,
+html[data-dsh-liquid-glass] [class*="dshMarketDetails"] p,
+html[data-dsh-liquid-glass] [class*="dshMarket"] p {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketReceiptMeta,
+html[data-dsh-liquid-glass] [class*="dshMarketReceiptMeta"],
+html[data-dsh-liquid-glass] .dshMarketIndexMeta,
+html[data-dsh-liquid-glass] [class*="dshMarketIndexMeta"],
+html[data-dsh-liquid-glass] .dshMarketCurrentSource,
+html[data-dsh-liquid-glass] [class*="dshMarketCurrentSource"],
+html[data-dsh-liquid-glass] [class*="dshMarket"] span,
+html[data-dsh-liquid-glass] [class*="dshMarket"] label,
+html[data-dsh-liquid-glass] [class*="dshMarket"] dt {
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+html[data-dsh-liquid-glass] [class*="dshMarket"] dd {
+  color: #ffffff !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketCard,
+html[data-dsh-liquid-glass] [class*="dshMarketCard"],
+html[data-dsh-liquid-glass] .dshMarketReceipt,
+html[data-dsh-liquid-glass] [class*="dshMarketReceipt"],
+html[data-dsh-liquid-glass] .dshMarketSource,
+html[data-dsh-liquid-glass] [class*="dshMarketSource"],
+html[data-dsh-liquid-glass] .dshMarketModal,
+html[data-dsh-liquid-glass] [class*="dshMarketModal"] {
+  background: rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: 16px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketCard:hover,
+html[data-dsh-liquid-glass] [class*="dshMarketCard"]:hover,
+html[data-dsh-liquid-glass] .dshMarketReceipt:hover,
+html[data-dsh-liquid-glass] [class*="dshMarketReceipt"]:hover {
+  background: rgba(255, 255, 255, 0.10) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.40), 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+  transform: translateY(-2px) !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketSearch input,
+html[data-dsh-liquid-glass] [class*="dshMarketSearch"] input,
+html[data-dsh-liquid-glass] [class*="dshMarket"] input,
+html[data-dsh-liquid-glass] [class*="dshMarket"] select,
+html[data-dsh-liquid-glass] [class*="dshMarket"] textarea {
+  background: rgba(0, 0, 0, 0.40) !important;
+  border: 1px solid rgba(255, 255, 255, 0.20) !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketTags span,
+html[data-dsh-liquid-glass] [class*="dshMarketTags"] span,
+html[data-dsh-liquid-glass] [class*="dshMarketCategories"] button,
+html[data-dsh-liquid-glass] .dshMarketCategories button {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #38bdf8 !important;
+  border-radius: 999px !important;
+}
+
+html[data-dsh-liquid-glass] [class*="dshMarketCategories"] button[data-active="true"],
+html[data-dsh-liquid-glass] .dshMarketCategories button[data-active="true"] {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(56, 189, 248, 0.25) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.40) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketCommand code,
+html[data-dsh-liquid-glass] [class*="dshMarketCommand"] code {
+  background: rgba(0, 0, 0, 0.50) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #38bdf8 !important;
+}
 `
   }
 
