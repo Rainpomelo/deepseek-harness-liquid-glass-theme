@@ -175,24 +175,31 @@ export class LiquidGlassLayer {
     root.style.setProperty('--dsh-l3-mask-bg', `rgba(10, 16, 28, ${Math.max(0.001, l3Opacity)})`)
 
     // =========================================================================
-    // Layer 2 (二层悬浮液态透镜/控件: 下拉框, 数值微胶囊, 分段开关, 气泡卡片, 动作按钮)
+    // Layer 2 (二层悬浮液态透镜/控件: 工作区卡片, 气泡卡片, 输入框, 动作按钮)
     // =========================================================================
     // 1. 基底暗化 (darkening: 0.00 ~ 0.80)
     root.style.setProperty('--dsh-l2-darkening', `${this.settings.darkening}`)
-    root.style.setProperty('--dsh-l2-bg', this.settings.darkening > 0.01 ? `rgba(10, 16, 28, ${this.settings.darkening})` : 'transparent')
-    root.style.setProperty('--dsh-l2-glass-tint', 'transparent')
+    const darkeningVal = typeof this.settings.darkening === 'number' && !isNaN(this.settings.darkening) ? this.settings.darkening : 0.0
+    root.style.setProperty('--dsh-l2-bg', darkeningVal > 0.005 ? `rgba(10, 16, 28, ${darkeningVal})` : 'rgba(255, 255, 255, 0.03)')
+    root.style.setProperty('--dsh-l2-glass-tint', `linear-gradient(135deg, rgba(255, 255, 255, ${Math.min(0.28, 0.06 + (this.settings.rimIntensity || 0) * 0.18)}) 0%, rgba(255, 255, 255, 0.01) 100%)`)
 
     // 2. 透镜模糊 (lensBlur: 0 ~ 40px)
-    root.style.setProperty('--dsh-l2-blur', `${Math.max(0, this.settings.lensBlur)}px`)
+    const lensBlurVal = typeof this.settings.lensBlur === 'number' && !isNaN(this.settings.lensBlur) ? this.settings.lensBlur : 0
+    root.style.setProperty('--dsh-l2-blur', `${Math.max(0, lensBlurVal)}px`)
 
     // 3. 高光强度与倒角 (rimIntensity: 0.00 ~ 1.00)
-    root.style.setProperty('--dsh-l2-border', `rgba(255, 255, 255, ${Math.max(0.08, this.settings.rimIntensity * 0.45)})`)
-    root.style.setProperty('--dsh-l2-rim', `rgba(255, 255, 255, ${Math.max(0.15, this.settings.rimIntensity * 0.65)})`)
+    const rimIntensityVal = typeof this.settings.rimIntensity === 'number' && !isNaN(this.settings.rimIntensity) ? this.settings.rimIntensity : 0.20
+    const borderAlpha = Math.max(0.06, rimIntensityVal * 0.45)
+    root.style.setProperty('--dsh-l2-border', `rgba(255, 255, 255, ${borderAlpha})`)
+    root.style.setProperty('--dsh-l2-rim', `rgba(255, 255, 255, ${Math.min(1.0, borderAlpha * 2.0)})`)
 
     // 4. 阴影投射 (dropShadowOpacity, dropShadowBlur, dropShadowY)
+    const shadowOpacity = typeof this.settings.dropShadowOpacity === 'number' && !isNaN(this.settings.dropShadowOpacity) ? this.settings.dropShadowOpacity : 0.15
+    const shadowBlur = typeof this.settings.dropShadowBlur === 'number' && !isNaN(this.settings.dropShadowBlur) ? this.settings.dropShadowBlur : 16
+    const shadowY = typeof this.settings.dropShadowY === 'number' && !isNaN(this.settings.dropShadowY) ? this.settings.dropShadowY : 4
     root.style.setProperty(
       '--dsh-l2-shadow',
-      `inset 0 1px 0 rgba(255, 255, 255, ${Math.max(0.15, this.settings.rimIntensity * 0.50)}), 0 ${this.settings.dropShadowY * 0.3}px ${this.settings.dropShadowBlur * 0.4}px rgba(0, 0, 0, ${this.settings.dropShadowOpacity})`
+      `inset 0 1px 0 rgba(255, 255, 255, ${Math.max(0.10, rimIntensityVal * 0.40)}), 0 ${shadowY * 0.35}px ${shadowBlur * 0.45}px rgba(0, 0, 0, ${shadowOpacity})`
     )
   }
 
