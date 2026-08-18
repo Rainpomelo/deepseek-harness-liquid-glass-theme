@@ -148,11 +148,13 @@ const FS_SRC = `
 
   // 16-Tap 真实高斯雾面毛玻璃模糊函数 (Gaussian Frosted Matte Blur)
   vec3 sampleGaussianFrosted(vec2 baseUv, float blurPx, vec2 fragCoord) {
-    float effectiveBlur = max(blurPx, 24.0);
-    vec2 step = vec2((effectiveBlur * 8.5) / u_resolution.x, (effectiveBlur * 8.5) / u_resolution.y);
+    if (blurPx <= 0.2) {
+      return texture2D(u_texture, vec2(baseUv.x, 1.0 - baseUv.y)).rgb;
+    }
+    vec2 step = vec2((blurPx * 3.5) / u_resolution.x, (blurPx * 3.5) / u_resolution.y);
     
     // 微表面毛玻璃微观漫散射微扰 (Micro-Roughness Diffusion)
-    vec2 noise = hash22(fragCoord * 0.8) * step * 1.5;
+    vec2 noise = hash22(fragCoord * 0.8) * step * 0.50;
     vec2 centerUv = baseUv + noise;
 
     vec3 acc = vec3(0.0);
@@ -192,11 +194,15 @@ const FS_SRC = `
   vec3 getBaseColor(vec2 uvSample, vec2 fragPxSample, int isOverModal) {
     if (isOverModal == 1) {
       vec3 modalFrosted = sampleGaussianFrosted(uvSample, u_l1_blur, fragPxSample);
-      modalFrosted = mix(modalFrosted, vec3(0.05, 0.08, 0.15), clamp(max(u_l1_opacity, 0.35), 0.0, 0.95));
+      if (u_l1_opacity > 0.001) {
+        modalFrosted = mix(modalFrosted, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
+      }
       return modalFrosted;
     } else if (u_sidebar_width_px > 10.0 && fragPxSample.x <= u_sidebar_width_px) {
       vec3 sidebarFrosted = sampleGaussianFrosted(uvSample, u_l1_blur, fragPxSample);
-      sidebarFrosted = mix(sidebarFrosted, vec3(0.05, 0.08, 0.15), clamp(max(u_l1_opacity, 0.35), 0.0, 0.95));
+      if (u_l1_opacity > 0.001) {
+        sidebarFrosted = mix(sidebarFrosted, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
+      }
       return sidebarFrosted;
     } else {
       return texture2D(u_texture, vec2(uvSample.x, 1.0 - uvSample.y)).rgb;
@@ -408,11 +414,13 @@ const FS_SRC = `
 
       if (u_sidebar_width_px > 10.0 && fragPx.x <= u_sidebar_width_px) {
         vec3 sidebarBg = sampleGaussianFrosted(finalBgUv, u_l1_blur, fragPx);
-        sidebarBg = mix(sidebarBg, vec3(0.05, 0.08, 0.15), clamp(max(u_l1_opacity, 0.35), 0.0, 0.95));
+        if (u_l1_opacity > 0.001) {
+          sidebarBg = mix(sidebarBg, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
+        }
         if (u_l1_border > 0.001) {
           float distToEdge = abs(fragPx.x - u_sidebar_width_px);
-          if (distToEdge <= 2.5) {
-            float glint = smoothstep(2.5, 0.0, distToEdge) * u_l1_border;
+          if (distToEdge <= 2.0) {
+            float glint = smoothstep(2.0, 0.0, distToEdge) * u_l1_border;
             sidebarBg = mix(sidebarBg, vec3(0.92, 0.96, 1.0), glint);
           }
         }

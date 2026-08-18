@@ -156,20 +156,12 @@ export class LiquidGlassLayer {
     // =========================================================================
     // Layer 1 (一层基底雾面玻璃: 侧边栏, 消息气泡, 胶囊按钮)
     // =========================================================================
-    const l1BlurVal = typeof this.settings.l1Blur === 'number' && !isNaN(this.settings.l1Blur) ? this.settings.l1Blur : 24
-    const l1OpacityVal = typeof this.settings.l1Opacity === 'number' && !isNaN(this.settings.l1Opacity) ? this.settings.l1Opacity : 0.35
-    const l1BorderVal = typeof this.settings.l1Border === 'number' && !isNaN(this.settings.l1Border) ? this.settings.l1Border : 0.16
-
-    const effectiveL1Blur = Math.max(16, l1BlurVal)
-    const effectiveL1Opacity = Math.max(0.20, l1OpacityVal)
-    const effectiveL1Border = Math.max(0.12, l1BorderVal)
-
-    root.style.setProperty('--dsh-l1-blur', `${effectiveL1Blur}px`)
-    root.style.setProperty('--dsh-l1-opacity', `${effectiveL1Opacity}`)
-    root.style.setProperty('--dsh-l1-bg', `rgba(10, 16, 28, ${effectiveL1Opacity})`)
-    root.style.setProperty('--dsh-l1-border', `rgba(255, 255, 255, ${effectiveL1Border})`)
-    root.style.setProperty('--dsh-l1-border-raw', `${effectiveL1Border}`)
-    root.style.setProperty('--dsh-l1-rim', `rgba(255, 255, 255, ${Math.min(1.0, effectiveL1Border * 1.6)})`)
+    root.style.setProperty('--dsh-l1-blur', `${this.settings.l1Blur}px`)
+    root.style.setProperty('--dsh-l1-opacity', `${this.settings.l1Opacity}`)
+    root.style.setProperty('--dsh-l1-bg', `rgba(10, 16, 28, ${Math.max(0.001, this.settings.l1Opacity)})`)
+    root.style.setProperty('--dsh-l1-border', this.settings.l1Border > 0.001 ? `rgba(255, 255, 255, ${this.settings.l1Border})` : 'transparent')
+    root.style.setProperty('--dsh-l1-border-raw', `${this.settings.l1Border}`)
+    root.style.setProperty('--dsh-l1-rim', this.settings.l1Border > 0.001 ? `rgba(255, 255, 255, ${Math.min(1.0, this.settings.l1Border * 1.6)})` : 'transparent')
     root.style.setProperty('--dsh-l1-shadow', '0 20px 48px rgba(0, 0, 0, 0.50)')
 
     // =========================================================================
