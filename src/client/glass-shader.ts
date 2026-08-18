@@ -880,12 +880,12 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
       gl!.uniform1f(uL1Opacity, opts.l1Opacity)
       gl!.uniform1f(uL1Border, opts.l1Border)
 
-      // 2. 探测所有 Layer 2 液态透镜 (底层对话框、主输入框、侧边栏常驻，完整参与上层弹窗背景渲染)
+      // 2. 探测所有 Layer 2 液态透镜 (主输入框、会话卡片、工作区气泡框，完整参与物理折射渲染)
       const isAnimatingModal = hasModal === 1 && (currentModalProgress < 0.999 || modalCloseStartTime > 0)
       if (hasModal !== lastModalState || (!isAnimatingModal && lensScanFrameCounter % 15 === 0)) {
         lastModalState = hasModal
         cachedLensElements = Array.from(document.querySelectorAll<HTMLElement>(
-          '[data-composer-card], [class*="InputTrigger"], [class*="ChatInput"], [data-dsh-inputbar] > div, button[class*="newSession"], [class*="SidebarRoot_groupSection"], [class*="sidebarCol"] [class*="groupSection"]'
+          '[data-composer-card], [class*="InputTrigger"], [class*="ChatInput"], [data-dsh-inputbar] > div, [data-conversation-composer], [class*="composerCard"], button[class*="newSession"], [class*="groupSection"], [class*="SidebarRoot_groupSection"], [class*="WorkspaceList_groupSection"], [data-dsh-surface]'
         ))
       }
 
@@ -898,8 +898,8 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
         const el = cachedLensElements[i]
         if (!el || (el.offsetWidth === 0 && el.offsetHeight === 0)) continue
 
-        // 绝不将模态弹窗、设置面板或任何对话框内部子项作为 WebGL 液态透镜渲染，彻底杜绝弹窗退出后的折射气泡残影与闪动
-        if (el.closest('[role="dialog"], [class*="SettingsRoot"], [class*="Modal"], [data-dsh-modal-overlay], [class*="RemotePanel"], [class*="NxU6UG"], [class*="Plugin"], [class*="plugin"], [class*="Marketplace"], [class*="marketplace"], [class*="Skill"], [class*="skill"]') !== null) {
+        // 绝不将模态弹窗内部子项作为 WebGL 液态透镜渲染
+        if (el.closest('[role="dialog"], [class*="SettingsRoot_panel"], [class*="Modal_panel"], [class*="dshMarketOverlay"], [class*="RemotePanel_panel"]') !== null) {
           continue
         }
 
