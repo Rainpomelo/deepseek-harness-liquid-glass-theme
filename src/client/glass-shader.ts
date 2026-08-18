@@ -872,12 +872,12 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
       gl!.uniform1f(uL1Opacity, opts.l1Opacity)
       gl!.uniform1f(uL1Border, opts.l1Border)
 
-      // 2. 探测所有 Layer 2 液态透镜 (主输入框、会话卡片、工作区气泡框，完整参与物理折射渲染)
+      // 2. 探测所有 Layer 2 液态透镜 (主输入框、新会话胶囊按钮等离散浮层，不包含展开的列表容器)
       const isAnimatingModal = hasModal === 1 && (currentModalProgress < 0.999 || modalCloseStartTime > 0)
       if (hasModal !== lastModalState || (!isAnimatingModal && lensScanFrameCounter % 15 === 0)) {
         lastModalState = hasModal
         cachedLensElements = Array.from(document.querySelectorAll<HTMLElement>(
-          '[data-composer-card], [class*="InputTrigger"], [class*="ChatInput"], [data-dsh-inputbar] > div, [data-conversation-composer], [class*="composerCard"], button[class*="newSession"], [class*="groupSection"], [class*="SidebarRoot_groupSection"], [class*="WorkspaceList_groupSection"], [data-dsh-surface]'
+          '[data-composer-card], [class*="InputTrigger_box"], [class*="ChatInput_container"], [data-dsh-inputbar] > div, [data-conversation-composer], [class*="composerCard"], button[class*="newSession"], [data-dsh-surface]'
         ))
       }
 
@@ -901,7 +901,6 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
         const classStr = typeof el.className === 'string' ? el.className : (typeof (el.className as any)?.baseVal === 'string' ? (el.className as any).baseVal : '')
         const isInsideModal = hasModal === 1 && modalEl !== null && (modalEl === el || modalEl.contains(el))
         const isInsideSidebar = sidebarEl !== null && sidebarEl.contains(el)
-        const isWorkspaceCard = classStr.includes('groupSection')
         const isNewSessionBtn = classStr.includes('newSession')
 
         // 绝不将浮动菜单、下拉弹窗或其内部子项作为 Layer 2 液态透镜渲染，避免透镜变形拉伸
@@ -915,14 +914,12 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
 
         if (isInsideSidebar && !isInsideModal) {
           if (isSidebarCollapsed || isSidebarFading) {
-            if (isWorkspaceCard) continue
+            continue
           }
 
           const maxRight = sidebarRight - 4
           if (rect.left >= maxRight) continue
           const effectiveW = Math.min(rect.right, maxRight) - rect.left
-
-          if (isWorkspaceCard && effectiveW < 130) continue
           if (isNewSessionBtn && effectiveW < 32) continue
         }
 
