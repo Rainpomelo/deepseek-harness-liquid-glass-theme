@@ -689,33 +689,46 @@ html[data-dsh-liquid-glass] [class*="rail"] [class*="searchButton"] {
 /* ============================================================================
  * 桌面端自带插件市场 (Community Market / Plugin Inventory) 字体与卡片高对比度适配
  * ========================================================================== */
-html[data-dsh-liquid-glass] .dshMarketRoot,
-html[data-dsh-liquid-glass] .dshMarketOverlay,
-html[data-dsh-liquid-glass] .dshMarketOverlayPanel,
-html[data-dsh-liquid-glass] .dshMarketModal,
-html[data-dsh-liquid-glass] [class*="dshMarket"] {
-  color: #ffffff !important;
-  filter: none !important;
-  -webkit-filter: none !important;
-  pointer-events: auto !important;
-}
+/* ============================================================================
+ * 桌面端自带插件市场 (Community Market) 高品质深色毛玻璃与文本完全防穿透
+ * ========================================================================== */
 
+/* 1. 全局遮罩层 (深色暗化 + 硬件级模糊，压暗壁纸让弹窗凸显) */
 html[data-dsh-liquid-glass] .dshMarketOverlayMask,
 html[data-dsh-liquid-glass] [class*="dshMarketOverlayMask"] {
-  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.55)) !important;
-  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
-  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgba(4, 8, 16, 0.70) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  z-index: 0 !important;
 }
 
+/* 2. 插件市场主面板 (实体深色高质感 VisionOS 玻璃，绝不透底壁纸杂光) */
 html[data-dsh-liquid-glass] .dshMarketOverlayPanel,
-html[data-dsh-liquid-glass] [class*="dshMarketOverlayPanel"] {
-  background: var(--dsh-l3-mask-bg, rgba(15, 23, 42, 0.92)) !important;
-  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
-  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
-  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.22)) !important;
-  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.70), inset 0 1.5px 1px rgba(255, 255, 255, 0.35) !important;
+html[data-dsh-liquid-glass] [class*="dshMarketOverlayPanel"],
+html[data-dsh-liquid-glass] .dshMarketModal,
+html[data-dsh-liquid-glass] [class*="dshMarketModal"] {
+  position: relative !important;
+  z-index: 1 !important;
+  background: rgba(13, 18, 30, 0.94) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255, 255, 255, 0.30) !important;
   border-radius: 24px !important;
+  color: #ffffff !important;
   overflow: hidden !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* 3. 面板头部与主体 */
+html[data-dsh-liquid-glass] .dshMarketOverlayHeader,
+html[data-dsh-liquid-glass] [class*="dshMarketOverlayHeader"] {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10) !important;
+  padding: 18px 24px 14px !important;
 }
 
 html[data-dsh-liquid-glass] .dshMarketOverlayBody,
@@ -728,6 +741,7 @@ html[data-dsh-liquid-glass] [class*="dshMarketContent"] {
   color: #ffffff !important;
 }
 
+/* 4. 标题与文字层次 (高对比度纯白与浅色) */
 html[data-dsh-liquid-glass] .dshMarketHeaderTitle,
 html[data-dsh-liquid-glass] [class*="dshMarketHeaderTitle"],
 html[data-dsh-liquid-glass] .dshMarketCardName,
@@ -737,12 +751,10 @@ html[data-dsh-liquid-glass] [class*="dshMarketReceiptTitle"] h3,
 html[data-dsh-liquid-glass] [class*="dshMarket"] h1,
 html[data-dsh-liquid-glass] [class*="dshMarket"] h2,
 html[data-dsh-liquid-glass] [class*="dshMarket"] h3,
-html[data-dsh-liquid-glass] [class*="dshMarket"] h4,
-html[data-dsh-liquid-glass] [class*="dshMarketModal"] h2,
-html[data-dsh-liquid-glass] [class*="dshMarketModal"] h3 {
+html[data-dsh-liquid-glass] [class*="dshMarket"] h4 {
   color: #ffffff !important;
   font-weight: 600 !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.50) !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.60) !important;
 }
 
 html[data-dsh-liquid-glass] .dshMarketSummary,
@@ -750,7 +762,8 @@ html[data-dsh-liquid-glass] [class*="dshMarketSummary"],
 html[data-dsh-liquid-glass] .dshMarketDetails p,
 html[data-dsh-liquid-glass] [class*="dshMarketDetails"] p,
 html[data-dsh-liquid-glass] [class*="dshMarket"] p {
-  color: rgba(255, 255, 255, 0.88) !important;
+  color: #cbd5e1 !important;
+  line-height: 1.55 !important;
 }
 
 html[data-dsh-liquid-glass] .dshMarketReceiptMeta,
@@ -762,66 +775,118 @@ html[data-dsh-liquid-glass] [class*="dshMarketCurrentSource"],
 html[data-dsh-liquid-glass] [class*="dshMarket"] span,
 html[data-dsh-liquid-glass] [class*="dshMarket"] label,
 html[data-dsh-liquid-glass] [class*="dshMarket"] dt {
-  color: rgba(255, 255, 255, 0.72) !important;
+  color: #94a3b8 !important;
 }
 
 html[data-dsh-liquid-glass] [class*="dshMarket"] dd {
   color: #ffffff !important;
+  font-weight: 600 !important;
 }
 
+/* 5. 插件卡片 (实体深色毛玻璃卡片，保证卡片内部文字无论在任何壁纸下都清晰突出) */
 html[data-dsh-liquid-glass] .dshMarketCard,
 html[data-dsh-liquid-glass] [class*="dshMarketCard"],
 html[data-dsh-liquid-glass] .dshMarketReceipt,
 html[data-dsh-liquid-glass] [class*="dshMarketReceipt"],
 html[data-dsh-liquid-glass] .dshMarketSource,
-html[data-dsh-liquid-glass] [class*="dshMarketSource"],
-html[data-dsh-liquid-glass] .dshMarketModal,
-html[data-dsh-liquid-glass] [class*="dshMarketModal"] {
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+html[data-dsh-liquid-glass] [class*="dshMarketSource"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 16px !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.20), 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  padding: 16px !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 html[data-dsh-liquid-glass] .dshMarketCard:hover,
 html[data-dsh-liquid-glass] [class*="dshMarketCard"]:hover,
 html[data-dsh-liquid-glass] .dshMarketReceipt:hover,
 html[data-dsh-liquid-glass] [class*="dshMarketReceipt"]:hover {
-  background: rgba(255, 255, 255, 0.10) !important;
-  border-color: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.40), 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+  background: rgba(255, 255, 255, 0.09) !important;
+  border-color: rgba(255, 255, 255, 0.30) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 28px rgba(0, 0, 0, 0.50) !important;
   transform: translateY(-2px) !important;
 }
 
+/* 6. 搜索框与输入控件 */
 html[data-dsh-liquid-glass] .dshMarketSearch input,
 html[data-dsh-liquid-glass] [class*="dshMarketSearch"] input,
 html[data-dsh-liquid-glass] [class*="dshMarket"] input,
 html[data-dsh-liquid-glass] [class*="dshMarket"] select,
 html[data-dsh-liquid-glass] [class*="dshMarket"] textarea {
-  background: rgba(0, 0, 0, 0.40) !important;
-  border: 1px solid rgba(255, 255, 255, 0.20) !important;
-  border-radius: 10px !important;
+  background: rgba(0, 0, 0, 0.50) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-radius: 12px !important;
   color: #ffffff !important;
+  padding: 8px 14px !important;
+  font-size: 13px !important;
 }
 
+html[data-dsh-liquid-glass] .dshMarketSearch input::placeholder,
+html[data-dsh-liquid-glass] [class*="dshMarketSearch"] input::placeholder {
+  color: rgba(255, 255, 255, 0.50) !important;
+}
+
+/* 7. 标签胶囊与分类按钮 */
 html[data-dsh-liquid-glass] .dshMarketTags span,
-html[data-dsh-liquid-glass] [class*="dshMarketTags"] span,
+html[data-dsh-liquid-glass] [class*="dshMarketTags"] span {
+  background: rgba(56, 189, 248, 0.15) !important;
+  border: 1px solid rgba(56, 189, 248, 0.30) !important;
+  color: #38bdf8 !important;
+  border-radius: 999px !important;
+  padding: 2px 8px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
 html[data-dsh-liquid-glass] [class*="dshMarketCategories"] button,
 html[data-dsh-liquid-glass] .dshMarketCategories button {
   background: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  color: #38bdf8 !important;
+  color: #cbd5e1 !important;
   border-radius: 999px !important;
+  padding: 4px 12px !important;
+  font-size: 12px !important;
+  transition: all 0.14s ease !important;
+}
+
+html[data-dsh-liquid-glass] [class*="dshMarketCategories"] button:hover,
+html[data-dsh-liquid-glass] .dshMarketCategories button:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
 }
 
 html[data-dsh-liquid-glass] [class*="dshMarketCategories"] button[data-active="true"],
 html[data-dsh-liquid-glass] .dshMarketCategories button[data-active="true"] {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(56, 189, 248, 0.25) 100%) !important;
-  border-color: rgba(255, 255, 255, 0.40) !important;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.35) 0%, rgba(37, 99, 235, 0.35) 100%) !important;
+  border-color: rgba(56, 189, 248, 0.60) !important;
   color: #ffffff !important;
   font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.30) !important;
+}
+
+/* 8. 选项卡切换器 (浏览/已安装/源管理) */
+html[data-dsh-liquid-glass] .dshMarketViewSwitch,
+html[data-dsh-liquid-glass] [class*="dshMarketViewSwitch"] {
+  background: rgba(0, 0, 0, 0.40) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 12px !important;
+  padding: 3px !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketViewSwitch button,
+html[data-dsh-liquid-glass] [class*="dshMarketViewSwitch"] button {
+  color: #94a3b8 !important;
+  border-radius: 9px !important;
+  transition: all 0.14s ease !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketViewSwitch button[data-active="true"],
+html[data-dsh-liquid-glass] [class*="dshMarketViewSwitch"] button[data-active="true"] {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.30) !important;
 }
 
 html[data-dsh-liquid-glass] .dshMarketCommand code,
