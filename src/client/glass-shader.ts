@@ -880,12 +880,12 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
       gl!.uniform1f(uL1Opacity, opts.l1Opacity)
       gl!.uniform1f(uL1Border, opts.l1Border)
 
-      // 2. 探测所有 Layer 2 液态透镜 (主输入框、新会话胶囊、工作区文件夹栏、选中会话等物理透镜)
+      // 2. 探测所有 Layer 2 液态透镜 (主输入框、新会话胶囊、工作区底板等物理透镜)
       const isAnimatingModal = hasModal === 1 && (currentModalProgress < 0.999 || modalCloseStartTime > 0)
       if (hasModal !== lastModalState || (!isAnimatingModal && lensScanFrameCounter % 15 === 0)) {
         lastModalState = hasModal
         cachedLensElements = Array.from(document.querySelectorAll<HTMLElement>(
-          '[data-composer-card], [class*="InputTrigger_box"], [class*="ChatInput_container"], [data-dsh-inputbar] > div, [data-conversation-composer], [class*="composerCard"], button[class*="newSession"], [class*="projectRow"], [class*="sessionRow"][class*="selected"], [data-dsh-surface]'
+          '[data-composer-card], [class*="InputTrigger_box"], [class*="ChatInput_container"], [data-dsh-inputbar] > div, [data-conversation-composer], [class*="composerCard"], button[class*="newSession"], [class*="groupSection"], [data-dsh-surface]'
         ))
       }
 
