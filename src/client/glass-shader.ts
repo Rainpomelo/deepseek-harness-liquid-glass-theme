@@ -787,16 +787,16 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
       }
       gl!.uniform1f(uSidebarWidthPx, sidebarWidthPx)
 
-      // 1.1 探测 Layer 3 (模态弹窗/设置面板/手机连接/气泡菜单/上下文弹窗)
+      // 1.1 探测 Layer 3 (仅在真实模态弹窗/设置面板打开时激活)
       const candidates = document.querySelectorAll<HTMLElement>(
-        '[data-dsh-settings-modal], [data-dsh-modal-panel], [data-dsh-context-panel], [class*="SettingsRoot_panel"], [class*="RemotePanel_panel"], [class*="NxU6UG_panel"], [class*="H57FiG_panel"], [class*="ContextMeter_panel"], div[role="dialog"][aria-label*="移动端"], div[role="dialog"][aria-label*="远程控制"], [role="dialog"][aria-modal="true"], [class*="Modal_dialog"], [class*="Modal_panel"], [role="menu"], [class*="Menu_list"], [class*="Menu_portal"]'
+        '[data-dsh-settings-modal], [data-dsh-modal-panel], [class*="dshMarketOverlayPanel"], [class*="SettingsRoot_panel"], [class*="Modal_dialog"]'
       )
       let modalEl: HTMLElement | null = null
       let maxArea = 0
       for (let i = 0; i < candidates.length; i++) {
         const el = candidates[i]
         const rect = el.getBoundingClientRect()
-        if (rect.width > 20 && rect.height > 20 && rect.bottom > 0 && rect.top < screenH) {
+        if (rect.width > 100 && rect.height > 100 && rect.bottom > 0 && rect.top < screenH) {
           const area = rect.width * rect.height
           if (el.hasAttribute('data-dsh-settings-modal') || el.hasAttribute('data-dsh-modal-panel') || area > maxArea) {
             maxArea = area
@@ -806,7 +806,7 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
         }
       }
 
-      const isModalOpenAttr = document.documentElement.hasAttribute('data-dsh-modal-open') || document.documentElement.hasAttribute('data-dsh-settings-open')
+      const isModalOpenAttr = (document.documentElement.getAttribute('data-dsh-modal-open') === 'true' || document.documentElement.getAttribute('data-dsh-settings-open') === 'true') && modalEl !== null
 
       let hasModal = isModalOpenAttr ? 1 : 0
       let modalCenterX = 0
