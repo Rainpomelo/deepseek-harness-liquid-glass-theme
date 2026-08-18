@@ -6,14 +6,19 @@
 
 ## 效果预览
 
-### 1. 主界面液态透镜（Layer 2 物理折射与动态壁纸）
-![主界面液态透镜效果](docs/images/chat_liquid_lens_preview.png)
+### 1. 桌面主体效果 (Layer 2 液态透镜折射与动态底板)
+![桌面主体展示](docs/images/desktop_main_preview.png)
 
-### 2. 实时光学参数控制面板（Layer 0 ~ Layer 3 全参数调节）
-![控制面板效果](docs/images/settings_controls_preview.png)
+### 2. 桌面弹窗效果 (Layer 3 全景虚化与毛玻璃)
+![桌面弹窗展示](docs/images/desktop_modal_preview.png)
 
-### 3. 内置推荐 4K 壁纸库与视频壁纸管理
-![壁纸库效果](docs/images/wallpaper_gallery_preview.png)
+### 3. 设置面板与光学参数控制
+![设置内展示](docs/images/settings_preview.png)
+
+### 4. 动态壁纸与交互演示 (Video Demo)
+[▶ 点击播放动态壁纸演示视频 (MP4)](docs/images/live_wallpaper_demo.mp4)
+
+<video src="docs/images/live_wallpaper_demo.mp4" controls width="100%"></video>
 
 ---
 
