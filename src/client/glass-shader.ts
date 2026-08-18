@@ -903,6 +903,11 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
           continue
         }
 
+        // 绝不将工作区底板内部子项（如工作区内的内嵌新会话按钮、文件夹条等）叠加为二次透镜
+        if (!el.matches('[class*="groupSection"]') && el.closest('[class*="groupSection"]') !== null) {
+          continue
+        }
+
         const rect = el.getBoundingClientRect()
         if (rect.width < 14 || rect.height < 14 || rect.bottom <= 0 || rect.top >= screenH) continue
 

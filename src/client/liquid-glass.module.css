@@ -86,10 +86,10 @@
 /* ============================================================================
  * Layer 2: 侧边栏 2层 泡泡卡片 (新会话、工作区泡泡框由 WebGL 物理液态玻璃直接渲染)
  * ========================================================================== */
-/* 1. 新建会话 (Layer 2 物理透镜驱动) */
+/* 1. 顶部独立新建会话 (Layer 2 物理透镜驱动) */
 [data-dsh-liquid-glass] [data-dsh-surface],
-[data-dsh-liquid-glass] button[class*='newSession'],
-[data-dsh-liquid-glass] [class*='projectRow'] {
+[data-dsh-liquid-glass] [class*='SidebarRoot'] > div:first-child button[class*='newSession'],
+[data-dsh-liquid-glass] [class*='sidebarCol'] > div:first-child button[class*='newSession'] {
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -99,10 +99,22 @@
   transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), border-color 160ms ease !important;
 }
 
-[data-dsh-liquid-glass] button[class*='newSession']:hover,
-[data-dsh-liquid-glass] [class*='projectRow']:hover {
+[data-dsh-liquid-glass] [class*='SidebarRoot'] > div:first-child button[class*='newSession']:hover,
+[data-dsh-liquid-glass] [class*='sidebarCol'] > div:first-child button[class*='newSession']:hover {
   border-color: var(--dsh-l2-rim, rgba(255, 255, 255, 0.32)) !important;
   transform: translateY(-1px);
+}
+
+/* 工作区底板内部子项：保持平整，绝不叠加透镜变形与额外厚边框 */
+[data-dsh-liquid-glass] [class*='groupSection'] button[class*='newSession'],
+[data-dsh-liquid-glass] [class*='groupSection'] [class*='newSession'],
+[data-dsh-liquid-glass] [class*='groupSection'] [class*='projectRow'] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 /* 2. 侧边栏一级入口 (任务看板、SSH、插件中心等) */
