@@ -243,25 +243,22 @@ export class LiquidGlassLayer {
 
   private applyPopoverBlur(): void {
     const hasModal = document.querySelector<HTMLElement>(
-      '[role="dialog"], [aria-modal="true"], [data-dsh-settings-modal], [data-dsh-modal-panel], [class*="SettingsRoot_panel"], [class*="RemotePanel_panel"], [class*="NxU6UG_panel"], [class*="Modal_dialog"], [class*="Modal_panel"], [class*="Dialog_content"], [class*="Modal"]'
+      '[role="dialog"], [aria-modal="true"], [data-dsh-settings-modal], [data-dsh-modal-panel], [class*="SettingsRoot_panel"], [class*="RemotePanel_panel"], [class*="NxU6UG_panel"], [class*="Modal_dialog"], [class*="Modal_panel"], [class*="Dialog_content"], [class*="Modal"], [class*="dshMarketOverlay"]'
     ) !== null
-
-    const root = document.getElementById('root')
 
     if (hasModal) {
       if (!document.documentElement.hasAttribute('data-dsh-modal-open')) {
         document.documentElement.setAttribute('data-dsh-modal-open', 'true')
       }
-      if (root && root.style.filter !== `blur(${this.settings.modalBlur}px)`) {
-        root.style.filter = `blur(${this.settings.modalBlur}px)`
-      }
     } else {
       if (document.documentElement.hasAttribute('data-dsh-modal-open')) {
         document.documentElement.removeAttribute('data-dsh-modal-open')
       }
-      if (root && root.style.filter) {
-        root.style.removeProperty('filter')
-      }
+    }
+
+    const root = document.getElementById('root')
+    if (root && root.style.filter) {
+      root.style.removeProperty('filter')
     }
 
     for (const el of document.querySelectorAll<HTMLElement>(

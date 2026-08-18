@@ -695,16 +695,37 @@ html[data-dsh-liquid-glass] .dshMarketOverlayPanel,
 html[data-dsh-liquid-glass] .dshMarketModal,
 html[data-dsh-liquid-glass] [class*="dshMarket"] {
   color: #ffffff !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  pointer-events: auto !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketOverlayMask,
+html[data-dsh-liquid-glass] [class*="dshMarketOverlayMask"] {
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.55)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
 }
 
 html[data-dsh-liquid-glass] .dshMarketOverlayPanel,
 html[data-dsh-liquid-glass] [class*="dshMarketOverlayPanel"] {
-  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.88)) !important;
+  background: var(--dsh-l3-mask-bg, rgba(15, 23, 42, 0.92)) !important;
   backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
   -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
-  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.20)) !important;
-  box-shadow: var(--dsh-l1-shadow, 0 28px 72px rgba(0, 0, 0, 0.65)), inset 0 1.5px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.35)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.22)) !important;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.70), inset 0 1.5px 1px rgba(255, 255, 255, 0.35) !important;
   border-radius: 24px !important;
+  overflow: hidden !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketOverlayBody,
+html[data-dsh-liquid-glass] [class*="dshMarketOverlayBody"],
+html[data-dsh-liquid-glass] .dshMarketMain,
+html[data-dsh-liquid-glass] [class*="dshMarketMain"],
+html[data-dsh-liquid-glass] .dshMarketContent,
+html[data-dsh-liquid-glass] [class*="dshMarketContent"] {
+  background: transparent !important;
+  color: #ffffff !important;
 }
 
 html[data-dsh-liquid-glass] .dshMarketHeaderTitle,
