@@ -7,6 +7,42 @@
 
 ---
 
+## 版本介绍与选型指南 (Version Editions)
+
+本项目提供 **Web 优化版 (v1.0)** 与 **Desktop 深度优化版 (v2.0)** 两个版本，针对不同运行宿主环境进行了专属优化：
+
+| 维度 / 特性 | 🌐 v1.0 (Web Edition) | 🖥️ v2.0 (Desktop Edition) |
+| :--- | :--- | :--- |
+| **对应分支 / Tag** | `v1.0-web` / `v1.0.0` | `main` / `v2.0.0` |
+| **主要目标环境** | 纯 Web 浏览器、远程 Web 部署、移动端 | [`deepseek-harness-desktop`](https://github.com/anywhere-labs/deepseek-harness-desktop) (Electron / Tauri) |
+| **存储与持久化** | 浏览器标准 `IndexedDB` + `localStorage` | **物理磁盘落盘优先**：直存宿主 `~/.dsh/wallpapers/` |
+| **动态端口自愈** | 仅限当前浏览器 Origin 作用域 | **全自动自愈**：跨动态随机端口重启不丢壁纸 |
+| **视频壁纸传输** | 内存 Blob / ObjectURL 播放 | **HTTP 206 Partial Content** 分片流式传输，零内存暴涨 |
+| **本地文件导入** | 需经由前端完整读取后存入 IndexedDB | **本地物理路径瞬时直拷** (`/api/copy-local-file`) |
+| **窗口与视觉穿透** | 标准 DOM 容器边界 | 适配桌面端无边框窗口、自定义标题栏与拖拽区 (`-webkit-app-region: drag`) |
+| **功耗与生命周期** | `document.hidden` 监听 + RAF 自动休眠 | 窗口最小化/失焦 GPU 节流 + WebGL 上下文自愈 |
+
+### 1. 🌐 v1.0 版本 (Web Edition)
+- **定位**：轻量化、纯标准 Web API 驱动。
+- **核心特点**：完全在浏览器安全沙箱内运行，无需任何桌面端私有 Node.js API 支持。使用 IndexedDB 缓存视频与壁纸，具备 WebGL 上下文丢失自动恢复与后台标签页低功耗节流。
+- **引用方式**：
+  ```json
+  "@deepseek-ai/dsh-client-ui-liquid-glass": "github:Rainpomelo/deepseek-harness-liquid-glass-theme#v1.0.0"
+  ```
+
+### 2. 🖥️ v2.0 版本 (Desktop Edition)
+- **定位**：面向桌面端客户端（Electron / Tauri）极致体验深度定制。
+- **核心特点**：
+  - **物理磁盘落盘优先**：当在桌面端选择本地 4K 壁纸/视频时，直接获取文件物理路径并复制到 `~/.dsh/wallpapers`，解决 Electron 每次启动分配随机动态端口导致 IndexedDB 跨域丢失壁纸的问题。
+  - **流式大文件传输**：支持 HTTP 206 分片视频流，播放几百兆的 4K 动态视频壁纸时不会撑爆渲染进程内存。
+  - **桌面无边框融合**：针对桌面端的无边框窗口（Frameless Window）、右上角系统控制按钮以及拖拽区域进行光学折射对齐，让背景壁纸与流体真正穿透到窗口最外沿。
+- **引用方式**：
+  ```json
+  "@deepseek-ai/dsh-client-ui-liquid-glass": "github:Rainpomelo/deepseek-harness-liquid-glass-theme#v2.0.0"
+  ```
+
+---
+
 ## 效果预览
 
 ### 1. 动态壁纸与水波交互演示 (Live Demo)
