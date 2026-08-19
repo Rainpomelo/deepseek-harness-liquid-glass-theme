@@ -84,8 +84,8 @@ export class LiquidGlassLayer {
       const store = await loadWallpaperStore()
       if (this.settings.background === 'wallpaper') {
         const cur = store.customWallpapers.find(it => it.id === store.activeCustomId) || store.customWallpapers[0]
-        if (cur && cur.url) {
-          const freshUrl = cur.type === 'video' ? `video:${cur.url}|${cur.poster || ''}` : cur.url
+        if (cur && (cur.url || cur.poster)) {
+          const freshUrl = cur.type === 'video' ? `video:${cur.url || ''}|${cur.poster || ''}` : (cur.url || cur.poster || '')
           this.settings.wallpaper = freshUrl
           if (this.enabled) {
             this.applySettings()

@@ -604,49 +604,51 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
         customImg = null
       }
 
-      if (customVideo && (customVideo.src === cleanUrl || customVideo.src.endsWith(cleanUrl) || cleanUrl.endsWith(customVideo.src))) {
-        if (customVideo.paused) {
-          customVideo.play().catch(() => {})
+      if (cleanUrl) {
+        if (customVideo && (customVideo.src === cleanUrl || customVideo.src.endsWith(cleanUrl) || cleanUrl.endsWith(customVideo.src))) {
+          if (customVideo.paused) {
+            customVideo.play().catch(() => {})
+          }
+          return
         }
-        return
-      }
-      const nextVideo = document.createElement('video')
-      nextVideo.crossOrigin = 'anonymous'
-      nextVideo.autoplay = true
-      nextVideo.loop = true
-      nextVideo.muted = true
-      nextVideo.defaultMuted = true
-      nextVideo.playsInline = true
-      nextVideo.setAttribute('playsinline', '')
-      nextVideo.setAttribute('webkit-playsinline', '')
-      nextVideo.setAttribute('muted', '')
-      nextVideo.setAttribute('autoplay', '')
-      nextVideo.setAttribute('loop', '')
-      nextVideo.src = cleanUrl
-      const tryPlay = () => {
-        if (nextVideo.paused) {
-          nextVideo.play().catch(() => {})
+        const nextVideo = document.createElement('video')
+        nextVideo.crossOrigin = 'anonymous'
+        nextVideo.autoplay = true
+        nextVideo.loop = true
+        nextVideo.muted = true
+        nextVideo.defaultMuted = true
+        nextVideo.playsInline = true
+        nextVideo.setAttribute('playsinline', '')
+        nextVideo.setAttribute('webkit-playsinline', '')
+        nextVideo.setAttribute('muted', '')
+        nextVideo.setAttribute('autoplay', '')
+        nextVideo.setAttribute('loop', '')
+        nextVideo.src = cleanUrl
+        const tryPlay = () => {
+          if (nextVideo.paused) {
+            nextVideo.play().catch(() => {})
+          }
         }
-      }
-      nextVideo.onloadeddata = () => {
-        if (customVideo && customVideo !== nextVideo) {
-          customVideo.pause()
-          customVideo.removeAttribute('src')
-          customVideo.load()
+        nextVideo.onloadeddata = () => {
+          if (customVideo && customVideo !== nextVideo) {
+            customVideo.pause()
+            customVideo.removeAttribute('src')
+            customVideo.load()
+          }
+          if (currentWallpaperUrl.includes(cleanUrl)) {
+            customVideo = nextVideo
+            tryPlay()
+          }
         }
-        if (currentWallpaperUrl.includes(cleanUrl)) {
-          customVideo = nextVideo
+        nextVideo.oncanplay = () => {
+          if (!customVideo && currentWallpaperUrl.includes(cleanUrl)) {
+            customVideo = nextVideo
+          }
           tryPlay()
         }
-      }
-      nextVideo.oncanplay = () => {
-        if (!customVideo && currentWallpaperUrl.includes(cleanUrl)) {
-          customVideo = nextVideo
-        }
+        nextVideo.load()
         tryPlay()
       }
-      nextVideo.load()
-      tryPlay()
     } else {
       if (customVideo) {
         customVideo.pause()
