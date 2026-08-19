@@ -662,13 +662,19 @@ export function LiquidGlassAppearanceRow(props: LiquidGlassAppearanceRowComponen
                     onClick={() => {
                       if (!dragInfo.current.hasMoved) {
                         setActiveCustomId(wp.id)
-                        setWallpaper(wp.type === 'video' ? `video:${wp.url}` : wp.url)
+                        setWallpaper(wp.type === 'video' ? `video:${wp.url}|${wp.poster || ''}` : wp.url)
                         void saveWallpaperStore({ customWallpapers, activeBuiltinId, activeCustomId: wp.id })
                       }
                     }}
                     title={wp.name}
                   >
-                    {wp.type === 'video' ? (
+                    {wp.poster ? (
+                      <img
+                        src={wp.poster}
+                        alt={wp.name}
+                        className={css.slotThumb}
+                      />
+                    ) : wp.type === 'video' ? (
                       <video
                         src={wp.url}
                         autoPlay

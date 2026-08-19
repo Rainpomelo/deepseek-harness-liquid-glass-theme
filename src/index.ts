@@ -125,7 +125,38 @@ export function apply(ctx: Context): void {
           }
         }
 
-        // 3. Upload Wallpaper File to Host Disk
+        // 3. Raw Stream Upload for Wallpaper Files (Ultra-Fast, Zero-Memory Limit for 4K Videos)
+        if (pathname === '/api/liquid-glass/upload-raw' && method === 'POST') {
+          const id = urlObj.searchParams.get('id') || ''
+          const ext = urlObj.searchParams.get('ext') || 'mp4'
+          const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '')
+          const safeExt = ext.replace(/[^a-zA-Z0-9]/g, '')
+          if (!safeId) {
+            res.statusCode = 400
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ error: 'id required' }))
+            return
+          }
+          const filePath = path.join(wallpapersDir, `${safeId}.${safeExt}`)
+          const out = fs.createWriteStream(filePath)
+          req.pipe(out)
+          out.on('finish', () => {
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({
+              ok: true,
+              fileUrl: `/api/liquid-glass/wallpaper-file?id=${safeId}&ext=${safeExt}`,
+            }))
+          })
+          out.on('error', (err) => {
+            res.statusCode = 500
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ error: err.message }))
+          })
+          return
+        }
+
+        // 3.1 Base64 Upload Wallpaper File to Host Disk
         if (pathname === '/api/liquid-glass/upload-wallpaper' && method === 'POST') {
           res.setHeader('Content-Type', 'application/json; charset=utf-8')
           let body = ''

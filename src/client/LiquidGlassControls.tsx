@@ -145,16 +145,19 @@ export function extractVideoPoster(fileOrBlob: Blob): Promise<string> {
         try { URL.revokeObjectURL(url) } catch {}
         resolve(dataUrl)
       }
-      v.onloadeddata = () => {
+
+      const capture = () => {
         try {
-          const w = Math.min(v.videoWidth || 1280, 1280)
-          const scale = w / (v.videoWidth || 1280)
-          const h = Math.max(1, Math.round((v.videoHeight || 720) * scale))
+          const vw = v.videoWidth || 1280
+          const vh = v.videoHeight || 720
+          const w = Math.min(vw, 1280)
+          const scale = w / vw
+          const h = Math.max(1, Math.round(vh * scale))
           const c = document.createElement('canvas')
           c.width = w
           c.height = h
           const ctx = c.getContext('2d')
-          if (ctx) {
+          if (ctx && vw > 0 && vh > 0) {
             ctx.drawImage(v, 0, 0, w, h)
             const dataUrl = c.toDataURL('image/jpeg', 0.85)
             finish(dataUrl)
@@ -163,9 +166,22 @@ export function extractVideoPoster(fileOrBlob: Blob): Promise<string> {
         } catch {}
         finish('')
       }
+
+      v.onloadedmetadata = () => {
+        try {
+          // Seek to 0.5s or 5% of duration to bypass black starting frame
+          v.currentTime = Math.min(1.0, (v.duration || 10) * 0.05 || 0.5)
+        } catch {
+          capture()
+        }
+      }
+      v.onseeked = () => { capture() }
+      v.onloadeddata = () => {
+        setTimeout(() => { if (!resolved) capture() }, 200)
+      }
       v.onerror = () => { finish('') }
       v.load()
-      setTimeout(() => { finish('') }, 2500)
+      setTimeout(() => { capture() }, 3000)
     } catch {
       resolve('')
     }
