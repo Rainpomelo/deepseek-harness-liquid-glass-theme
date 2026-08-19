@@ -46,8 +46,18 @@ export class LiquidGlassLayer {
     this.ctx = ctx
     this.loadState()
     this.sync()
-    void this.hydrateWallpaperOnBoot()
-    void this.hydrateSettingsFromDisk()
+    void this.initBootSequence()
+  }
+
+  private async initBootSequence(): Promise<void> {
+    try {
+      await this.hydrateSettingsFromDisk()
+      await this.hydrateWallpaperOnBoot()
+      if (this.enabled) {
+        this.applySettings()
+      }
+      this.sync()
+    } catch {}
   }
 
   private async hydrateSettingsFromDisk(): Promise<void> {
@@ -64,7 +74,6 @@ export class LiquidGlassLayer {
           if (this.enabled) {
             this.applySettings()
           }
-          this.sync()
         }
       }
     } catch {}
@@ -76,7 +85,7 @@ export class LiquidGlassLayer {
       if (this.settings.background === 'wallpaper') {
         const cur = store.customWallpapers.find(it => it.id === store.activeCustomId) || store.customWallpapers[0]
         if (cur && cur.url) {
-          const freshUrl = cur.type === 'video' ? `video:${cur.url}` : cur.url
+          const freshUrl = cur.type === 'video' ? `video:${cur.url}|${cur.poster || ''}` : cur.url
           this.settings.wallpaper = freshUrl
           if (this.enabled) {
             this.applySettings()

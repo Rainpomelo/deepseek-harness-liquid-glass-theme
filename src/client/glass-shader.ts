@@ -718,6 +718,9 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
 
     // 1. 优先绘制选定/推荐的视频壁纸
     if (customVideo && (customVideo.readyState >= 1 || customVideo.videoWidth > 0)) {
+      if (customVideo.paused) {
+        customVideo.play().catch(() => {})
+      }
       sceneCtx!.clearRect(0, 0, w, h)
       drawCover(customVideo, w, h)
       return

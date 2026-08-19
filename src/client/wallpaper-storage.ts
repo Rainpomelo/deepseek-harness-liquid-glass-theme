@@ -52,19 +52,70 @@ function openDB(): Promise<IDBDatabase | null> {
   })
 }
 
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const dataUrl = reader.result as string
+      const base64 = dataUrl.split(',')[1] || ''
+      resolve(base64)
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+}
+
 let memoryStoreCache: WallpaperStoreState | null = null
 
 export async function saveWallpaperStore(state: WallpaperStoreState): Promise<void> {
   memoryStoreCache = { ...state }
   const customList = Array.isArray(state.customWallpapers) ? state.customWallpapers : []
+
+  // 1. Upload custom files (video/image Blobs) to host disk to survive dynamic port switches
+  for (const it of customList) {
+    if (!it.isBuiltin && it.blob instanceof Blob) {
+      try {
+        const base64Data = await blobToBase64(it.blob)
+        let ext = it.type === 'video' ? 'mp4' : 'png'
+        if (it.name && it.name.includes('.')) {
+          ext = it.name.split('.').pop() || ext
+        }
+        let posterBase64 = ''
+        if (it.poster && it.poster.startsWith('data:image')) {
+          posterBase64 = it.poster.split(',')[1] || ''
+        }
+        const res = await fetch('/api/liquid-glass/upload-wallpaper', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: it.id,
+            ext,
+            base64Data,
+            posterBase64,
+          }),
+        })
+        if (res.ok) {
+          const json = await res.json()
+          if (json.fileUrl) {
+            it.url = json.fileUrl
+          }
+          if (json.posterUrl) {
+            it.poster = json.posterUrl
+          }
+        }
+      } catch {}
+    }
+  }
+
   const rawItems = customList.filter(it => !it.isBuiltin).map(it => ({
     id: it.id,
     name: it.name,
     type: it.type,
     blob: it.blob ?? null,
-    url: it.blob ? '' : it.url,
+    url: it.url || `/api/liquid-glass/wallpaper-file?id=${it.id}`,
     poster: it.poster ?? '',
   }))
+
   const payload = {
     customWallpapers: rawItems,
     activeBuiltinId: state.activeBuiltinId,
@@ -92,7 +143,7 @@ export async function saveWallpaperStore(state: WallpaperStoreState): Promise<vo
   } catch {}
 
   try {
-    fetch('/api/liquid-glass/wallpapers', {
+    await fetch('/api/liquid-glass/wallpapers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -104,8 +155,8 @@ export async function saveWallpaperStore(state: WallpaperStoreState): Promise<vo
           type: it.type,
           url: it.url,
           poster: it.poster,
-        }))
-      })
+        })),
+      }),
     }).catch(() => {})
   } catch {}
 }
@@ -145,7 +196,7 @@ export async function loadWallpaperStore(): Promise<WallpaperStoreState> {
       }
       if (Array.isArray(data.customWallpapers)) {
         customWallpapers = data.customWallpapers.filter((it: any) => !it.id?.startsWith('builtin-')).map((it: any) => {
-          let url = it.url || ''
+          let url = it.url || `/api/liquid-glass/wallpaper-file?id=${it.id}`
           if (it.blob instanceof Blob) {
             try {
               url = URL.createObjectURL(it.blob)
@@ -165,7 +216,7 @@ export async function loadWallpaperStore(): Promise<WallpaperStoreState> {
     }
   }
 
-  // Fallback / sync from disk API if local storage has default/empty state
+  // Fallback / sync from disk API (survives dynamic port change and fresh browser state)
   try {
     const res = await fetch('/api/liquid-glass/wallpapers')
     if (res.ok) {
@@ -177,15 +228,28 @@ export async function loadWallpaperStore(): Promise<WallpaperStoreState> {
         if (typeof disk.activeCustomId === 'string' && disk.activeCustomId) {
           activeCustomId = disk.activeCustomId
         }
-        if (customWallpapers.length === 0 && Array.isArray(disk.customWallpapers) && disk.customWallpapers.length > 0) {
-          customWallpapers = disk.customWallpapers.map((it: any) => ({
-            id: it.id,
-            name: it.name,
-            type: it.type,
-            url: it.url || '',
-            poster: it.poster,
-            isBuiltin: false,
-          }))
+        if (Array.isArray(disk.customWallpapers) && disk.customWallpapers.length > 0) {
+          const diskItems: WallpaperItem[] = disk.customWallpapers.map((it: any) => {
+            const existing = customWallpapers.find(c => c.id === it.id)
+            return {
+              id: it.id,
+              name: it.name || 'Custom Wallpaper',
+              type: it.type || 'image',
+              blob: existing?.blob,
+              url: existing?.url || it.url || `/api/liquid-glass/wallpaper-file?id=${it.id}`,
+              poster: it.poster || existing?.poster,
+              isBuiltin: false,
+            }
+          })
+          if (customWallpapers.length === 0) {
+            customWallpapers = diskItems
+          } else {
+            for (const d of diskItems) {
+              if (!customWallpapers.some(c => c.id === d.id)) {
+                customWallpapers.push(d)
+              }
+            }
+          }
         }
       }
     }
