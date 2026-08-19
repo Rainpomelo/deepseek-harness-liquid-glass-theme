@@ -1,6 +1,9 @@
-# DeepSeek Harness - 液态玻璃与动态壁纸主题 (Liquid Glass Theme)
+# DeepSeek Harness - 液态玻璃与动态壁纸主题 (Liquid Glass Theme - Web Edition v1.0)
 
-基于 WebGL 物理斯涅尔折射与三层光学架构的 DeepSeek Harness 界面主题插件。支持 4K 动态壁纸、视频壁纸（MP4/WebM）、手势水波交互以及全界面分层毛玻璃效果。
+> **版本**：`v1.0.0 (Web Edition)`  
+> **适用环境**：Web 浏览器端、远程 Web 访问及纯前端沙箱环境。
+
+基于 WebGL 物理斯涅尔折射与三层光学架构的 DeepSeek Harness 界面主题插件（Web 优化版）。深度集成浏览器标准 IndexedDB 离线存储、Blob 流式播放、WebGL 上下文丢失自愈与低功耗休眠调度，支持 4K 动态壁纸、视频壁纸（MP4/WebM）、手势水波交互以及全界面分层毛玻璃效果。
 
 ---
 
