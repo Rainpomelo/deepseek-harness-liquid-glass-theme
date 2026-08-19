@@ -125,6 +125,33 @@ export function apply(ctx: Context): void {
           }
         }
 
+        // 2.9 Direct Local File Copy (Instant for Electron Desktop App where file.path exists)
+        if (pathname === '/api/liquid-glass/copy-local-file' && method === 'POST') {
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          let body = ''
+          req.on('data', chunk => { body += chunk })
+          req.on('end', () => {
+            try {
+              const { sourcePath, id, ext } = JSON.parse(body)
+              if (sourcePath && fs.existsSync(sourcePath)) {
+                const safeId = String(id).replace(/[^a-zA-Z0-9_-]/g, '')
+                const safeExt = ext ? String(ext).replace(/[^a-zA-Z0-9]/g, '') : 'mp4'
+                const targetPath = path.join(wallpapersDir, `${safeId}.${safeExt}`)
+                fs.copyFileSync(sourcePath, targetPath)
+                res.statusCode = 200
+                res.end(JSON.stringify({
+                  ok: true,
+                  fileUrl: `/api/liquid-glass/wallpaper-file?id=${safeId}&ext=${safeExt}`,
+                }))
+                return
+              }
+            } catch {}
+            res.statusCode = 400
+            res.end(JSON.stringify({ error: 'failed to copy local file' }))
+          })
+          return
+        }
+
         // 3. Raw Stream Upload for Wallpaper Files (Ultra-Fast, Zero-Memory Limit for 4K Videos)
         if (pathname === '/api/liquid-glass/upload-raw' && method === 'POST') {
           const id = urlObj.searchParams.get('id') || ''

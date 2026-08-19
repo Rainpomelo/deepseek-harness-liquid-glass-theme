@@ -165,11 +165,13 @@ export function LiquidGlassAppearanceRow(props: LiquidGlassAppearanceRowComponen
   // 4. 自定义壁纸增删交互
   const handleAddCustomWallpaper = async (file: File) => {
     try {
+      const localPath = (file as any).path || ''
       const { type, blob, url, poster } = await processWallpaperFile(file)
       const newItem: WallpaperItem = {
         id: `custom_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
         name: file.name,
         type,
+        localPath,
         blob,
         url,
         poster,

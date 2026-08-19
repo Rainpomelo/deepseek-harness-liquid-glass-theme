@@ -71,39 +71,78 @@ export async function saveWallpaperStore(state: WallpaperStoreState): Promise<vo
   memoryStoreCache = { ...state }
   const customList = Array.isArray(state.customWallpapers) ? state.customWallpapers : []
 
-  // 1. Upload custom files (video/image Blobs) to host disk to survive dynamic port switches
+  // 1. Upload custom files to host disk to survive dynamic port switches & restarts
   for (const it of customList) {
-    if (!it.isBuiltin && it.blob instanceof Blob) {
-      try {
-        const base64Data = await blobToBase64(it.blob)
-        let ext = it.type === 'video' ? 'mp4' : 'png'
-        if (it.name && it.name.includes('.')) {
-          ext = it.name.split('.').pop() || ext
-        }
-        let posterBase64 = ''
-        if (it.poster && it.poster.startsWith('data:image')) {
-          posterBase64 = it.poster.split(',')[1] || ''
-        }
-        const res = await fetch('/api/liquid-glass/upload-wallpaper', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: it.id,
-            ext,
-            base64Data,
-            posterBase64,
-          }),
-        })
-        if (res.ok) {
-          const json = await res.json()
-          if (json.fileUrl) {
-            it.url = json.fileUrl
+    if (!it.isBuiltin) {
+      let ext = it.type === 'video' ? 'mp4' : 'png'
+      if (it.name && it.name.includes('.')) {
+        ext = it.name.split('.').pop() || ext
+      }
+
+      // A. If local absolute path exists (Electron Desktop)
+      if (it.localPath) {
+        try {
+          const res = await fetch('/api/liquid-glass/copy-local-file', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sourcePath: it.localPath,
+              id: it.id,
+              ext,
+            }),
+          })
+          if (res.ok) {
+            const json = await res.json()
+            if (json.fileUrl) it.url = json.fileUrl
           }
-          if (json.posterUrl) {
-            it.poster = json.posterUrl
+        } catch {}
+      }
+
+      // B. If Blob exists in memory, upload via raw stream
+      if (it.blob instanceof Blob) {
+        try {
+          const uploadUrl = `/api/liquid-glass/upload-raw?id=${encodeURIComponent(it.id)}&ext=${encodeURIComponent(ext)}`
+          const res = await fetch(uploadUrl, {
+            method: 'POST',
+            body: it.blob,
+          })
+          if (res.ok) {
+            const json = await res.json()
+            if (json.fileUrl) it.url = json.fileUrl
           }
+        } catch {}
+
+        // Fallback base64 upload
+        if (!it.url || it.url.startsWith('blob:')) {
+          try {
+            const base64Data = await blobToBase64(it.blob)
+            let posterBase64 = ''
+            if (it.poster && it.poster.startsWith('data:image')) {
+              posterBase64 = it.poster.split(',')[1] || ''
+            }
+            const res = await fetch('/api/liquid-glass/upload-wallpaper', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: it.id,
+                ext,
+                base64Data,
+                posterBase64,
+              }),
+            })
+            if (res.ok) {
+              const json = await res.json()
+              if (json.fileUrl) it.url = json.fileUrl
+              if (json.posterUrl) it.poster = json.posterUrl
+            }
+          } catch {}
         }
-      } catch {}
+      }
+
+      // C. Always ensure non-empty persistent URL
+      if (!it.url || it.url === '') {
+        it.url = `/api/liquid-glass/wallpaper-file?id=${it.id}&ext=${ext}`
+      }
     }
   }
 
@@ -111,8 +150,9 @@ export async function saveWallpaperStore(state: WallpaperStoreState): Promise<vo
     id: it.id,
     name: it.name,
     type: it.type,
+    localPath: it.localPath || '',
     blob: it.blob ?? null,
-    url: it.url || `/api/liquid-glass/wallpaper-file?id=${it.id}`,
+    url: it.url,
     poster: it.poster ?? '',
   }))
 
