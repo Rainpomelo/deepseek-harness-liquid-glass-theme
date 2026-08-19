@@ -1,57 +1,54 @@
 # DeepSeek Harness - 液态玻璃与动态壁纸主题 (Liquid Glass Theme)
 
-> **当前分支**：`v1.0.0 (Web Edition)`  
-> **适用环境**：Web 浏览器端、远程 Web 访问
-
-DeepSeek Harness 的液态玻璃与动态壁纸插件，支持动态壁纸、本地视频壁纸（MP4/WebM）、鼠标水波交互以及界面分层毛玻璃效果。
+DeepSeek Harness 的界面主题插件，提供基于 WebGL 的液态透镜折射、水波交互、分层毛玻璃效果，以及自定义图片/视频壁纸功能。
 
 ---
 
 ## 版本说明
 
-根据运行环境分为 Web 版和桌面端适配版：
+- **v1.0.0 (`v1.0-web` 分支)**：面向 Web 浏览器环境的配置标签。自定义壁纸保存在浏览器的 IndexedDB 中。
+- **v2.0.0 (`main` 分支)**：面向桌面端 `deepseek-harness-desktop` 的配置标签。支持将壁纸保存到本地 `~/.dsh/wallpapers/` 目录，并通过本地 HTTP 206 分片接口加载视频。
 
-| 项目 | v1.0 (Web 版) | v2.0 (Desktop 版) |
-| :--- | :--- | :--- |
-| **分支 / Tag** | `v1.0-web` / `v1.0.0` | `main` / `v2.0.0` |
-| **运行环境** | 纯 Web 浏览器、远程 Web 页面 | `deepseek-harness-desktop` 桌面端 |
-| **壁纸存储** | 浏览器 IndexedDB | 本地目录 `~/.dsh/wallpapers/` |
-| **视频加载** | 浏览器 Blob URL | 本地 HTTP 206 分片流（大视频内存占用更低） |
-| **本地文件选择** | 读取文件后存入 IndexedDB | 直接拷贝本地文件路径到壁纸目录 |
-| **窗口适配** | 普通网页容器 | 适配桌面端无边框窗口和标题栏拖拽区 |
-| **休眠控制** | 切后台标签页自动暂停 WebGL | 窗口最小化/失焦时降低渲染帧率 |
-
-### 1. v1.0 (Web 版)
-适合在普通浏览器或远程 Web 端使用。不需要本地 Node.js 文件操作权限，自定义壁纸存在浏览器的 IndexedDB 中。
+### 引用方式
 
 ```json
+// Web 版
 "@deepseek-ai/dsh-client-ui-liquid-glass": "github:Rainpomelo/deepseek-harness-liquid-glass-theme#v1.0.0"
-```
 
-### 2. v2.0 (Desktop 版)
-适合配合桌面客户端 `deepseek-harness-desktop` 使用。主要改动包括：
-- 选择本地壁纸时直接复制到本地配置目录（`~/.dsh/wallpapers/`），避免 Electron 每次启动换端口导致 IndexedDB 找不到旧壁纸。
-- 视频壁纸走本地分片流传输，播放 4K 或大体积视频时不会一次性把整个文件读入内存。
-- 样式适配了桌面端无边框窗口和标题栏拖拽区域。
-
-```json
+// 桌面端版
 "@deepseek-ai/dsh-client-ui-liquid-glass": "github:Rainpomelo/deepseek-harness-liquid-glass-theme#v2.0.0"
 ```
 
 ---
 
-## 插件特性
+## 效果预览
+
+### 1. 动态壁纸与水波交互演示 (Live Demo)
+![动态壁纸与水波交互演示](docs/images/live_wallpaper_demo.gif)
+
+### 2. 桌面主体效果 (Layer 2 液态透镜折射与动态底板)
+![桌面主体展示](docs/images/desktop_main_preview.png)
+
+### 3. 桌面弹窗效果 (Layer 3 全景虚化与毛玻璃)
+![桌面弹窗展示](docs/images/desktop_modal_preview.png)
+
+### 4. 设置面板与光学参数控制
+![设置内展示](docs/images/settings_preview.png)
+
+---
+
+## 插件功能
 
 ### 1. 分层渲染
-- **Layer 0（背景层）**：底层 WebGL Canvas 渲染动态壁纸、流体流动与鼠标点击产生的水波。
-- **Layer 1（侧边栏与面板）**：侧边栏、详情抽屉等基础容器，提供高斯模糊与暗色底板。
-- **Layer 2（输入框与卡片）**：对话输入框、会话卡片与操作按钮，在 WebGL Shader 中计算折射、色散、曲率与边缘高光。
-- **Layer 3（弹窗与下拉菜单）**：设置面板或弹窗打开时，底层画面虚化，弹窗本身使用半透明毛玻璃样式。
+- **背景层 (Layer 0)**：底层 WebGL Canvas 渲染动态壁纸与鼠标点击的水波。
+- **侧边栏 (Layer 1)**：侧边栏与详情抽屉等基础容器，提供高斯模糊与暗色底板。
+- **输入框与卡片 (Layer 2)**：输入框、会话卡片与操作按钮，在 WebGL Shader 中计算折射、色散、曲率与边缘高光。
+- **弹窗与菜单 (Layer 3)**：弹窗打开时底层虚化，弹窗本身使用半透明毛玻璃样式。
 
 ### 2. 壁纸支持
-- **内置壁纸**：自带 6 款预设壁纸。
+- **预设壁纸**：自带 6 款预设壁纸。
 - **自定义壁纸**：支持上传图片（PNG / JPG / WebP）与视频（MP4 / WebM / MOV）。
-- **本地存储**：自定义壁纸保存在本地，不需要重复通过网络下载。
+- **存储机制**：前端保存在 IndexedDB；在提供本地后端服务时会存入 `~/.dsh/wallpapers/`。
 
 ### 3. 参数调节
 在设置面板中可直接调节参数：
