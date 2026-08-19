@@ -1,7 +1,7 @@
 {
   "name": "@deepseek-ai/dsh-client-ui-liquid-glass",
-  "description": "Liquid Glass & Live Wallpaper: a physical Snell-refraction fluid glassmorphism theme and dynamic wallpaper engine for Web surface",
-  "version": "1.0.0",
+  "description": "Liquid Glass & Live Wallpaper (Desktop Edition): a physical Snell-refraction fluid glassmorphism theme and dynamic wallpaper engine optimized for deepseek-harness-desktop",
+  "version": "2.0.0",
   "publishConfig": {
     "access": "public"
   },
