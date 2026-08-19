@@ -1,45 +1,42 @@
-# DeepSeek Harness - 液态玻璃与动态壁纸主题 (Liquid Glass Theme - Desktop Edition v2.0)
+# DeepSeek Harness - 液态玻璃与动态壁纸主题 (Liquid Glass Theme)
 
-> **版本**：`v2.0.0 (Desktop Edition)`  
-> **深度优化适配**：[`deepseek-harness-desktop`](https://github.com/anywhere-labs/deepseek-harness-desktop) (Electron / Tauri 桌面端运行环境)
+> **当前分支**：`v2.0.0 (Desktop Edition)`  
+> **适配桌面端**：[`deepseek-harness-desktop`](https://github.com/anywhere-labs/deepseek-harness-desktop)
 
-基于 WebGL 物理斯涅尔折射与三层光学架构的 DeepSeek Harness 桌面端界面主题插件。针对 `deepseek-harness-desktop` 桌面端进行了全面深度优化，具备物理磁盘落盘优先机制、零内存暴涨的 HTTP 206 流式视频传输、无边框窗口与自定义标题栏穿透融合，以及跨重启/动态端口数据自愈能力。
+DeepSeek Harness 的液态玻璃与动态壁纸插件，支持动态壁纸、本地视频壁纸（MP4/WebM）、鼠标水波交互以及界面分层毛玻璃效果。
 
 ---
 
-## 版本介绍与选型指南 (Version Editions)
+## 版本说明
 
-本项目提供 **Web 优化版 (v1.0)** 与 **Desktop 深度优化版 (v2.0)** 两个版本，针对不同运行宿主环境进行了专属优化：
+根据运行环境分为 Web 版和桌面端适配版：
 
-| 维度 / 特性 | 🌐 v1.0 (Web Edition) | 🖥️ v2.0 (Desktop Edition) |
+| 项目 | v1.0 (Web 版) | v2.0 (Desktop 版) |
 | :--- | :--- | :--- |
-| **对应分支 / Tag** | `v1.0-web` / `v1.0.0` | `main` / `v2.0.0` |
-| **主要目标环境** | 纯 Web 浏览器、远程 Web 部署、移动端 | [`deepseek-harness-desktop`](https://github.com/anywhere-labs/deepseek-harness-desktop) (Electron / Tauri) |
-| **存储与持久化** | 浏览器标准 `IndexedDB` + `localStorage` | **物理磁盘落盘优先**：直存宿主 `~/.dsh/wallpapers/` |
-| **动态端口自愈** | 仅限当前浏览器 Origin 作用域 | **全自动自愈**：跨动态随机端口重启不丢壁纸 |
-| **视频壁纸传输** | 内存 Blob / ObjectURL 播放 | **HTTP 206 Partial Content** 分片流式传输，零内存暴涨 |
-| **本地文件导入** | 需经由前端完整读取后存入 IndexedDB | **本地物理路径瞬时直拷** (`/api/copy-local-file`) |
-| **窗口与视觉穿透** | 标准 DOM 容器边界 | 适配桌面端无边框窗口、自定义标题栏与拖拽区 (`-webkit-app-region: drag`) |
-| **功耗与生命周期** | `document.hidden` 监听 + RAF 自动休眠 | 窗口最小化/失焦 GPU 节流 + WebGL 上下文自愈 |
+| **分支 / Tag** | `v1.0-web` / `v1.0.0` | `main` / `v2.0.0` |
+| **运行环境** | 纯 Web 浏览器、远程 Web 页面 | `deepseek-harness-desktop` 桌面端 |
+| **壁纸存储** | 浏览器 IndexedDB | 本地目录 `~/.dsh/wallpapers/` |
+| **视频加载** | 浏览器 Blob URL | 本地 HTTP 206 分片流（大视频内存占用更低） |
+| **本地文件选择** | 读取文件后存入 IndexedDB | 直接拷贝本地文件路径到壁纸目录 |
+| **窗口适配** | 普通网页容器 | 适配桌面端无边框窗口和标题栏拖拽区 |
+| **休眠控制** | 切后台标签页自动暂停 WebGL | 窗口最小化/失焦时降低渲染帧率 |
 
-### 1. 🌐 v1.0 版本 (Web Edition)
-- **定位**：轻量化、纯标准 Web API 驱动。
-- **核心特点**：完全在浏览器安全沙箱内运行，无需任何桌面端私有 Node.js API 支持。使用 IndexedDB 缓存视频与壁纸，具备 WebGL 上下文丢失自动恢复与后台标签页低功耗节流。
-- **引用方式**：
-  ```json
-  "@deepseek-ai/dsh-client-ui-liquid-glass": "github:Rainpomelo/deepseek-harness-liquid-glass-theme#v1.0.0"
-  ```
+### 1. v1.0 (Web 版)
+适合在普通浏览器或远程 Web 端使用。不需要本地 Node.js 文件操作权限，自定义壁纸存在浏览器的 IndexedDB 中。
 
-### 2. 🖥️ v2.0 版本 (Desktop Edition)
-- **定位**：面向桌面端客户端（Electron / Tauri）极致体验深度定制。
-- **核心特点**：
-  - **物理磁盘落盘优先**：当在桌面端选择本地 4K 壁纸/视频时，直接获取文件物理路径并复制到 `~/.dsh/wallpapers`，解决 Electron 每次启动分配随机动态端口导致 IndexedDB 跨域丢失壁纸的问题。
-  - **流式大文件传输**：支持 HTTP 206 分片视频流，播放几百兆的 4K 动态视频壁纸时不会撑爆渲染进程内存。
-  - **桌面无边框融合**：针对桌面端的无边框窗口（Frameless Window）、右上角系统控制按钮以及拖拽区域进行光学折射对齐，让背景壁纸与流体真正穿透到窗口最外沿。
-- **引用方式**：
-  ```json
-  "@deepseek-ai/dsh-client-ui-liquid-glass": "github:Rainpomelo/deepseek-harness-liquid-glass-theme#v2.0.0"
-  ```
+```json
+"@deepseek-ai/dsh-client-ui-liquid-glass": "github:Rainpomelo/deepseek-harness-liquid-glass-theme#v1.0.0"
+```
+
+### 2. v2.0 (Desktop 版)
+适合配合桌面客户端 `deepseek-harness-desktop` 使用。主要改动包括：
+- 选择本地壁纸时直接复制到本地配置目录（`~/.dsh/wallpapers/`），避免 Electron 每次启动换端口导致 IndexedDB 找不到旧壁纸。
+- 视频壁纸走本地分片流传输，播放 4K 或大体积视频时不会一次性把整个文件读入内存。
+- 样式适配了桌面端无边框窗口和标题栏拖拽区域。
+
+```json
+"@deepseek-ai/dsh-client-ui-liquid-glass": "github:Rainpomelo/deepseek-harness-liquid-glass-theme#v2.0.0"
+```
 
 ---
 
@@ -61,22 +58,22 @@
 
 ## 插件特性
 
-### 1. 三层光学分层架构
-- **Layer 0（环境底板与流体层）**：底层 WebGL Canvas 实时渲染动态壁纸、低频流体湍流与鼠标点击产生的水波涟漪。
-- **Layer 1（基底雾面玻璃）**：用于侧边栏、详情抽屉与表单控件，提供 16-Tap 物理高斯模糊与暗化对比度。
-- **Layer 2（悬浮液态透镜）**：用于主对话输入框、新建会话按钮与操作卡片，在 WebGL Shader 内部实时计算凸透镜曲率（Bulge）、斯涅尔折射（Snell Refraction）、RGB 色散边缘分离（Dispersion）与 3D 顶光倒角反射。
-- **Layer 3（模态弹窗与全景虚化）**：设置面板、下拉菜单或二级弹窗弹出时，底层主界面与壁纸自动进入硬件级全景景深高斯模糊，前台面板浮层呈现深色毛玻璃质感。
+### 1. 分层渲染
+- **Layer 0（背景层）**：底层 WebGL Canvas 渲染动态壁纸、流体流动与鼠标点击产生的水波。
+- **Layer 1（侧边栏与面板）**：侧边栏、详情抽屉等基础容器，提供高斯模糊与暗色底板。
+- **Layer 2（输入框与卡片）**：对话输入框、会话卡片与操作按钮，在 WebGL Shader 中计算折射、色散、曲率与边缘高光。
+- **Layer 3（弹窗与下拉菜单）**：设置面板或弹窗打开时，底层画面虚化，弹窗本身使用半透明毛玻璃样式。
 
-### 2. 动态壁纸与媒体支持
-- **内置推荐壁纸库**：出厂自带 6 款高清质感壁纸，支持横向拖拽平滑切换。
-- **自定义壁纸上传**：支持上传本地图片（PNG / JPG / WebP）与动态视频（MP4 / WebM / MOV）。
-- **IndexedDB 持久化存储**：用户上传的大体积视频/图片壁纸自动保存在浏览器本地 IndexedDB 中，启动即刻秒开，不占用额外服务器带宽。
+### 2. 壁纸支持
+- **内置壁纸**：自带 6 款预设壁纸。
+- **自定义壁纸**：支持上传图片（PNG / JPG / WebP）与视频（MP4 / WebM / MOV）。
+- **本地存储**：自定义壁纸保存在本地，不需要重复通过网络下载。
 
-### 3. 全局参数实时调节
-在设置面板中可直接滑块调节光学参数，实时生效并持久化：
-- 折射率（IOR）、透镜曲率、色散分离、倒角厚度、透镜模糊度；
-- 弹窗虚化半径（`modalBlur` 0 ~ 60px）、遮罩暗化度（`l3MaskOpacity` 0.00 ~ 0.90）；
-- 手势水波振幅、背景流体流动速度与波纹强度。
+### 3. 参数调节
+在设置面板中可直接调节参数：
+- 折射率（IOR）、透镜曲率、色散、倒角厚度、透镜模糊度；
+- 弹窗虚化半径（`modalBlur` 0 ~ 60px）、遮罩暗度（`l3MaskOpacity` 0.00 ~ 0.90）；
+- 鼠标水波振幅、背景流体流动速度与波纹强度。
 
 ---
 
