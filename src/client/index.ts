@@ -1454,12 +1454,13 @@ html[data-dsh-liquid-glass] [class*="dshMarketCommand"] code {
 
   ctx.slots.inject('settings.plugin.item', () => ctx.slots.register({
     name: 'settings.plugin.item',
+    key: 'liquid-glass',
     id: 'liquid-glass',
     order: 6,
     store: pluginStore,
     locale: NS,
     inject: pluginInjected,
-  }, LiquidGlassPluginCard))
+  } as any, LiquidGlassPluginCard))
 
   ctx.slots.inject('settings.general.item', () => ctx.slots.register({
     name: 'settings.general.item',
