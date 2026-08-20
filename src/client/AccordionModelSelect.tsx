@@ -25,7 +25,8 @@ export function AccordionModelSelect({
     () => directory.getSnapshot()
   )
   const [open, setOpen] = useState(false)
-  const [expandedSection, setExpandedSection] = useState<'model' | 'effort' | null>(null)
+  const [modelExpanded, setModelExpanded] = useState(false)
+  const [effortExpanded, setEffortExpanded] = useState(false)
   const lastActionRef = useRef('load')
   const [toast, setToast] = useState<{ seq: number; text: string } | null>(null)
   const toastSeq = useRef(0)
@@ -107,7 +108,8 @@ export function AccordionModelSelect({
     const closeOutside = (event: MouseEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) {
         setOpen(false)
-        setExpandedSection(null)
+        setModelExpanded(false)
+        setEffortExpanded(false)
       }
     }
     document.addEventListener('mousedown', closeOutside)
@@ -119,14 +121,16 @@ export function AccordionModelSelect({
   if (!available) return null
 
   const show = () => {
-    setExpandedSection(null)
+    setModelExpanded(false)
+    setEffortExpanded(false)
     setOpen(true)
     reload()
   }
 
   const close = (restoreFocus = false) => {
     setOpen(false)
-    setExpandedSection(null)
+    setModelExpanded(false)
+    setEffortExpanded(false)
     if (restoreFocus) {
       queueMicrotask(() => {
         triggerRef.current?.focus()
@@ -227,14 +231,14 @@ export function AccordionModelSelect({
           <button
             type="button"
             role="menuitem"
-            className={`dsh-model-select-cell ${expandedSection === 'model' ? 'dsh-cell-active' : ''}`}
-            onClick={() => setExpandedSection((prev) => (prev === 'model' ? null : 'model'))}
+            className={`dsh-model-select-cell ${modelExpanded ? 'dsh-cell-active' : ''}`}
+            onClick={() => setModelExpanded((prev) => !prev)}
           >
             <span className="dsh-model-select-cell-label">{t ? t('menu.model') : '模型'}</span>
             <span className="dsh-model-select-cell-value">{modelLabel}</span>
             <svg
               className={`dsh-model-select-cell-chevron ${
-                expandedSection === 'model' ? 'dsh-chevron-expanded' : ''
+                modelExpanded ? 'dsh-chevron-expanded' : ''
               }`}
               width="14"
               height="14"
@@ -252,7 +256,7 @@ export function AccordionModelSelect({
           </button>
 
           {/* 模型列表展开内容 */}
-          {expandedSection === 'model' && (
+          {modelExpanded && (
             <div className="dsh-model-collapse-wrap">
               <div className="dsh-model-inline-panel">
                 {state?.status === 'loading' && (
@@ -341,9 +345,9 @@ export function AccordionModelSelect({
                 type="button"
                 role="menuitem"
                 className={`dsh-model-select-cell ${
-                  expandedSection === 'effort' ? 'dsh-cell-active' : ''
+                  effortExpanded ? 'dsh-cell-active' : ''
                 }`}
-                onClick={() => setExpandedSection((prev) => (prev === 'effort' ? null : 'effort'))}
+                onClick={() => setEffortExpanded((prev) => !prev)}
               >
                 <span className="dsh-model-select-cell-label">
                   {t ? t('menu.effort') : '推理等级'}
@@ -351,7 +355,7 @@ export function AccordionModelSelect({
                 <span className="dsh-model-select-cell-value">{effortLabel}</span>
                 <svg
                   className={`dsh-model-select-cell-chevron ${
-                    expandedSection === 'effort' ? 'dsh-chevron-expanded' : ''
+                    effortExpanded ? 'dsh-chevron-expanded' : ''
                   }`}
                   width="14"
                   height="14"
@@ -369,7 +373,7 @@ export function AccordionModelSelect({
               </button>
 
               {/* 推理等级展开内容 (横向分段胶囊滑块卡片) */}
-              {expandedSection === 'effort' && (
+              {effortExpanded && (
                 <div className="dsh-effort-collapse-wrap">
                   <div className="dsh-effort-inline-panel">
                     <div className="dsh-effort-header-row">

@@ -594,15 +594,19 @@ html[data-dsh-liquid-glass] [class*="effortCollapseWrap"] {
 
 html[data-dsh-liquid-glass] .dsh-model-inline-panel,
 html[data-dsh-liquid-glass] [class*="modelInlinePanel"] {
-  background: rgba(0, 0, 0, 0.30) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 12px !important;
-  padding: 4px !important;
+  background: var(--dsh-l1-bg, rgba(10, 16, 28, 0.45)) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 16px)) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 16px)) saturate(140%) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
+  border-radius: 14px !important;
+  box-shadow: inset 0 1px 0 var(--dsh-l1-rim, rgba(255, 255, 255, 0.20)), 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+  padding: 6px !important;
   max-height: 240px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  transition: background 0.15s ease, border-color 0.15s ease, backdrop-filter 0.15s ease !important;
 }
 
 html[data-dsh-liquid-glass] .dsh-model-select-status,
@@ -728,13 +732,17 @@ html[data-dsh-liquid-glass] .dsh-model-select-check {
 
 html[data-dsh-liquid-glass] .dsh-effort-inline-panel,
 html[data-dsh-liquid-glass] [class*="effortInlinePanel"] {
-  background: rgba(0, 0, 0, 0.30) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 12px !important;
+  background: var(--dsh-l1-bg, rgba(10, 16, 28, 0.45)) !important;
+  backdrop-filter: blur(var(--dsh-l1-blur, 16px)) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-l1-blur, 16px)) saturate(140%) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
+  border-radius: 14px !important;
+  box-shadow: inset 0 1px 0 var(--dsh-l1-rim, rgba(255, 255, 255, 0.20)), 0 4px 16px rgba(0, 0, 0, 0.25) !important;
   padding: 8px !important;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  transition: background 0.15s ease, border-color 0.15s ease, backdrop-filter 0.15s ease !important;
 }
 
 html[data-dsh-liquid-glass] .dsh-effort-header-row {
@@ -764,7 +772,7 @@ html[data-dsh-liquid-glass] [class*="segmentedSliderTrack"] {
   flex-direction: row;
   align-items: center;
   gap: 2px;
-  background: rgba(0, 0, 0, 0.40) !important;
+  background: rgba(0, 0, 0, 0.25) !important;
   border: 1px solid rgba(255, 255, 255, 0.10) !important;
   border-radius: 10px !important;
   padding: 3px !important;
