@@ -240,15 +240,70 @@ html[data-dsh-liquid-glass] [class*='SettingsRoot_panel'],
 html[data-dsh-liquid-glass] [class*='Modal_dialog'],
 html[data-dsh-liquid-glass] [class*='Modal_panel'],
 html[data-dsh-liquid-glass] :global(.dshMarketOverlayPanel),
-html[data-dsh-liquid-glass] :global([class*='dshMarketOverlayPanel']),
-html[data-dsh-liquid-glass] :global(.dshMarketModal),
-html[data-dsh-liquid-glass] :global([class*='dshMarketModal']) {
+html[data-dsh-liquid-glass] :global([class*='dshMarketOverlayPanel']) {
   background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.70)) !important;
   backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
   -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
   border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
   box-shadow: inset 0 1.5px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.35)), 0 32px 80px rgba(0, 0, 0, 0.75) !important;
   border-radius: 24px !important;
+}
+
+[data-dsh-liquid-glass] :global(.dshMarketModal),
+[data-dsh-liquid-glass] :global([class*='dshMarketModal']),
+[data-dsh-liquid-glass] :global(.dshMarketConfirmModal),
+[data-dsh-liquid-glass] :global([class*='dshMarketConfirmModal']),
+[data-dsh-liquid-glass] :global(.dshMarketWideModal),
+[data-dsh-liquid-glass] :global([class*='dshMarketWideModal']),
+[data-dsh-liquid-glass] :global(.dshMarketSourceModal),
+[data-dsh-liquid-glass] :global([class*='dshMarketSourceModal']),
+[data-dsh-liquid-glass] :global(.dshMarketStatusModal),
+[data-dsh-liquid-glass] :global([class*='dshMarketStatusModal']),
+html[data-dsh-liquid-glass] :global(.dshMarketModal),
+html[data-dsh-liquid-glass] :global([class*='dshMarketModal']),
+html[data-dsh-liquid-glass] :global(.dshMarketConfirmModal),
+html[data-dsh-liquid-glass] :global([class*='dshMarketConfirmModal']),
+html[data-dsh-liquid-glass] :global(.dshMarketWideModal),
+html[data-dsh-liquid-glass] :global([class*='dshMarketWideModal']),
+html[data-dsh-liquid-glass] :global(.dshMarketSourceModal),
+html[data-dsh-liquid-glass] :global([class*='dshMarketSourceModal']),
+html[data-dsh-liquid-glass] :global(.dshMarketStatusModal),
+html[data-dsh-liquid-glass] :global([class*='dshMarketStatusModal']) {
+  background: linear-gradient(180deg, rgba(16, 24, 40, 0.94) 0%, rgba(10, 16, 28, 0.97) 100%) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 32px)) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 32px)) saturate(180%) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.20)) !important;
+  box-shadow: inset 0 1.5px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.35)), 0 32px 80px rgba(0, 0, 0, 0.85) !important;
+  border-radius: 24px !important;
+  padding: 24px !important;
+}
+
+[data-dsh-liquid-glass] :global(.dshMarketOperationFacts),
+html[data-dsh-liquid-glass] :global(.dshMarketOperationFacts) {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  margin: 0 0 14px !important;
+  padding: 10px 18px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 16px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-dsh-liquid-glass] :global(.dshMarketOperationWarning),
+html[data-dsh-liquid-glass] :global(.dshMarketOperationWarning) {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  margin-bottom: 8px !important;
+  padding: 10px 14px !important;
+  background: rgba(245, 158, 11, 0.08) !important;
+  border: 1px solid rgba(245, 158, 11, 0.22) !important;
+  border-radius: 12px !important;
+  color: #cbd5e1 !important;
+  font-size: 12.5px !important;
+  line-height: 1.55 !important;
 }
 
 /* 3. 设置面板内部中间容器与插槽包装层彻底透明无边框，只保留各个选项卡片自身玻璃质感 */
