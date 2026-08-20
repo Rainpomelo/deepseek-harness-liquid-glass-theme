@@ -188,6 +188,7 @@ export function AccordionModelSelect({
   }
 
   const choose = (selection: any) => {
+    if (busy) return
     if (
       state?.current?.provider === selection.provider &&
       state?.current?.model === selection.model
@@ -199,6 +200,7 @@ export function AccordionModelSelect({
   }
 
   const chooseEffort = (effort: any) => {
+    if (busy) return
     if (!state?.current) return
     if (effectiveEffort === effort) {
       return
@@ -334,7 +336,6 @@ export function AccordionModelSelect({
                               isSelected ? 'dsh-option-selected' : ''
                             }`}
                             title={m.name}
-                            disabled={busy}
                             onClick={() => choose({ provider: group.id, model: m.id })}
                           >
                             <span className="dsh-model-select-option-copy">
@@ -439,7 +440,6 @@ export function AccordionModelSelect({
                             className={`dsh-segmented-option ${
                               isSelected ? 'dsh-segmented-active' : ''
                             }`}
-                            disabled={busy}
                             onClick={() => chooseEffort(level.effort)}
                           >
                             {level.label}
