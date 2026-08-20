@@ -397,26 +397,31 @@ html[data-dsh-model-open] [class*="segmentedOption"][class*="selected"] {
  * 设置面板与模态弹窗 L3 虚化与选项完全生效
  * ========================================================================== */
 html[data-dsh-liquid-glass] [class*="SettingsRoot_panel"]:not([class*="Closing"]):not([class*="closing"]):not([data-closing="true"]),
+html[data-dsh-liquid-glass] [class*="VOzbGW_panel"]:not([class*="Closing"]):not([class*="closing"]):not([data-closing="true"]),
+html[data-dsh-liquid-glass] [class*="_panel"][role="dialog"]:not([class*="Closing"]):not([class*="closing"]):not([data-closing="true"]),
 html[data-dsh-liquid-glass] [class*="SettingsRoot_panelOpening"],
 html[data-dsh-liquid-glass] [class*="Modal_dialog"]:not([class*="Closing"]):not([class*="closing"]):not([data-closing="true"]) {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.70)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
   border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
   border-radius: 24px !important;
-  box-shadow: inset 0 1px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.28)), 0 24px 64px rgba(0, 0, 0, 0.55) !important;
+  box-shadow: inset 0 1.5px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.35)), 0 32px 80px rgba(0, 0, 0, 0.75) !important;
   animation: dshModalPanelEnter 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
 html[data-dsh-liquid-glass] [class*="SettingsRoot_panelClosing"],
 html[data-dsh-liquid-glass] [class*="SettingsRoot_panel"][data-closing="true"],
-html[data-dsh-liquid-glass] [class*="Modal_dialog"][data-closing="true"] {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+html[data-dsh-liquid-glass] [class*="VOzbGW_panel"][data-closing="true"],
+html[data-dsh-liquid-glass] [class*="_panel"][role="dialog"][data-closing="true"],
+html[data-dsh-liquid-glass] [class*="Modal_dialog"][data-closing="true"],
+html[data-dsh-liquid-glass] [data-dsh-closing="true"] [class*="_panel"] {
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.70)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
   border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
   border-radius: 24px !important;
-  box-shadow: inset 0 1px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.28)), 0 24px 64px rgba(0, 0, 0, 0.55) !important;
+  box-shadow: inset 0 1.5px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.35)), 0 32px 80px rgba(0, 0, 0, 0.75) !important;
   animation: dshModalPanelExit 0.22s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
   pointer-events: none !important;
 }
@@ -433,7 +438,10 @@ html[data-dsh-liquid-glass] [class*="ModelsSection_section"],
 html[data-dsh-liquid-glass] [class*="ModelsSection_panel"],
 html[data-dsh-liquid-glass] [class*="ModelsSection_cards"],
 html[data-dsh-liquid-glass] [class*="SettingsRoot_content"],
-html[data-dsh-liquid-glass] [class*="SettingsRoot_options"] {
+html[data-dsh-liquid-glass] [class*="SettingsRoot_options"],
+html[data-dsh-liquid-glass] [class*="VOzbGW_content"],
+html[data-dsh-liquid-glass] [class*="VOzbGW_options"],
+html[data-dsh-liquid-glass] [class*="VOzbGW_nav"] {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -442,13 +450,21 @@ html[data-dsh-liquid-glass] [class*="SettingsRoot_options"] {
 }
 
 html[data-dsh-liquid-glass] [class*="panelClosing"] [class*="navCell"],
-html[data-dsh-liquid-glass] [class*="SettingsRoot_panel"][data-closing="true"] [class*="navCell"] {
+html[data-dsh-liquid-glass] [class*="SettingsRoot_panel"][data-closing="true"] [class*="navCell"],
+html[data-dsh-liquid-glass] [class*="VOzbGW_panel"][data-closing="true"] [class*="navCell"] {
   animation: none !important;
 }
 
+html[data-dsh-liquid-glass] [class*="mask"]:not([class*="Closing"]):not([class*="closing"]):not([data-closing="true"]),
+html[data-dsh-liquid-glass] [class*="Mask"]:not([class*="Closing"]):not([class*="closing"]):not([data-closing="true"]),
+html[data-dsh-liquid-glass] [class*="_mask"]:not([class*="Closing"]):not([class*="closing"]):not([data-closing="true"]),
 html[data-dsh-liquid-glass] [class*="SettingsRoot_mask"]:not([class*="Closing"]):not([class*="closing"]):not([data-closing="true"]),
+html[data-dsh-liquid-glass] [class*="VOzbGW_mask"]:not([class*="Closing"]):not([class*="closing"]):not([data-closing="true"]),
 html[data-dsh-liquid-glass] [class*="maskOpening"],
-html[data-dsh-liquid-glass] [class*="Modal_mask"]:not([class*="Closing"]):not([class*="closing"]):not([data-closing="true"]) {
+html[data-dsh-liquid-glass] [class*="Modal_mask"]:not([class*="Closing"]):not([class*="closing"]):not([data-closing="true"]),
+html[data-dsh-liquid-glass] [role="presentation"] > div[aria-hidden="true"]:not([class*="Closing"]):not([class*="closing"]):not([data-closing="true"]),
+html[data-dsh-liquid-glass] .dshMarketOverlayMask,
+html[data-dsh-liquid-glass] [class*="dshMarketOverlayMask"] {
   background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.45)) !important;
   backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
   -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
@@ -456,8 +472,13 @@ html[data-dsh-liquid-glass] [class*="Modal_mask"]:not([class*="Closing"]):not([c
 }
 
 html[data-dsh-liquid-glass] [class*="maskClosing"],
+html[data-dsh-liquid-glass] [class*="_mask"][data-closing="true"],
 html[data-dsh-liquid-glass] [class*="SettingsRoot_mask"][data-closing="true"],
-html[data-dsh-liquid-glass] [class*="Modal_mask"][data-closing="true"] {
+html[data-dsh-liquid-glass] [class*="VOzbGW_mask"][data-closing="true"],
+html[data-dsh-liquid-glass] [class*="Modal_mask"][data-closing="true"],
+html[data-dsh-liquid-glass] [role="presentation"][data-dsh-closing="true"] > div[aria-hidden="true"],
+html[data-dsh-liquid-glass] [class*="Modal_root"][data-dsh-closing="true"] [class*="Modal_mask"],
+html[data-dsh-liquid-glass] [data-dsh-closing="true"] .dshMarketOverlayMask {
   background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.45)) !important;
   backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
   -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;

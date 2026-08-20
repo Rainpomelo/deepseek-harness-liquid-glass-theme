@@ -30,7 +30,7 @@ export const LIQUID_GLASS_TOKEN_OVERRIDES: ThemeTokenOverrides = {
   '--dsw-alias-border-l1': { light: 'rgba(255, 255, 255, 0.25)', dark: 'rgba(255, 255, 255, 0.18)' },
   '--dsw-alias-bg-mask-drop': { light: 'var(--dsh-l3-mask-bg)', dark: 'var(--dsh-l3-mask-bg)' },
   '--dsw-alias-bg-mask-1': { light: 'var(--dsh-l3-mask-bg)', dark: 'var(--dsh-l3-mask-bg)' },
-  '--dsw-mask-blur': { light: 'none', dark: 'none' },
+  '--dsw-mask-blur': { light: 'blur(var(--dsh-modal-blur, 24px))', dark: 'blur(var(--dsh-modal-blur, 24px))' },
 }
 
 export class LiquidGlassLayer {
@@ -177,6 +177,7 @@ export class LiquidGlassLayer {
     // Layer 3 (三层弹窗玻璃: 设置弹窗/模态弹窗)
     // =========================================================================
     root.style.setProperty('--dsh-modal-blur', `${this.settings.modalBlur}px`)
+    root.style.setProperty('--dsw-mask-blur', `blur(${this.settings.modalBlur}px)`)
     const l3Opacity = typeof this.settings.l3MaskOpacity === 'number' && !isNaN(this.settings.l3MaskOpacity)
       ? this.settings.l3MaskOpacity
       : 0.45
@@ -231,7 +232,7 @@ export class LiquidGlassLayer {
       }
     }
 
-    // 2.1 Radix Popover L3 毛玻璃注入 (CSS 特异性不足以覆盖 [role=dialog] 规则)
+    // 2.1 Radix Popover & Modal L3 毛玻璃注入
     this.applyPopoverBlur()
     this.popoverObserver = new MutationObserver(() => { this.applyPopoverBlur() })
     this.popoverObserver.observe(document.body, { childList: true, subtree: true })
@@ -264,7 +265,7 @@ export class LiquidGlassLayer {
     }
 
     for (const el of document.querySelectorAll<HTMLElement>(
-      'div[role="menu"], div[role="listbox"], [class*="Menu_list"], [class*="MenuView_menu"], [class*="PopupSelectView_card"], div[aria-label*="suggestions"], div[aria-label*="建议"], div[aria-label*="命令"], [data-dsh-model-menu], [class*="ModelSelect_menu"], [class*="PermissionSelect_menu"], [class*="Select_menu"], [class*="CustomSelect_menu"], [class*="Dropdown_menu"], [class*="NxU6UG_panel"], [class*="RemotePanel_panel"], [data-dsh-context-panel], [class*="H57FiG_panel"], [class*="ContextMeter_panel"], div[role="dialog"][aria-label*="移动端"], div[role="dialog"][aria-label*="远程控制"], div[role="dialog"][aria-label*="Remote"], .dshMarketOverlayMask, [class*="dshMarketOverlayMask"], .dshMarketOverlayPanel, [class*="dshMarketOverlayPanel"], .dshMarketModal, [class*="dshMarketModal"]'
+      'div[role="menu"], div[role="listbox"], [class*="Menu_list"], [class*="MenuView_menu"], [class*="PopupSelectView_card"], div[aria-label*="suggestions"], div[aria-label*="建议"], div[aria-label*="命令"], [data-dsh-model-menu], [class*="ModelSelect_menu"], [class*="PermissionSelect_menu"], [class*="Select_menu"], [class*="CustomSelect_menu"], [class*="Dropdown_menu"], [class*="NxU6UG_panel"], [class*="RemotePanel_panel"], [data-dsh-context-panel], [class*="H57FiG_panel"], [class*="ContextMeter_panel"], div[role="dialog"][aria-label*="移动端"], div[role="dialog"][aria-label*="远程控制"], div[role="dialog"][aria-label*="Remote"], .dshMarketOverlayMask, [class*="dshMarketOverlayMask"], .dshMarketOverlayPanel, [class*="dshMarketOverlayPanel"], .dshMarketModal, [class*="dshMarketModal"], [class*="SettingsRoot_mask"], [class*="VOzbGW_mask"], [class*="_mask"], [class*="mask"], [role="presentation"] > div[aria-hidden="true"]'
     )) {
       if (el.dataset.dshPopoverBlurred === 'true') continue
       el.style.setProperty('background', 'var(--dsh-l3-mask-bg)', 'important')

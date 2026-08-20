@@ -208,15 +208,21 @@ html[data-dsh-liquid-glass] [class*='searchResultRow'][class*='selected'] {
  * - 边缘光泽: var(--dsh-l1-border)
  * ========================================================================== */
 
-/* 1. 全屏遮罩层 (纯净暗化底板，虚化由底层的 #root 物理高斯滤镜提供，0 backdrop-filter 噪点) */
+/* 1. 全屏遮罩层 (纯净暗化底板与 L3 弹窗毛玻璃虚化) */
 [data-dsh-liquid-glass] [class*='Modal_mask'],
 [data-dsh-liquid-glass] [class*='SettingsRoot_mask'],
+[data-dsh-liquid-glass] [class*='VOzbGW_mask'],
+[data-dsh-liquid-glass] [class*='_mask'],
 [data-dsh-liquid-glass] [class*='mask'],
 [data-dsh-liquid-glass] [class*='overlay'] > [class*='mask'],
+[data-dsh-liquid-glass] [role='presentation'] > div[aria-hidden='true'],
 [data-dsh-liquid-glass] [data-radix-portal] [class*='mask'],
 [data-dsh-liquid-glass] :global(.dshMarketOverlayMask),
 [data-dsh-liquid-glass] :global([class*='dshMarketOverlayMask']),
+html[data-dsh-liquid-glass] [class*='_mask'],
 html[data-dsh-liquid-glass] [class*='mask'],
+html[data-dsh-liquid-glass] [class*='VOzbGW_mask'],
+html[data-dsh-liquid-glass] [role='presentation'] > div[aria-hidden='true'],
 html[data-dsh-liquid-glass] [class*='overlay'] > [class*='mask'],
 html[data-dsh-liquid-glass] :global(.dshMarketOverlayMask),
 html[data-dsh-liquid-glass] :global([class*='dshMarketOverlayMask']) {
@@ -229,6 +235,8 @@ html[data-dsh-liquid-glass] :global([class*='dshMarketOverlayMask']) {
 [data-dsh-liquid-glass] [role='dialog'][aria-modal='true'],
 [data-dsh-liquid-glass] [aria-modal='true'],
 [data-dsh-liquid-glass] [class*='SettingsRoot_panel'],
+[data-dsh-liquid-glass] [class*='VOzbGW_panel'],
+[data-dsh-liquid-glass] [class*='_panel'][role='dialog'],
 [data-dsh-liquid-glass] [class*='Modal_dialog'],
 [data-dsh-liquid-glass] :global(.dshMarketOverlayPanel),
 [data-dsh-liquid-glass] :global([class*='dshMarketOverlayPanel']),
@@ -237,6 +245,8 @@ html[data-dsh-liquid-glass] :global([class*='dshMarketOverlayMask']) {
 html[data-dsh-liquid-glass] [role='dialog'][aria-modal='true'],
 html[data-dsh-liquid-glass] [aria-modal='true'],
 html[data-dsh-liquid-glass] [class*='SettingsRoot_panel'],
+html[data-dsh-liquid-glass] [class*='VOzbGW_panel'],
+html[data-dsh-liquid-glass] [class*='_panel'][role='dialog'],
 html[data-dsh-liquid-glass] [class*='Modal_dialog'],
 html[data-dsh-liquid-glass] [class*='Modal_panel'],
 html[data-dsh-liquid-glass] :global(.dshMarketOverlayPanel),
