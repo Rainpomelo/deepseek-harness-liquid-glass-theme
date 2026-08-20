@@ -264,7 +264,7 @@ export class LiquidGlassLayer {
     }
 
     for (const el of document.querySelectorAll<HTMLElement>(
-      'div[role="menu"], div[role="listbox"], [class*="Menu_list"], [class*="MenuView_menu"], [class*="PopupSelectView_card"], div[aria-label*="suggestions"], div[aria-label*="建议"], div[aria-label*="命令"], [data-dsh-model-menu], [class*="ModelSelect_menu"], [class*="PermissionSelect_menu"], [class*="Select_menu"], [class*="CustomSelect_menu"], [class*="Dropdown_menu"], [class*="NxU6UG_panel"], [class*="RemotePanel_panel"], [data-dsh-context-panel], [class*="H57FiG_panel"], [class*="ContextMeter_panel"], div[role="dialog"][aria-label*="移动端"], div[role="dialog"][aria-label*="远程控制"], div[role="dialog"][aria-label*="Remote"]'
+      'div[role="menu"], div[role="listbox"], [class*="Menu_list"], [class*="MenuView_menu"], [class*="PopupSelectView_card"], div[aria-label*="suggestions"], div[aria-label*="建议"], div[aria-label*="命令"], [data-dsh-model-menu], [class*="ModelSelect_menu"], [class*="PermissionSelect_menu"], [class*="Select_menu"], [class*="CustomSelect_menu"], [class*="Dropdown_menu"], [class*="NxU6UG_panel"], [class*="RemotePanel_panel"], [data-dsh-context-panel], [class*="H57FiG_panel"], [class*="ContextMeter_panel"], div[role="dialog"][aria-label*="移动端"], div[role="dialog"][aria-label*="远程控制"], div[role="dialog"][aria-label*="Remote"], .dshMarketOverlayMask, [class*="dshMarketOverlayMask"], .dshMarketOverlayPanel, [class*="dshMarketOverlayPanel"], .dshMarketModal, [class*="dshMarketModal"]'
     )) {
       if (el.dataset.dshPopoverBlurred === 'true') continue
       el.style.setProperty('background', 'var(--dsh-l3-mask-bg)', 'important')
