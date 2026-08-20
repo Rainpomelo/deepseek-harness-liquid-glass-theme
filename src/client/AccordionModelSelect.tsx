@@ -34,9 +34,13 @@ export function AccordionModelSelect({
   const triggerRef = useRef<HTMLButtonElement>(null)
   const id = useId()
 
-  const [indicatorStyle, setIndicatorStyle] = useState<{ left: number; width: number; opacity: number }>({ left: 0, width: 0, opacity: 0 })
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragPreviewEffort, setDragPreviewEffort] = useState<any>(undefined)
+  const isDraggingRef = useRef(false)
+  const dragStartRef = useRef<{ x: number; hasMoved: boolean; pointerId: number } | null>(null)
   const optionRefs = useRef<Map<string, HTMLButtonElement>>(new Map())
-  const trackRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement | null>(null)
 
   const choices = useMemo(() => {
     if (!state?.groups) return []
@@ -65,12 +69,13 @@ export function AccordionModelSelect({
 
   const reasoning = currentChoice?.model?.reasoning
   const effectiveEffort = state?.current?.reasoningEffort ?? reasoning?.defaultEffort
+  const displayedEffort = isDragging && dragPreviewEffort !== undefined ? dragPreviewEffort : effectiveEffort
   const effortLabel =
     reasoning === void 0
       ? void 0
-      : effectiveEffort === void 0
+      : displayedEffort === void 0
       ? t ? t('effort.providerDefault') : 'Default'
-      : reasoning.efforts?.find((level: any) => level.id === effectiveEffort)?.name ?? effectiveEffort
+      : reasoning.efforts?.find((level: any) => level.id === displayedEffort)?.name ?? displayedEffort
 
   const effortChoices = useMemo(() => {
     if (reasoning === void 0) return []
@@ -127,9 +132,12 @@ export function AccordionModelSelect({
       setIndicatorStyle((prev) => ({ ...prev, opacity: 0 }))
       return
     }
+    if (isDraggingRef.current) return
+
     const activeLevel = effortChoices.find((level: any) => level.effort === effectiveEffort) ?? effortChoices[0]
     if (!activeLevel) return
     const update = () => {
+      if (isDraggingRef.current) return
       const activeEl = optionRefs.current.get(activeLevel.key)
       if (activeEl && trackRef.current) {
         setIndicatorStyle({
@@ -152,6 +160,118 @@ export function AccordionModelSelect({
       ro?.disconnect()
     }
   }, [effectiveEffort, effortExpanded, effortChoices])
+
+  const getClosestOption = (clientX: number) => {
+    if (!trackRef.current) return null
+    const rect = trackRef.current.getBoundingClientRect()
+    const pointerX = clientX - rect.left
+
+    let closestLevel = null
+    let minDistance = Infinity
+
+    for (const level of effortChoices) {
+      const el = optionRefs.current.get(level.key)
+      if (el) {
+        const elCenter = el.offsetLeft + el.offsetWidth / 2
+        const dist = Math.abs(pointerX - elCenter)
+        if (dist < minDistance) {
+          minDistance = dist
+          closestLevel = level
+        }
+      }
+    }
+    return closestLevel
+  }
+
+  const handleTrackPointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0) return
+    dragStartRef.current = { x: e.clientX, hasMoved: false, pointerId: e.pointerId }
+  }
+
+  const handleTrackPointerMove = (e: React.PointerEvent) => {
+    if (!dragStartRef.current || dragStartRef.current.pointerId !== e.pointerId) return
+    const dx = e.clientX - dragStartRef.current.x
+    if (!dragStartRef.current.hasMoved && Math.abs(dx) > 3) {
+      dragStartRef.current.hasMoved = true
+      isDraggingRef.current = true
+      setIsDragging(true)
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId)
+      } catch {}
+    }
+
+    if (dragStartRef.current.hasMoved && trackRef.current) {
+      const rect = trackRef.current.getBoundingClientRect()
+      const pointerX = e.clientX - rect.left
+      const currentEffortVal = dragPreviewEffort !== undefined ? dragPreviewEffort : effectiveEffort
+      const activeLevel = effortChoices.find((l: any) => l.effort === currentEffortVal) ?? effortChoices[0]
+      const activeEl = activeLevel ? optionRefs.current.get(activeLevel.key) : null
+      const capsuleWidth = activeEl ? activeEl.offsetWidth : (indicatorStyle.width || 50)
+
+      const minLeft = 3
+      const maxLeft = Math.max(3, rect.width - 3 - capsuleWidth)
+      const targetLeft = Math.max(minLeft, Math.min(maxLeft, pointerX - capsuleWidth / 2))
+
+      const closest = getClosestOption(e.clientX)
+      if (closest) {
+        setDragPreviewEffort(closest.effort)
+      }
+      setIndicatorStyle({
+        left: targetLeft,
+        width: capsuleWidth,
+        opacity: 1,
+      })
+    }
+  }
+
+  const handleTrackPointerUp = (e: React.PointerEvent) => {
+    if (!dragStartRef.current || dragStartRef.current.pointerId !== e.pointerId) return
+    const hadMoved = dragStartRef.current.hasMoved
+    dragStartRef.current = null
+    isDraggingRef.current = false
+    setIsDragging(false)
+
+    if (hadMoved) {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId)
+      } catch {}
+      const closest = getClosestOption(e.clientX)
+      setDragPreviewEffort(undefined)
+      if (closest && closest.effort !== effectiveEffort) {
+        chooseEffort(closest.effort)
+      } else {
+        const activeLevel = effortChoices.find((l: any) => l.effort === effectiveEffort) ?? effortChoices[0]
+        const activeEl = activeLevel ? optionRefs.current.get(activeLevel.key) : null
+        if (activeEl) {
+          setIndicatorStyle({
+            left: activeEl.offsetLeft,
+            width: activeEl.offsetWidth,
+            opacity: 1,
+          })
+        }
+      }
+    } else {
+      setDragPreviewEffort(undefined)
+    }
+  }
+
+  const handleTrackPointerCancel = (e: React.PointerEvent) => {
+    if (dragStartRef.current && dragStartRef.current.pointerId === e.pointerId) {
+      dragStartRef.current = null
+      isDraggingRef.current = false
+      setIsDragging(false)
+      setDragPreviewEffort(undefined)
+      const activeLevel = effortChoices.find((l: any) => l.effort === effectiveEffort) ?? effortChoices[0]
+      const activeEl = activeLevel ? optionRefs.current.get(activeLevel.key) : null
+      if (activeEl) {
+        setIndicatorStyle({
+          left: activeEl.offsetLeft,
+          width: activeEl.offsetWidth,
+          opacity: 1,
+        })
+      }
+    }
+  }
 
   if (!available) return null
 
@@ -416,7 +536,14 @@ export function AccordionModelSelect({
                       <span className="dsh-effort-glow-dot" />
                       <span className="dsh-effort-current-label">{effortLabel}</span>
                     </div>
-                    <div ref={trackRef} className="dsh-segmented-slider-track">
+                    <div
+                      ref={trackRef}
+                      className={`dsh-segmented-slider-track ${isDragging ? 'dsh-is-dragging' : ''}`}
+                      onPointerDown={handleTrackPointerDown}
+                      onPointerMove={handleTrackPointerMove}
+                      onPointerUp={handleTrackPointerUp}
+                      onPointerCancel={handleTrackPointerCancel}
+                    >
                       <div
                         className="dsh-segmented-sliding-indicator"
                         style={{
@@ -426,7 +553,7 @@ export function AccordionModelSelect({
                         }}
                       />
                       {effortChoices.map((level: any) => {
-                        const isSelected = effectiveEffort === level.effort
+                        const isSelected = displayedEffort === level.effort
                         return (
                           <button
                             key={level.key}
@@ -440,7 +567,11 @@ export function AccordionModelSelect({
                             className={`dsh-segmented-option ${
                               isSelected ? 'dsh-segmented-active' : ''
                             }`}
-                            onClick={() => chooseEffort(level.effort)}
+                            onClick={() => {
+                              if (!isDraggingRef.current) {
+                                chooseEffort(level.effort)
+                              }
+                            }}
                           >
                             {level.label}
                           </button>

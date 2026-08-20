@@ -959,6 +959,15 @@ html[data-dsh-liquid-glass] [class*="segmentedSliderTrack"] {
   padding: 3px !important;
   overflow-x: auto;
   box-sizing: border-box !important;
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  cursor: grab !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-segmented-slider-track.dsh-is-dragging,
+html[data-dsh-liquid-glass] [class*="segmentedSliderTrack"][class*="dragging"] {
+  cursor: grabbing !important;
 }
 
 html[data-dsh-liquid-glass] .dsh-segmented-sliding-indicator,
@@ -976,6 +985,12 @@ html[data-dsh-liquid-glass] [class*="slidingIndicator"] {
   transition: left 0.24s cubic-bezier(0.16, 1, 0.3, 1), width 0.24s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.15s ease !important;
 }
 
+html[data-dsh-liquid-glass] .dsh-segmented-slider-track.dsh-is-dragging .dsh-segmented-sliding-indicator {
+  transition: none !important;
+  transform: scale(1.02) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.60), 0 4px 14px rgba(0, 0, 0, 0.40) !important;
+}
+
 html[data-dsh-liquid-glass] .dsh-segmented-option,
 html[data-dsh-liquid-glass] [class*="segmentedOption"] {
   position: relative !important;
@@ -991,7 +1006,9 @@ html[data-dsh-liquid-glass] [class*="segmentedOption"] {
   font-size: 12px !important;
   font-weight: 500 !important;
   line-height: 24px !important;
-  cursor: pointer !important;
+  cursor: inherit !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
