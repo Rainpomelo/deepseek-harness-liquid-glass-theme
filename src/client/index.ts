@@ -792,13 +792,11 @@ html[data-dsh-liquid-glass] [class*="dshMarket"] dd {
   font-weight: 600 !important;
 }
 
-/* 5. 插件卡片 (接入 Layer 2 液态透镜卡片样式) */
-html[data-dsh-liquid-glass] .dshMarketCard,
-html[data-dsh-liquid-glass] [class*="dshMarketCard"],
+/* 5. 插件卡片 (接入 Layer 2 液态透镜单层卡片样式) */
+html[data-dsh-liquid-glass] button.dshMarketCard,
+html[data-dsh-liquid-glass] .dshMarketCard:not([class*="Top"]):not([class*="Name"]),
 html[data-dsh-liquid-glass] .dshMarketReceipt,
-html[data-dsh-liquid-glass] [class*="dshMarketReceipt"],
-html[data-dsh-liquid-glass] .dshMarketSource,
-html[data-dsh-liquid-glass] [class*="dshMarketSource"] {
+html[data-dsh-liquid-glass] .dshMarketSource {
   background: var(--dsh-l2-glass-tint, linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%)), var(--dsh-l2-bg, rgba(10, 16, 28, 0.45)) !important;
   border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.18)) !important;
   border-radius: 16px !important;
@@ -809,15 +807,39 @@ html[data-dsh-liquid-glass] [class*="dshMarketSource"] {
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-html[data-dsh-liquid-glass] .dshMarketCard:hover,
-html[data-dsh-liquid-glass] [class*="dshMarketCard"]:hover,
+html[data-dsh-liquid-glass] button.dshMarketCard:hover,
+html[data-dsh-liquid-glass] .dshMarketCard:not([class*="Top"]):not([class*="Name"]):hover,
 html[data-dsh-liquid-glass] .dshMarketReceipt:hover,
-html[data-dsh-liquid-glass] [class*="dshMarketReceipt"]:hover,
-html[data-dsh-liquid-glass] .dshMarketSource:hover,
-html[data-dsh-liquid-glass] [class*="dshMarketSource"]:hover {
+html[data-dsh-liquid-glass] .dshMarketSource:hover {
   border-color: var(--dsh-l2-rim, rgba(255, 255, 255, 0.40)) !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 8px 28px rgba(0, 0, 0, 0.45) !important;
   transform: translateY(-2px) !important;
+}
+
+/* 5.1 卡片内部所有容器彻底透明穿透，杜绝多层嵌套框 */
+html[data-dsh-liquid-glass] .dshMarketCardTop,
+html[data-dsh-liquid-glass] [class*="dshMarketCardTop"],
+html[data-dsh-liquid-glass] .dshMarketCardName,
+html[data-dsh-liquid-glass] [class*="dshMarketCardName"],
+html[data-dsh-liquid-glass] .dshMarketReceiptMain,
+html[data-dsh-liquid-glass] [class*="dshMarketReceiptMain"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+html[data-dsh-liquid-glass] .dshMarketGlyph,
+html[data-dsh-liquid-glass] [class*="dshMarketGlyph"] {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* 6. 搜索框与输入控件 (接入 Layer 1 磨砂玻璃输入框) */
