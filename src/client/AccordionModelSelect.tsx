@@ -175,7 +175,6 @@ export function AccordionModelSelect({
 
   const settleSelection = (accepted: boolean) => {
     if (accepted) {
-      if (rootRef.current !== null) close(true)
       return
     }
     const message = directory.getSnapshot()?.error
@@ -193,7 +192,6 @@ export function AccordionModelSelect({
       state?.current?.provider === selection.provider &&
       state?.current?.model === selection.model
     ) {
-      close(true)
       return
     }
     lastActionRef.current = 'select'
@@ -203,7 +201,6 @@ export function AccordionModelSelect({
   const chooseEffort = (effort: any) => {
     if (!state?.current) return
     if (effectiveEffort === effort) {
-      close(true)
       return
     }
     const selection = {
