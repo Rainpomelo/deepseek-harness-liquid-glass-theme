@@ -1908,15 +1908,16 @@ html[data-dsh-liquid-glass] [class*="dshMarketCommand"] code {
     inject: appearanceInjected,
   }, LiquidGlassAppearanceRow))
 
-  ctx.inject(['slots', 'modelDirectories', 'sessions'], (scope: any) => {
+  ctx.inject(['slots', 'modelDirectories'], (scope: any) => {
     const models = scope.modelDirectories
     const sessions = scope.sessions
     scope.slots.inject('conversation.input.model', () => scope.slots.register({
       name: 'conversation.input.model',
-      locale: 'model',
+      priority: -10,
+      locale: '@deepseek-ai/dsh-client-ui-model-selection',
       inject: (sessionId: string) => {
         const directory = models.directoryFor(sessionId)
-        const available = sessions.subagentAddress(sessionId) === void 0
+        const available = sessions ? sessions.subagentAddress(sessionId) === void 0 : true
         return {
           available,
           directory: directory.store,
