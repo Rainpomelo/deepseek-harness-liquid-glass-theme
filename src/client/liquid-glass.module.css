@@ -617,6 +617,374 @@ html[data-dsh-liquid-glass] [class*="_7KE1Ra_menu"]:has(> [class*="_7KE1Ra_optio
   white-space: nowrap !important;
 }
 
+/* 自定义二级风琴折叠模型与推理选择器 (Accordion Model & Effort Select) */
+html[data-dsh-liquid-glass] .dsh-model-select-root {
+  position: relative;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-trigger {
+  min-width: 0;
+  max-width: 240px;
+  height: 28px;
+  color: var(--dsw-alias-label-secondary, rgba(255, 255, 255, 0.75)) !important;
+  cursor: pointer;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 24px !important;
+  outline: none;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px 0 8px !important;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  display: flex;
+  transition: all 0.12s ease;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-trigger:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-trigger-label {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-trigger-effort {
+  color: var(--dsw-alias-label-caption, rgba(255, 255, 255, 0.50)) !important;
+  flex: none;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-chevron {
+  color: var(--dsw-alias-label-caption, rgba(255, 255, 255, 0.50)) !important;
+  flex: none;
+  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html[data-dsh-liquid-glass] .dsh-chevron-open {
+  transform: rotate(180deg) !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  max-height: min(480px, 100vh - 96px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: 16px !important;
+  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.75)) !important;
+  backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
+  border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
+  box-shadow: var(--dsh-l1-shadow, 0 20px 48px rgba(0, 0, 0, 0.50)), inset 0 1px 0 rgba(255, 255, 255, 0.30) !important;
+  animation: dshMenuPopupScale 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-cell {
+  width: 100%;
+  height: 38px;
+  color: #ffffff !important;
+  cursor: pointer;
+  text-align: left;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px !important;
+  font-size: 13px;
+  line-height: 20px;
+  display: flex;
+  transition: all 0.14s ease;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-cell:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-cell-active {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-cell-label {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: auto;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 500;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-cell-value {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  color: rgba(255, 255, 255, 0.60) !important;
+  flex: 0 auto;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-cell-chevron {
+  color: rgba(255, 255, 255, 0.50) !important;
+  flex: none;
+  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html[data-dsh-liquid-glass] .dsh-chevron-expanded {
+  transform: rotate(90deg) !important;
+  color: #ffffff !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-collapse-wrap,
+html[data-dsh-liquid-glass] [class*="modelCollapseWrap"],
+html[data-dsh-liquid-glass] .dsh-effort-collapse-wrap,
+html[data-dsh-liquid-glass] [class*="effortCollapseWrap"] {
+  width: 100%;
+  padding: 2px 0 4px 0;
+  display: flex;
+  flex-direction: column;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-inline-panel,
+html[data-dsh-liquid-glass] [class*="modelInlinePanel"] {
+  background: rgba(0, 0, 0, 0.30) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  padding: 4px !important;
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-status,
+html[data-dsh-liquid-glass] .dsh-model-select-empty {
+  color: rgba(255, 255, 255, 0.55) !important;
+  font-size: 12px;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-error,
+html[data-dsh-liquid-glass] .dsh-model-select-warning {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid rgba(239, 68, 68, 0.30) !important;
+  border-radius: 8px !important;
+  color: #fca5a5 !important;
+  font-size: 12px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-retry {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 4px !important;
+  color: #ffffff !important;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-group-title,
+html[data-dsh-liquid-glass] [class*="ModelSelect_groupTitle"] {
+  color: #38bdf8 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 4px 8px 2px 8px !important;
+  position: sticky;
+  top: 0;
+  background: rgba(10, 16, 28, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  border-radius: 6px !important;
+  z-index: 1;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-option {
+  width: 100%;
+  min-height: 32px;
+  color: rgba(255, 255, 255, 0.85) !important;
+  text-align: left;
+  cursor: pointer;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  outline: none;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px !important;
+  display: flex;
+  transition: all 0.12s ease;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-option:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-option-selected {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(99, 102, 241, 0.12) 100%), rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-option-copy {
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-model-name {
+  color: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-description {
+  color: rgba(255, 255, 255, 0.50) !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  overflow: hidden;
+}
+
+html[data-dsh-liquid-glass] .dsh-model-select-check {
+  color: #38bdf8 !important;
+  flex: 0 0 16px;
+  place-items: center;
+  display: grid;
+}
+
+html[data-dsh-liquid-glass] .dsh-effort-inline-panel,
+html[data-dsh-liquid-glass] [class*="effortInlinePanel"] {
+  background: rgba(0, 0, 0, 0.30) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  padding: 8px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+html[data-dsh-liquid-glass] .dsh-effort-header-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 2px;
+}
+
+html[data-dsh-liquid-glass] .dsh-effort-glow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8 !important;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.80) !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-effort-current-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-segmented-slider-track,
+html[data-dsh-liquid-glass] [class*="segmentedSliderTrack"] {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.40) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 10px !important;
+  padding: 3px !important;
+  overflow-x: auto;
+}
+
+html[data-dsh-liquid-glass] .dsh-segmented-option,
+html[data-dsh-liquid-glass] [class*="segmentedOption"] {
+  flex: 1 1 auto;
+  min-width: 44px;
+  height: 26px;
+  padding: 0 8px !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+  transition: all 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html[data-dsh-liquid-glass] .dsh-segmented-option:hover:not(:disabled),
+html[data-dsh-liquid-glass] [class*="segmentedOption"]:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.10) !important;
+  color: #ffffff !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-segmented-active,
+html[data-dsh-liquid-glass] [class*="segmentedOption"][class*="active"],
+html[data-dsh-liquid-glass] [class*="segmentedOption"][class*="selected"] {
+  background: var(--dsh-l2-glass-tint, linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.08) 100%)), var(--dsh-l2-bg, rgba(255, 255, 255, 0.14)) !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.35)) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: var(--dsh-l2-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.50), 0 2px 8px rgba(0, 0, 0, 0.30)) !important;
+  border-radius: 7px !important;
+}
+
 /* 推理滑块轨道背景：同步 L3 模态毛玻璃 */
 [data-dsh-liquid-glass] [class*='ModelSelect_segmentedSliderTrack'],
 [data-dsh-liquid-glass] [class*='segmentedSliderTrack'] {
