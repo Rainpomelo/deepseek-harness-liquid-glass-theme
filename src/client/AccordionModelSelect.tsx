@@ -34,6 +34,10 @@ export function AccordionModelSelect({
   const triggerRef = useRef<HTMLButtonElement>(null)
   const id = useId()
 
+  const [indicatorStyle, setIndicatorStyle] = useState<{ left: number; width: number; opacity: number }>({ left: 0, width: 0, opacity: 0 })
+  const optionRefs = useRef<Map<string, HTMLButtonElement>>(new Map())
+  const trackRef = useRef<HTMLDivElement>(null)
+
   const choices = useMemo(() => {
     if (!state?.groups) return []
     return state.groups.flatMap((group: any) =>
@@ -118,6 +122,37 @@ export function AccordionModelSelect({
     }
   }, [open])
 
+  useEffect(() => {
+    if (!effortExpanded) {
+      setIndicatorStyle((prev) => ({ ...prev, opacity: 0 }))
+      return
+    }
+    const activeLevel = effortChoices.find((level: any) => level.effort === effectiveEffort) ?? effortChoices[0]
+    if (!activeLevel) return
+    const update = () => {
+      const activeEl = optionRefs.current.get(activeLevel.key)
+      if (activeEl && trackRef.current) {
+        setIndicatorStyle({
+          left: activeEl.offsetLeft,
+          width: activeEl.offsetWidth,
+          opacity: 1,
+        })
+      }
+    }
+    update()
+    const rafId = requestAnimationFrame(update)
+    const ro = typeof ResizeObserver !== 'undefined' && trackRef.current
+      ? new ResizeObserver(update)
+      : null
+    if (ro && trackRef.current) {
+      ro.observe(trackRef.current)
+    }
+    return () => {
+      cancelAnimationFrame(rafId)
+      ro?.disconnect()
+    }
+  }, [effectiveEffort, effortExpanded, effortChoices])
+
   if (!available) return null
 
   const show = () => {
@@ -154,7 +189,10 @@ export function AccordionModelSelect({
   }
 
   const choose = (selection: any) => {
-    if (state?.current?.provider === selection.provider && state?.current?.model === selection.model) {
+    if (
+      state?.current?.provider === selection.provider &&
+      state?.current?.model === selection.model
+    ) {
       close(true)
       return
     }
@@ -255,7 +293,7 @@ export function AccordionModelSelect({
             </svg>
           </button>
 
-          {/* 模型列表展开内容 */}
+          {/* 模型展开内容 (多 Provider 分组列表卡片) */}
           {modelExpanded && (
             <div className="dsh-model-collapse-wrap">
               <div className="dsh-model-inline-panel">
@@ -380,12 +418,24 @@ export function AccordionModelSelect({
                       <span className="dsh-effort-glow-dot" />
                       <span className="dsh-effort-current-label">{effortLabel}</span>
                     </div>
-                    <div className="dsh-segmented-slider-track">
+                    <div ref={trackRef} className="dsh-segmented-slider-track">
+                      <div
+                        className="dsh-segmented-sliding-indicator"
+                        style={{
+                          left: `${indicatorStyle.left}px`,
+                          width: `${indicatorStyle.width}px`,
+                          opacity: indicatorStyle.opacity,
+                        }}
+                      />
                       {effortChoices.map((level: any) => {
                         const isSelected = effectiveEffort === level.effort
                         return (
                           <button
                             key={level.key}
+                            ref={(el) => {
+                              if (el) optionRefs.current.set(level.key, el)
+                              else optionRefs.current.delete(level.key)
+                            }}
                             type="button"
                             role="menuitemradio"
                             aria-checked={isSelected}

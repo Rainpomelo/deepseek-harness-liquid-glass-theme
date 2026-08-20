@@ -772,53 +772,73 @@ html[data-dsh-liquid-glass] .dsh-effort-current-label {
 
 html[data-dsh-liquid-glass] .dsh-segmented-slider-track,
 html[data-dsh-liquid-glass] [class*="segmentedSliderTrack"] {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 2px;
-  background: rgba(0, 0, 0, 0.25) !important;
+  position: relative !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 2px !important;
+  background: rgba(0, 0, 0, 0.28) !important;
   border: 1px solid rgba(255, 255, 255, 0.10) !important;
   border-radius: 10px !important;
   padding: 3px !important;
   overflow-x: auto;
+  box-sizing: border-box !important;
+}
+
+html[data-dsh-liquid-glass] .dsh-segmented-sliding-indicator,
+html[data-dsh-liquid-glass] [class*="slidingIndicator"] {
+  position: absolute !important;
+  top: 3px !important;
+  height: 26px !important;
+  border-radius: 7px !important;
+  background: var(--dsh-l2-glass-tint, linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.10) 100%)), var(--dsh-l2-bg, rgba(255, 255, 255, 0.14)) !important;
+  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.38)) !important;
+  box-shadow: var(--dsh-l2-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.50), 0 2px 8px rgba(0, 0, 0, 0.30)) !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  box-sizing: border-box !important;
+  transition: left 0.24s cubic-bezier(0.16, 1, 0.3, 1), width 0.24s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.15s ease !important;
 }
 
 html[data-dsh-liquid-glass] .dsh-segmented-option,
 html[data-dsh-liquid-glass] [class*="segmentedOption"] {
-  flex: 1 1 auto;
-  min-width: 44px;
-  height: 26px;
-  padding: 0 8px !important;
+  position: relative !important;
+  z-index: 1 !important;
+  flex: 1 1 0px !important;
+  min-width: 44px !important;
+  height: 26px !important;
+  padding: 0 6px !important;
   border-radius: 7px !important;
   background: transparent !important;
   border: 1px solid transparent !important;
   color: rgba(255, 255, 255, 0.65) !important;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  white-space: nowrap;
-  transition: all 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  line-height: 24px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  transition: color 0.16s ease !important;
 }
 
 html[data-dsh-liquid-glass] .dsh-segmented-option:hover:not(:disabled),
 html[data-dsh-liquid-glass] [class*="segmentedOption"]:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.10) !important;
   color: #ffffff !important;
 }
 
 html[data-dsh-liquid-glass] .dsh-segmented-active,
 html[data-dsh-liquid-glass] [class*="segmentedOption"][class*="active"],
 html[data-dsh-liquid-glass] [class*="segmentedOption"][class*="selected"] {
-  background: var(--dsh-l2-glass-tint, linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.08) 100%)), var(--dsh-l2-bg, rgba(255, 255, 255, 0.14)) !important;
-  border: 1px solid var(--dsh-l2-border, rgba(255, 255, 255, 0.35)) !important;
   color: #ffffff !important;
   font-weight: 600 !important;
-  box-shadow: var(--dsh-l2-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.50), 0 2px 8px rgba(0, 0, 0, 0.30)) !important;
-  border-radius: 7px !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.50) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
 }
 
 /* ============================================================================
