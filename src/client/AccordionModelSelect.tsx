@@ -296,7 +296,7 @@ export function AccordionModelSelect({
           {modelExpanded && (
             <div className="dsh-model-collapse-wrap">
               <div className="dsh-model-inline-panel">
-                {state?.status === 'loading' && (
+                {state?.status === 'loading' && (!state?.groups || state.groups.length === 0) && (
                   <div className="dsh-model-select-status">
                     {t ? t('status.loading') : '正在刷新模型列表…'}
                   </div>
