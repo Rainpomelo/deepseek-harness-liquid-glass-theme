@@ -92,14 +92,93 @@ export function apply(ctx: ClientContext): void {
   }
 }
 
+@keyframes dshMarketOverlayEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.93) translateY(16px);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
+}
+
+@keyframes dshMarketOverlayExit {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+    filter: blur(6px);
+  }
+}
+
+@keyframes dshMarketDetailEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(14px);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
+}
+
+@keyframes dshMarketDetailExit {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+    filter: blur(4px);
+  }
+}
+
+@keyframes dshDetailContentEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes dshModalMaskIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(var(--dsh-modal-blur, 24px));
+    -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px));
+  }
 }
 
 @keyframes dshModalMaskOut {
-  0% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 1;
+    backdrop-filter: blur(var(--dsh-modal-blur, 24px));
+    -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px));
+  }
+  100% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
 }
 
 /* ============================================================================
@@ -690,20 +769,28 @@ html[data-dsh-liquid-glass] [class*="rail"] [class*="searchButton"] {
  * 桌面端自带插件市场 (Community Market) 分级液态玻璃与 L3 弹窗控制接入
  * ========================================================================== */
 
-/* 1. 遮罩暗化底板 (严格接入 L3 遮罩暗化与虚化参数) */
+/* 1. 遮罩暗化底板 (出入场动效) */
 html[data-dsh-liquid-glass] .dshMarketOverlayMask,
-html[data-dsh-liquid-glass] [class*="dshMarketOverlayMask"] {
+html[data-dsh-liquid-glass] [class*="dshMarketOverlayMask"],
+html[data-dsh-liquid-glass] [class*="Modal_mask"] {
   position: absolute !important;
   inset: 0 !important;
   background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.45)) !important;
   backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
   -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
-  animation: dshModalMaskIn 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  animation: dshModalMaskIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
   border: none !important;
   z-index: 0 !important;
 }
 
-/* 2. 插件市场主面板实体 (接入 L3 弹窗玻璃与 L1 边框/光泽) */
+html[data-dsh-liquid-glass] .dshMarketOverlay[data-dsh-closing="true"] .dshMarketOverlayMask,
+html[data-dsh-liquid-glass] [class*="Modal_root"][data-dsh-closing="true"] [class*="Modal_mask"],
+html[data-dsh-liquid-glass] [data-dsh-closing="true"] .dshMarketOverlayMask,
+html[data-dsh-liquid-glass] [data-dsh-closing="true"] [class*="Modal_mask"] {
+  animation: dshModalMaskOut 0.18s cubic-bezier(0.7, 0, 0.84, 0) forwards !important;
+}
+
+/* 2. 插件市场主面板实体 (接入 L3 弹窗玻璃，顶级物理出入场动效) */
 html[data-dsh-liquid-glass] .dshMarketOverlayPanel,
 html[data-dsh-liquid-glass] [class*="dshMarketOverlayPanel"] {
   position: relative !important;
@@ -716,10 +803,17 @@ html[data-dsh-liquid-glass] [class*="dshMarketOverlayPanel"] {
   box-shadow: inset 0 1.5px 1px var(--dsh-l1-rim, rgba(255, 255, 255, 0.35)), 0 32px 80px rgba(0, 0, 0, 0.75) !important;
   color: #ffffff !important;
   overflow: hidden !important;
-  animation: dshModalPanelEnter 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  animation: dshMarketOverlayEnter 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  will-change: transform, opacity, filter !important;
 }
 
-/* 2.1 市场内部二级弹窗 (确认安装/详情/源管理等，单层纯净暗色毛玻璃) */
+html[data-dsh-liquid-glass] .dshMarketOverlay[data-dsh-closing="true"] .dshMarketOverlayPanel,
+html[data-dsh-liquid-glass] [data-dsh-closing="true"] [class*="dshMarketOverlayPanel"] {
+  animation: dshMarketOverlayExit 0.18s cubic-bezier(0.7, 0, 0.84, 0) forwards !important;
+  pointer-events: none !important;
+}
+
+/* 2.1 市场内部二级弹窗与插件详情 (确认安装/详情/源管理等，出入场物理微动效) */
 html[data-dsh-liquid-glass] .dshMarketModal,
 html[data-dsh-liquid-glass] [class*="dshMarketModal"],
 html[data-dsh-liquid-glass] .dshMarketWideModal,
@@ -742,7 +836,26 @@ html[data-dsh-liquid-glass] [class*="dshMarketStatusModal"] {
   color: #ffffff !important;
   overflow: hidden !important;
   padding: 0 !important;
-  animation: dshModalPanelEnter 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  animation: dshMarketDetailEnter 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  will-change: transform, opacity, filter !important;
+}
+
+html[data-dsh-liquid-glass] [class*="Modal_root"][data-dsh-closing="true"] .dshMarketModal,
+html[data-dsh-liquid-glass] [class*="Modal_root"][data-dsh-closing="true"] [class*="dshMarketModal"],
+html[data-dsh-liquid-glass] .dshMarketModal[data-dsh-closing="true"],
+html[data-dsh-liquid-glass] [class*="dshMarketModal"][data-dsh-closing="true"] {
+  animation: dshMarketDetailExit 0.18s cubic-bezier(0.7, 0, 0.84, 0) forwards !important;
+  pointer-events: none !important;
+}
+
+/* 2.1.1 插件详情与操作流内部内容展开动效 */
+html[data-dsh-liquid-glass] .dshMarketDetails,
+html[data-dsh-liquid-glass] [class*="dshMarketDetails"],
+html[data-dsh-liquid-glass] .dshMarketDetailsIntro,
+html[data-dsh-liquid-glass] [class*="dshMarketDetailsIntro"],
+html[data-dsh-liquid-glass] .dshMarketOperationReview,
+html[data-dsh-liquid-glass] [class*="dshMarketOperationReview"] {
+  animation: dshDetailContentEnter 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
 /* 2.2 二级弹窗内部容器彻底透明穿透，绝无第二层框 */
@@ -1189,6 +1302,52 @@ html[data-dsh-liquid-glass] [class*="dshMarketCommand"] code {
   color: #ffffff !important;
 }
 `
+
+    // 监听关闭动作，触发优雅退场物理动画
+    if (!(window as any).__dsh_modal_exit_listener_bound) {
+      (window as any).__dsh_modal_exit_listener_bound = true
+
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement | null
+        if (!target) return
+        const closeTrigger = target.closest<HTMLElement>(
+          '.dshMarketOverlayMask, .dshMarketOverlayHeader button, .Modal_close, [class*="Modal_close"], .Modal_mask, [class*="Modal_mask"], .dshMarketModalActions button:first-child:not([class*="primary"]), [class*="Modal_footer"] button:first-child:not([class*="primary"])'
+        )
+        if (closeTrigger) {
+          const overlay = closeTrigger.closest<HTMLElement>('.dshMarketOverlay, [class*="Modal_root"], .dshMarketModal, [class*="Modal_dialog"]')
+          if (overlay && !overlay.getAttribute('data-dsh-closing')) {
+            e.preventDefault()
+            e.stopPropagation()
+            overlay.setAttribute('data-dsh-closing', 'true')
+            const root = overlay.closest<HTMLElement>('.dshMarketOverlay, [class*="Modal_root"]') || overlay
+            root.setAttribute('data-dsh-closing', 'true')
+            setTimeout(() => {
+              closeTrigger.click()
+            }, 180)
+          }
+        }
+      }, true)
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const overlays = document.querySelectorAll<HTMLElement>('.dshMarketOverlay, [class*="Modal_root"]')
+          if (overlays.length > 0) {
+            const topOverlay = overlays[overlays.length - 1]
+            if (topOverlay && !topOverlay.getAttribute('data-dsh-closing')) {
+              e.preventDefault()
+              e.stopPropagation()
+              topOverlay.setAttribute('data-dsh-closing', 'true')
+              setTimeout(() => {
+                const closeBtn = topOverlay.querySelector<HTMLElement>('.Modal_close, [class*="Modal_close"], .dshMarketOverlayHeader button, .dshMarketOverlayMask')
+                if (closeBtn) {
+                  closeBtn.click()
+                }
+              }, 180)
+            }
+          }
+        }
+      }, true)
+    }
   }
 
   const layer = new LiquidGlassLayer(ctx as any)
