@@ -243,6 +243,19 @@ const FS_SRC = `
       }
     }
 
+    float chatDist = u_has_chat == 1 ? sdRoundedBox(fragPx - u_chat_rect.xy, u_chat_rect.zw, u_chat_radius) : 10000.0;
+    float headerDist = u_has_header == 1 ? sdRoundedBox(fragPx - u_header_rect.xy, u_header_rect.zw, 0.0) : 10000.0;
+    float modalDist = u_has_modal == 1 ? sdRoundedBox(fragPx - u_modal_rect.xy, u_modal_rect.zw, u_modal_radius) : 10000.0;
+    if (u_sidebar_width_px > 10.0 && fragPx.x <= u_sidebar_width_px) {
+      color = sampleBackdrop(backdropUv, fragPx, u_l1_blur);
+    } else if (headerDist <= 0.0 || chatDist <= 0.0) {
+      color = sampleBackdrop(backdropUv, fragPx, u_l1_blur);
+    } else if (modalDist <= 0.0) {
+      color = sampleBackdrop(backdropUv, fragPx, u_modal_blur * u_modal_progress);
+    }
+
+    // Layer 2 is the top optical surface. Compose it after Layer 1/3 backdrops
+    // so the chat or modal base cannot overwrite the composer refraction.
     if (bestD <= 0.0) {
       vec2 p = fragPx - bestCenter;
       float eps = 2.0;
@@ -252,13 +265,41 @@ const FS_SRC = `
       );
       vec2 edgeDir = length(grad) > 0.0001 ? normalize(grad) : vec2(0.0);
       vec2 normPos = clamp(p / max(bestHalf, vec2(1.0)), -1.0, 1.0);
-      float bevelPx = max(u_bevel_width * u_resolution.y, 4.0);
+      vec2 internalBulge = normPos * (1.0 - length(normPos) * 0.35) * 0.35 * u_bulge;
+      float bevelPx = max(u_bevel_width * u_resolution.y, 8.0);
       float edgeSlope = sin(clamp(-bestD / bevelPx, 0.0, 1.0) * 3.14159265);
-      vec2 bulgeOffset = normPos * (1.0 - min(length(normPos), 1.0)) * 0.08 * u_bulge;
-      vec2 edgeOffset = edgeDir * edgeSlope * 0.025;
-      vec2 lensOffset = (bulgeOffset + edgeOffset) * max(u_ior - 1.0, 0.02) + flowOffset;
+      vec2 edgeOffset = edgeDir * (edgeSlope * 0.35 + exp(-(-bestD) * 0.08) * 0.18);
+      vec2 lensOffset = (internalBulge + edgeOffset) * max(u_ior - 1.0, 0.08) * 1.6 + flowOffset;
 
-      float disp = u_dispersion * mix(0.3, 1.0, edgeSlope);
+      // Pointer ripples use the same aspect-correct coordinate space as the
+      // pointerdown handler. Their damped wave changes the sampled scene
+      // position, so ripple tension is visible as actual lens refraction.
+      vec2 scenePos = vec2(
+        (fragPx.x / u_resolution.x - 0.5) * (u_resolution.x / u_resolution.y),
+        0.5 - fragPx.y / u_resolution.y
+      );
+      vec2 rippleOffset = vec2(0.0);
+      float rippleTime0 = u_time - u_ripple0.z;
+      if (rippleTime0 > 0.0 && rippleTime0 < 2.5 && u_ripple0.w > 0.0) {
+        vec2 delta0 = scenePos - u_ripple0.xy;
+        float radius0 = length(delta0);
+        vec2 direction0 = radius0 > 0.0001 ? delta0 / radius0 : vec2(0.0);
+        float wave0 = sin(radius0 * 35.0 - rippleTime0 * 14.0)
+          * exp(-radius0 * 5.0 - rippleTime0 * 2.0);
+        rippleOffset += direction0 * wave0 * 0.03 * u_ripple0.w * u_ripple_amp;
+      }
+      float rippleTime1 = u_time - u_ripple1.z;
+      if (rippleTime1 > 0.0 && rippleTime1 < 2.5 && u_ripple1.w > 0.0) {
+        vec2 delta1 = scenePos - u_ripple1.xy;
+        float radius1 = length(delta1);
+        vec2 direction1 = radius1 > 0.0001 ? delta1 / radius1 : vec2(0.0);
+        float wave1 = sin(radius1 * 35.0 - rippleTime1 * 14.0)
+          * exp(-radius1 * 5.0 - rippleTime1 * 2.0);
+        rippleOffset += direction1 * wave1 * 0.03 * u_ripple1.w * u_ripple_amp;
+      }
+      lensOffset += rippleOffset;
+
+      float disp = u_dispersion * 3.0 * mix(0.5, 2.5, edgeSlope);
       color = sampleDispersed(uv, lensOffset, disp);
       if (u_lens_blur > 0.2) {
         color = mix(color, sampleGaussianFrosted(clamp(uv + lensOffset, 0.001, 0.999), u_lens_blur, fragPx), clamp(u_lens_blur / 20.0, 0.0, 0.8));
@@ -271,17 +312,6 @@ const FS_SRC = `
         float specular = max(dot(edgeDir, vec2(cos(angle), sin(angle))), 0.0);
         color += vec3(0.92, 0.96, 1.0) * pow(specular, 12.0) * edgeSlope * u_rim_intensity;
       }
-    }
-
-    float chatDist = u_has_chat == 1 ? sdRoundedBox(fragPx - u_chat_rect.xy, u_chat_rect.zw, u_chat_radius) : 10000.0;
-    float headerDist = u_has_header == 1 ? sdRoundedBox(fragPx - u_header_rect.xy, u_header_rect.zw, 0.0) : 10000.0;
-    float modalDist = u_has_modal == 1 ? sdRoundedBox(fragPx - u_modal_rect.xy, u_modal_rect.zw, u_modal_radius) : 10000.0;
-    if (u_sidebar_width_px > 10.0 && fragPx.x <= u_sidebar_width_px) {
-      color = sampleBackdrop(backdropUv, fragPx, u_l1_blur);
-    } else if (headerDist <= 0.0 || chatDist <= 0.0) {
-      color = sampleBackdrop(backdropUv, fragPx, u_l1_blur);
-    } else if (modalDist <= 0.0) {
-      color = sampleBackdrop(backdropUv, fragPx, u_modal_blur * u_modal_progress);
     }
 
     gl_FragColor = vec4(color, 1.0);
