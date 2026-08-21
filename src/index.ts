@@ -36,7 +36,89 @@ function getWallpapersFilePath(): string {
   return path.join(getStorageDir(), 'liquid-glass-wallpapers.json')
 }
 
+const DEFAULT_SETTINGS = {
+  enabled: true,
+  l1Blur: 2,
+  l1Opacity: 0.1,
+  l1Border: 0.14,
+  modalBlur: 5,
+  l3MaskOpacity: 0,
+  ior: 1.3,
+  bulge: 0.4,
+  dispersion: 0,
+  bevel: 0.01,
+  lensBlur: 0,
+  darkening: 0.1,
+  rimIntensity: 0,
+  lightAngle: 105,
+  vibrancy: 1.2,
+  rippleAmp: 0.5,
+  dropShadowOpacity: 0.05,
+  dropShadowBlur: 48,
+  dropShadowY: 16,
+  background: 'gradient',
+  wallpaper: '',
+  bgBlur: 0,
+  bgLiquidEnabled: true,
+  bgLiquidAmp: 0.55,
+  bgLiquidScale: 0.4,
+  bgLiquidSpeed: 0.1,
+  bgLiquidDispersion: 0.025,
+}
+
+function seedDefaultAssets(wallpapersDir: string, settingsFile: string, wallpapersFile: string): void {
+  try {
+    const assetDir = path.join(__dirname, '../assets')
+    const videos = [
+      { file: 'DeepSeek.mp4', target: 'default_deepseek.mp4' },
+      { file: 'EldenRing.mp4', target: 'default_elden_ring.mp4' },
+      { file: 'Thunderstorm.mp4', target: 'default_thunderstorm.mp4' },
+    ]
+
+    for (const v of videos) {
+      const src = path.join(assetDir, v.file)
+      const dst = path.join(wallpapersDir, v.target)
+      if (fs.existsSync(src) && !fs.existsSync(dst)) {
+        fs.copyFileSync(src, dst)
+      }
+    }
+
+    if (!fs.existsSync(settingsFile)) {
+      fs.writeFileSync(settingsFile, JSON.stringify(DEFAULT_SETTINGS), 'utf8')
+    }
+
+    if (!fs.existsSync(wallpapersFile)) {
+      const defaultWallpapers = {
+        customWallpapers: [
+          {
+            id: 'default_deepseek',
+            name: 'DeepSeek.mp4',
+            type: 'video',
+            url: '/api/liquid-glass/wallpaper-file?id=default_deepseek&ext=mp4',
+          },
+          {
+            id: 'default_elden_ring',
+            name: 'ELDEN RING™ 2024-07-20 23-09-54.mp4',
+            type: 'video',
+            url: '/api/liquid-glass/wallpaper-file?id=default_elden_ring&ext=mp4',
+          },
+          {
+            id: 'default_thunderstorm',
+            name: '雷暴预感 1080p动态壁纸..mp4',
+            type: 'video',
+            url: '/api/liquid-glass/wallpaper-file?id=default_thunderstorm&ext=mp4',
+          },
+        ],
+        activeBuiltinId: 'builtin-video-1',
+        activeCustomId: 'default_deepseek',
+      }
+      fs.writeFileSync(wallpapersFile, JSON.stringify(defaultWallpapers), 'utf8')
+    }
+  } catch {}
+}
+
 export function apply(ctx: Context): void {
+  seedDefaultAssets(getWallpapersDir(), getSettingsFilePath(), getWallpapersFilePath())
   const settingsFile = getSettingsFilePath()
   const wallpapersFile = getWallpapersFilePath()
   const wallpapersDir = getWallpapersDir()
@@ -82,6 +164,39 @@ export function apply(ctx: Context): void {
             req.on('end', () => {
               try {
                 fs.writeFileSync(settingsFile, body, 'utf8')
+                res.statusCode = 200
+                res.end(JSON.stringify({ ok: true }))
+              } catch (err: any) {
+                res.statusCode = 500
+                res.end(JSON.stringify({ error: err.message }))
+              }
+            })
+            return
+          }
+        }
+
+                // 1.5 User Preset Persistence API (Survives restarts and port changes)
+        if (pathname === '/api/liquid-glass/user-preset') {
+          const presetFile = path.join(getStorageDir(), 'liquid-glass-user-preset.json')
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          if (method === 'GET') {
+            try {
+              if (fs.existsSync(presetFile)) {
+                const data = fs.readFileSync(presetFile, 'utf8')
+                res.statusCode = 200
+                res.end(data)
+                return
+              }
+            } catch {}
+            res.statusCode = 200
+            res.end(JSON.stringify({}))
+            return
+          } else if (method === 'POST') {
+            let body = ''
+            req.on('data', chunk => { body += chunk })
+            req.on('end', () => {
+              try {
+                fs.writeFileSync(presetFile, body, 'utf8')
                 res.statusCode = 200
                 res.end(JSON.stringify({ ok: true }))
               } catch (err: any) {

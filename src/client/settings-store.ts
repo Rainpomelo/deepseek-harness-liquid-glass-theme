@@ -52,38 +52,38 @@ export const LIQUID_GLASS_DEFAULTS: LiquidGlassSettings = {
   enabled: true,
 
   // Layer 1 一层基底雾面玻璃默认值
-  l1Blur: 24,
-  l1Opacity: 0.45,
-  l1Border: 1.00,
+  l1Blur: 2,
+  l1Opacity: 0.1,
+  l1Border: 0.1,
 
   // Layer 3 三层弹窗玻璃默认值
-  modalBlur: 24,
-  l3MaskOpacity: 0.75,
+  modalBlur: 5,
+  l3MaskOpacity: 0,
 
   // Layer 2 二层悬浮液态透镜默认值
-  ior: 1.30,
-  bulge: 1.80,
-  dispersion: 0.035,
-  bevel: 0.015,
+  ior: 1.3,
+  bulge: 0.4,
+  dispersion: 0,
+  bevel: 0.01,
   lensBlur: 0,
-  darkening: 0.00,
-  rimIntensity: 0.45,
+  darkening: 0.1,
+  rimIntensity: 0,
   lightAngle: 105,
-  vibrancy: 1.05,
-  rippleAmp: 0.30,
-  dropShadowOpacity: 0.35,
+  vibrancy: 1.2,
+  rippleAmp: 0.5,
+  dropShadowOpacity: 0.05,
   dropShadowBlur: 48,
   dropShadowY: 16,
 
   // Layer 0 环境底板与流体默认值
   background: 'gradient',
-  wallpaper: '',
+  wallpaper: 'video:/api/liquid-glass/assets/EldenRing.mp4|/api/liquid-glass/assets/EldenRing_poster.png',
   bgBlur: 0,
-  bgLiquidEnabled: false,
-  bgLiquidAmp: 0.40,
-  bgLiquidScale: 0.8,
-  bgLiquidSpeed: 0.7,
-  bgLiquidDispersion: 0.015,
+  bgLiquidEnabled: true,
+  bgLiquidAmp: 0.55,
+  bgLiquidScale: 0.4,
+  bgLiquidSpeed: 0.1,
+  bgLiquidDispersion: 0.025,
 }
 
 export function createLiquidGlassRowStore(): EngineStoreHandle<LiquidGlassRowState, LiquidGlassRowActions> {

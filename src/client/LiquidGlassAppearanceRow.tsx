@@ -120,8 +120,8 @@ export function LiquidGlassAppearanceRow(props: LiquidGlassAppearanceRowComponen
     setTimeout(() => { setNotice('') }, 2500)
   }
 
-  // 1. 预设保存：严格只保存光学与玻璃参数，杜绝保存壁纸
-  const handleSaveUserPreset = () => {
+    // 1. 预设保存：严格只保存光学与玻璃参数，双重落盘至物理磁盘与 LocalStorage
+  const handleSaveUserPreset = async () => {
     try {
       const current = {
         l1Blur, l1Opacity, l1Border, modalBlur, l3MaskOpacity,
@@ -129,29 +129,46 @@ export function LiquidGlassAppearanceRow(props: LiquidGlassAppearanceRowComponen
         lightAngle, vibrancy, rippleAmp, dropShadowOpacity, dropShadowBlur, dropShadowY,
         bgBlur, bgLiquidEnabled, bgLiquidAmp, bgLiquidScale, bgLiquidSpeed, bgLiquidDispersion,
       }
-      localStorage.setItem(USER_PRESET_KEY, JSON.stringify(current))
-      showNotice(t('liquidGlass.savedNotice'))
+      try { localStorage.setItem(USER_PRESET_KEY, JSON.stringify(current)) } catch {}
+      await fetch('/api/liquid-glass/user-preset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(current),
+      }).catch(() => {})
+      showNotice(t('liquidGlass.savedNotice') || '预设已保存')
     } catch {
       showNotice('保存失败')
     }
   }
 
-  // 2. 预设加载：严格剔除壁纸属性，保留用户当前的壁纸库与底板
-  const handleLoadUserPreset = () => {
+  // 2. 预设加载：从物理磁盘或 LocalStorage 恢复
+  const handleLoadUserPreset = async () => {
     try {
-      const raw = localStorage.getItem(USER_PRESET_KEY)
-      if (raw) {
-        const parsed = JSON.parse(raw)
+      let parsed: any = null
+      try {
+        const res = await fetch('/api/liquid-glass/user-preset')
+        if (res.ok) {
+          const diskPreset = await res.json()
+          if (diskPreset && typeof diskPreset === 'object' && Object.keys(diskPreset).length > 0) {
+            parsed = diskPreset
+          }
+        }
+      } catch {}
+      if (!parsed) {
+        const raw = localStorage.getItem(USER_PRESET_KEY)
+        if (raw) parsed = JSON.parse(raw)
+      }
+      if (parsed) {
         delete parsed.background
         delete parsed.wallpaper
         delete parsed.wallpapers
         applyPreset(parsed)
-        showNotice(t('liquidGlass.loadedNotice'))
+        showNotice(t('liquidGlass.loadedNotice') || '预设已加载')
       } else {
-        showNotice(t('liquidGlass.noUserPreset'))
+        showNotice(t('liquidGlass.noUserPreset') || '未找到已保存预设')
       }
     } catch {
-      showNotice(t('liquidGlass.noUserPreset'))
+      showNotice(t('liquidGlass.noUserPreset') || '未找到已保存预设')
     }
   }
 
@@ -572,7 +589,7 @@ export function LiquidGlassAppearanceRow(props: LiquidGlassAppearanceRowComponen
               setBackground(val)
               if (val === 'gradient') {
                 const cur = BUILTIN_WALLPAPERS.find(it => it.id === activeBuiltinId) || BUILTIN_WALLPAPERS[0]
-                if (cur) setWallpaper(cur.url)
+                if (cur) setWallpaper(cur.type === 'video' ? `video:${cur.url}` : cur.url)
               } else {
                 const cur = customWallpapers.find(it => it.id === activeCustomId) || customWallpapers[0]
                 if (cur) {
@@ -609,19 +626,30 @@ export function LiquidGlassAppearanceRow(props: LiquidGlassAppearanceRowComponen
                     onClick={() => {
                       if (!dragInfo.current.hasMoved) {
                         setActiveBuiltinId(wp.id)
-                        setWallpaper(wp.url)
+                        setWallpaper(wp.type === 'video' ? `video:${wp.url}` : wp.url)
                         void saveWallpaperStore({ customWallpapers, activeBuiltinId: wp.id, activeCustomId })
                       }
                     }}
                     title={wp.name}
                   >
-                    <img
-                      src={wp.url}
-                      alt={wp.name}
-                      className={css.slotThumb}
-                    />
+                    {wp.type === 'video' ? (
+                      <video
+                        src={wp.url}
+                        className={css.slotThumb}
+                        muted
+                        loop
+                        autoPlay
+                        playsInline
+                      />
+                    ) : (
+                      <img
+                        src={wp.url}
+                        alt={wp.name}
+                        className={css.slotThumb}
+                      />
+                    )}
                     <div className={css.slotOverlay}>
-                      <span className={css.slotTypeBadge}>内置</span>
+                      <span className={css.slotTypeBadge}>{wp.type === 'video' ? '视频' : '内置'}</span>
                     </div>
                     {isActive && (
                       <div className={css.slotActiveBadge}>

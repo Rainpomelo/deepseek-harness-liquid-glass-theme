@@ -62,6 +62,9 @@ const FS_SRC = `
   uniform float u_modal_radius;
   uniform float u_modal_progress;
   uniform int u_has_modal;
+  uniform int u_has_chat;
+  uniform vec4 u_chat_rect; // xy: centerPx, zw: halfPx
+  uniform float u_chat_radius;
   #define MAX_POPOVERS 16
   uniform vec4 u_popovers[MAX_POPOVERS]; // xy: centerPx, zw: halfPx
   uniform float u_popover_radii[MAX_POPOVERS];
@@ -191,19 +194,27 @@ const FS_SRC = `
     return acc / totalW;
   }
 
-  vec3 getBaseColor(vec2 uvSample, vec2 fragPxSample, int isOverModal) {
+  vec3 getBaseColor(vec2 uvSample, vec2 fragPxSample, int isOverModal, float blurPx) {
+    float chatDist = 10000.0;
+    if (u_has_chat == 1) {
+      chatDist = sdRoundedBox(fragPxSample - u_chat_rect.xy, u_chat_rect.zw, u_chat_radius);
+    }
+
     if (isOverModal == 1) {
-      vec3 modalFrosted = sampleGaussianFrosted(uvSample, u_l1_blur, fragPxSample);
+      vec3 modalFrosted = sampleGaussianFrosted(uvSample, max(u_modal_blur, blurPx), fragPxSample);
       if (u_l1_opacity > 0.001) {
         modalFrosted = mix(modalFrosted, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
       }
       return modalFrosted;
-    } else if (u_sidebar_width_px > 10.0 && fragPxSample.x <= u_sidebar_width_px) {
-      vec3 sidebarFrosted = sampleGaussianFrosted(uvSample, u_l1_blur, fragPxSample);
+    } else if ((u_sidebar_width_px > 10.0 && fragPxSample.x <= u_sidebar_width_px) ||
+               (u_has_chat == 1 && chatDist <= 0.0)) {
+      vec3 l1Frosted = sampleGaussianFrosted(uvSample, max(u_l1_blur, blurPx), fragPxSample);
       if (u_l1_opacity > 0.001) {
-        sidebarFrosted = mix(sidebarFrosted, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
+        l1Frosted = mix(l1Frosted, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
       }
-      return sidebarFrosted;
+      return l1Frosted;
+    } else if (blurPx > 0.5) {
+      return sampleGaussianFrosted(uvSample, blurPx, fragPxSample);
     } else {
       return texture2D(u_texture, vec2(uvSample.x, 1.0 - uvSample.y)).rgb;
     }
@@ -254,23 +265,17 @@ const FS_SRC = `
       }
     }
 
-    // 4. RGB 色散分离采样 (折射采样源：若在弹窗上方，则折射底层的毛玻璃背景)
+    // 4. RGB 色散分离采样 (折射处于最上层：折射采样底层已虚化的画面)
     float disp = u_dispersion * 3.0 * mix(0.5, 2.5, edgeSlope) * progress;
     vec2 uvR = clamp(uv + totalOffset * (1.0 - disp), 0.001, 0.999);
     vec2 uvG = clamp(uv + totalOffset, 0.001, 0.999);
     vec2 uvB = clamp(uv + totalOffset * (1.0 + disp), 0.001, 0.999);
 
-    float cR = getBaseColor(uvR, fragPx, isOverModal).r;
-    float cG = getBaseColor(uvG, fragPx, isOverModal).g;
-    float cB = getBaseColor(uvB, fragPx, isOverModal).b;
+    float blurAmt = u_lens_blur * progress;
+    float cR = getBaseColor(uvR, fragPx, isOverModal, blurAmt).r;
+    float cG = getBaseColor(uvG, fragPx, isOverModal, blurAmt).g;
+    float cB = getBaseColor(uvB, fragPx, isOverModal, blurAmt).b;
     vec3 color = vec3(cR, cG, cB);
-
-    // 5. 真实 16-Tap 高斯雾面毛玻璃模糊 (透镜内部二次雾化)
-    if (u_lens_blur > 0.5) {
-      vec3 frostedColor = sampleGaussianFrosted(uvG, u_lens_blur * progress, fragPx);
-      float frostMix = clamp(u_lens_blur / 4.0, 0.0, 1.0) * progress;
-      color = mix(color, frostedColor, frostMix);
-    }
 
     // 6. Vibrancy 鲜艳度
     if (abs(u_vibrancy - 1.0) > 0.001) {
@@ -412,6 +417,11 @@ const FS_SRC = `
         shadow = smoothstep(max(u_shadow_blur, 1.0), 0.0, minShadowDist) * u_shadow_opacity;
       }
 
+      float chatDist = 10000.0;
+      if (u_has_chat == 1) {
+        chatDist = sdRoundedBox(fragPx - u_chat_rect.xy, u_chat_rect.zw, u_chat_radius);
+      }
+
       if (u_sidebar_width_px > 10.0 && fragPx.x <= u_sidebar_width_px) {
         vec3 sidebarBg = sampleGaussianFrosted(finalBgUv, u_l1_blur, fragPx);
         if (u_l1_opacity > 0.001) {
@@ -425,6 +435,16 @@ const FS_SRC = `
           }
         }
         underlyingColor = sidebarBg * (1.0 - shadow);
+      } else if (u_has_chat == 1 && chatDist <= 0.0) {
+        vec3 chatBg = sampleGaussianFrosted(finalBgUv, u_l1_blur, fragPx);
+        if (u_l1_opacity > 0.001) {
+          chatBg = mix(chatBg, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
+        }
+        if (u_l1_border > 0.001 && abs(chatDist) <= 1.5) {
+          float glint = smoothstep(1.5, 0.0, abs(chatDist)) * u_l1_border;
+          chatBg = mix(chatBg, vec3(0.92, 0.96, 1.0), glint);
+        }
+        underlyingColor = chatBg * (1.0 - shadow);
       } else {
         vec3 bg;
         if (u_bg_liquid_enabled == 1 && u_bg_dispersion > 0.0001 && u_bg_amp > 0.0001) {
@@ -523,6 +543,9 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
   const uModalBlurLoc = gl.getUniformLocation(prog, 'u_modal_blur')
   const uL1Opacity = gl.getUniformLocation(prog, 'u_l1_opacity')
   const uL1Border = gl.getUniformLocation(prog, 'u_l1_border')
+  const uHasChatLoc = gl.getUniformLocation(prog, 'u_has_chat')
+  const uChatRectLoc = gl.getUniformLocation(prog, 'u_chat_rect')
+  const uChatRadiusLoc = gl.getUniformLocation(prog, 'u_chat_radius')
 
   // Layer 2 Multi-Lens Array Uniforms (兼容 Windows / ANGLE 驱动的 uniform array[0] 规范)
   const uLensesLoc = gl.getUniformLocation(prog, 'u_lenses[0]') || gl.getUniformLocation(prog, 'u_lenses')
@@ -776,29 +799,60 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
       // 0. 禁用 popover 扫描与 WebGL 着色，避免在菜单和按钮下方渲染粗糙的矩形遮罩
       gl!.uniform1i(uPopoverCountLoc, 0)
 
-      // 1. 探测 Layer 1 (侧边栏) 几何尺寸与折叠状态
-      const sidebarEl = document.querySelector<HTMLElement>(
-        '[class*="sidebarCol"], [data-dsh-sidebar-root], [class*="SidebarRoot_root"]'
-      )
-      let sidebarWidthPx = 0
-      let sidebarRight = 0
-      let isSidebarCollapsed = false
-      let isSidebarFading = false
+                  // 1. 探测 Layer 1 (侧边栏) 几何尺寸：展开态 260px，收起 Rail 态 56px
+      const frameEl = document.querySelector('[data-sidebar-collapsed], [class*="frame"]')
+      const isFrameCollapsed = frameEl ? frameEl.hasAttribute('data-sidebar-collapsed') : false
+      const collapsedEl = document.querySelector('[class*="hHd-Xa_collapsed"], [class*="SidebarRoot_collapsed"], [class*="sidebarCol"] [class*="collapsed"]')
+      const isSidebarCollapsed = isFrameCollapsed || collapsedEl !== null
 
-      if (sidebarEl) {
-        const sRect = sidebarEl.getBoundingClientRect()
-        if (sRect.width > 0) {
-          sidebarWidthPx = (sRect.left + sRect.width) * dpr
-          sidebarRight = sRect.right
-          if (sRect.width < 140) isSidebarCollapsed = true
-        }
-        const rootEl = sidebarEl.querySelector<HTMLElement>('[class*="root"]') || sidebarEl
-        const classStr = typeof rootEl.className === 'string' ? rootEl.className : (typeof (rootEl.className as any)?.baseVal === 'string' ? (rootEl.className as any).baseVal : '')
-        if (classStr.includes('fading') || classStr.includes('collapsed')) {
-          isSidebarFading = true
+      let sidebarWidthPx = 56 * dpr
+      if (!isSidebarCollapsed) {
+        const sidebarEl = document.querySelector<HTMLElement>('[class*="hHd-Xa_root"], [class*="SidebarRoot_root"], [class*="sidebarCol"]')
+        if (sidebarEl) {
+          const sRect = sidebarEl.getBoundingClientRect()
+          if (sRect.width > 100) {
+            sidebarWidthPx = sRect.width * dpr
+          } else {
+            sidebarWidthPx = 260 * dpr
+          }
+        } else {
+          sidebarWidthPx = 260 * dpr
         }
       }
       gl!.uniform1f(uSidebarWidthPx, sidebarWidthPx)
+
+      // 1.05 探测 Layer 1 中央主对话消息流区域 (仅在 active 会话阶段启用，新建会话 hero 状态不启用背景模糊框)
+      let chatEl: HTMLElement | null = null
+      const isHero = document.querySelector<HTMLElement>('[data-phase="hero"], [data-phase="settling"], [class*="composerHero"], [class*="wSkVaW_composerHero"]')
+      if (!isHero) {
+        chatEl = document.querySelector<HTMLElement>(
+          '[data-phase="active"] [class*="ConversationRoot_scrollBody"], [data-phase="active"] [class*="wSkVaW_scrollBody"], [data-phase="active"] [data-conversation-scroll], [data-dsh-chat-scroll], [class*="ChatView_scroll"]'
+        ) || document.querySelector<HTMLElement>(
+          '[class*="ConversationRoot_scrollBody"]:not(:has([class*="composerHero"])), [class*="wSkVaW_scrollBody"]:not(:has([class*="composerHero"]))'
+        )
+      }
+      let hasChat = 0
+      let chatCenterX = 0
+      let chatCenterY = 0
+      let chatHalfW = 0
+      let chatHalfH = 0
+      let chatRadius = 0
+
+      if (chatEl && chatEl.offsetWidth > 0 && chatEl.offsetHeight > 0) {
+        const cRect = chatEl.getBoundingClientRect()
+        if (cRect.width > 20 && cRect.height > 20 && cRect.bottom > 0 && cRect.top < screenH) {
+          hasChat = 1
+          chatCenterX = (cRect.left + cRect.width * 0.5) * dpr
+          chatCenterY = (screenH - (cRect.top + cRect.height * 0.5)) * dpr
+          chatHalfW = (cRect.width * 0.5) * dpr
+          chatHalfH = (cRect.height * 0.5) * dpr
+          chatRadius = 18.0 * dpr
+        }
+      }
+
+      gl!.uniform1i(uHasChatLoc, hasChat)
+      gl!.uniform4f(uChatRectLoc, chatCenterX, chatCenterY, chatHalfW, chatHalfH)
+      gl!.uniform1f(uChatRadiusLoc, chatRadius)
 
       // 1.1 探测 Layer 3 (仅在真实模态弹窗/设置面板打开时激活)
       const candidates = document.querySelectorAll<HTMLElement>(
