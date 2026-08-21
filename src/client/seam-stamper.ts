@@ -20,6 +20,7 @@ const SEAMS: readonly Seam[] = [
   { attribute: 'data-dsh-add', selector: '[data-composer-card] [class*="add"]' },
   { attribute: 'data-dsh-stats', selector: '[data-slot="conversation.composer.dock"] [class*="root"]' },
   { attribute: 'data-dsh-wordmark', selector: '[class*="sidebarCol"] [class*="brand"]', first: true },
+  { attribute: 'data-dsh-chat-view', selector: '[class*="scrollBody"] > div:first-child, [class*="viewArea"], [class*="ChatView_root"], [class*="Md3f7G_root"]' },
   { attribute: 'data-dsh-chat-scroll', selector: '[class*="ConversationRoot_scrollBody"], [class*="wSkVaW_scrollBody"], [data-conversation-scroll]' },
 ]
 
