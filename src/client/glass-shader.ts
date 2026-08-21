@@ -439,14 +439,14 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
           }
           return
         }
-                const nextVideo = document.createElement('video')
-        if (!cleanUrl.startsWith('data:') && !cleanUrl.startsWith('blob:')) {
-          nextVideo.crossOrigin = 'anonymous'
-        }
+                        const videoHolder = document.querySelector('[data-dsh-glass-video-holder]') || document.body
+        const nextVideo = document.createElement('video')
+        nextVideo.crossOrigin = 'anonymous'
         nextVideo.autoplay = true
         nextVideo.loop = true
         nextVideo.muted = true
         nextVideo.defaultMuted = true
+        nextVideo.volume = 0
         nextVideo.playsInline = true
         nextVideo.setAttribute('playsinline', '')
         nextVideo.setAttribute('webkit-playsinline', '')
@@ -454,26 +454,31 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
         nextVideo.setAttribute('autoplay', '')
         nextVideo.setAttribute('loop', '')
         nextVideo.src = cleanUrl
+
         const tryPlay = () => {
           if (nextVideo.paused) {
             nextVideo.play().catch(() => {})
           }
         }
+
         nextVideo.onloadeddata = () => {
           if (customVideo && customVideo !== nextVideo) {
             try {
               customVideo.pause()
               customVideo.removeAttribute('src')
-              customVideo.load()
+              customVideo.remove()
             } catch {}
           }
           customVideo = nextVideo
           tryPlay()
         }
+
         nextVideo.oncanplay = () => {
           customVideo = nextVideo
           tryPlay()
         }
+
+        videoHolder.appendChild(nextVideo)
         nextVideo.load()
         tryPlay()
       }
