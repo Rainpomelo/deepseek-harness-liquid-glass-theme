@@ -77,7 +77,7 @@ export const LIQUID_GLASS_DEFAULTS: LiquidGlassSettings = {
 
   // Layer 0 环境底板与流体默认值
   background: 'gradient',
-  wallpaper: 'video:/api/liquid-glass/assets/EldenRing.mp4|/api/liquid-glass/assets/EldenRing_poster.png',
+  wallpaper: 'video:/api/liquid-glass/wallpaper-file?id=default_elden_ring&ext=mp4',
   bgBlur: 0,
   bgLiquidEnabled: true,
   bgLiquidAmp: 0.55,

@@ -394,7 +394,15 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
       return
     }
 
-    const isVideo = url.startsWith('video:') || url.startsWith('data:video/') || url.match(/\.(mp4|webm|mov|mkv|avi|m4v)(\?.*)?$/i) !== null
+        const isVideo = url.startsWith('video:') ||
+      url.startsWith('data:video/') ||
+      url.includes('ext=mp4') ||
+      url.includes('ext=webm') ||
+      url.includes('ext=mov') ||
+      url.includes('.mp4') ||
+      url.includes('.webm') ||
+      url.includes('.mov') ||
+      url.includes('default_')
     let cleanUrl = url.startsWith('video:') ? url.slice(6) : url
     let posterUrl = ''
     if (isVideo && cleanUrl.includes('|')) {

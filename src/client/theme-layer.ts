@@ -192,16 +192,18 @@ export class LiquidGlassLayer {
 
       const raw = localStorage.getItem('dsh.ui-liquid-glass.settings')
       if (raw) {
-        this.settings = { ...LIQUID_GLASS_DEFAULTS, ...JSON.parse(raw) }
-        this.settings.wallpaper = '' // 启动时不预读旧壁纸，全权由 IndexedDB/Disk 权威异步加载
+        const parsed = JSON.parse(raw)
+        this.settings = { ...LIQUID_GLASS_DEFAULTS, ...parsed }
+        if (!this.settings.wallpaper) {
+          this.settings.wallpaper = LIQUID_GLASS_DEFAULTS.wallpaper
+        }
         if (typeof this.settings.modalBlur !== 'number' || isNaN(this.settings.modalBlur)) {
-          this.settings.modalBlur = 24
+          this.settings.modalBlur = LIQUID_GLASS_DEFAULTS.modalBlur
         }
         if (typeof this.settings.l3MaskOpacity !== 'number' || isNaN(this.settings.l3MaskOpacity)) {
-          this.settings.l3MaskOpacity = 0.45
+          this.settings.l3MaskOpacity = LIQUID_GLASS_DEFAULTS.l3MaskOpacity
         }
       }
-      try { localStorage.removeItem('dsh.ui-liquid-glass.active_poster') } catch {}
     } catch {
       this.enabled = true
     }
@@ -210,7 +212,7 @@ export class LiquidGlassLayer {
   private saveState(): void {
     try {
       localStorage.setItem(LIQUID_GLASS_ENABLED_KEY, String(this.enabled))
-      const cleanSettings = { ...this.settings, wallpaper: '' }
+      const cleanSettings = { ...this.settings }
       localStorage.setItem('dsh.ui-liquid-glass.settings', JSON.stringify(cleanSettings))
     } catch {}
 
