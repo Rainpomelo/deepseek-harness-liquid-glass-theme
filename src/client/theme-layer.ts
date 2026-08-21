@@ -51,6 +51,68 @@ function removeSidebarUnderlay(): void {
   if (el) el.remove()
 }
 
+
+function startChatFadeMaskDriver(): () => void {
+  let scroller: HTMLElement | null = null
+  let viewArea: HTMLElement | null = null
+  let rafId = 0
+
+  function update() {
+    if (!scroller || !viewArea) return
+    const s = scroller.scrollTop
+    const h = scroller.clientHeight
+    if (h <= 0) return
+
+    const composerEl = scroller.querySelector<HTMLElement>('[class*="composerSeat"], [data-conversation-composer], [data-composer-card]')
+    const composerH = composerEl && composerEl.offsetHeight > 0 ? composerEl.offsetHeight : 120
+
+    const fadeStart = Math.max(0, s + h - composerH - 100)
+    const fadeMid1 = Math.max(0, s + h - composerH - 65)
+    const fadeMid2 = Math.max(0, s + h - composerH - 30)
+    const fadeEnd = Math.max(0, s + h - composerH)
+
+    const maskStr = `linear-gradient(to bottom, #000 0px, #000 ${fadeStart}px, rgba(0, 0, 0, 0.75) ${fadeMid1}px, rgba(0, 0, 0, 0.25) ${fadeMid2}px, transparent ${fadeEnd}px, transparent 100%)`
+    viewArea.style.setProperty('-webkit-mask-image', maskStr, 'important')
+    viewArea.style.setProperty('mask-image', maskStr, 'important')
+  }
+
+  function onScroll() {
+    cancelAnimationFrame(rafId)
+    rafId = requestAnimationFrame(update)
+  }
+
+  function bind() {
+    const nextScroller = document.querySelector<HTMLElement>(
+      '[data-phase="active"] [class*="scrollBody"], [data-phase="active"] [data-conversation-scroll]'
+    )
+    const nextViewArea = nextScroller
+      ? (nextScroller.querySelector<HTMLElement>('[class*="viewArea"], [class*="ChatView_root"], [class*="Md3f7G_root"]') || nextScroller.firstElementChild as HTMLElement)
+      : null
+
+    if (nextScroller !== scroller) {
+      if (scroller) scroller.removeEventListener('scroll', onScroll)
+      scroller = nextScroller
+      if (scroller) scroller.addEventListener('scroll', onScroll, { passive: true })
+    }
+    viewArea = nextViewArea
+    if (scroller && viewArea) update()
+  }
+
+  bind()
+  const obs = new MutationObserver(() => { bind() })
+  obs.observe(document.documentElement, { childList: true, subtree: true })
+
+  return () => {
+    cancelAnimationFrame(rafId)
+    obs.disconnect()
+    if (scroller) scroller.removeEventListener('scroll', onScroll)
+    if (viewArea) {
+      viewArea.style.removeProperty('-webkit-mask-image')
+      viewArea.style.removeProperty('mask-image')
+    }
+  }
+}
+
 export class LiquidGlassLayer {
   private enabled = true
   private settings: LiquidGlassSettings = { ...LIQUID_GLASS_DEFAULTS }
@@ -72,7 +134,9 @@ export class LiquidGlassLayer {
       await this.hydrateSettingsFromDisk()
       await this.hydrateWallpaperOnBoot()
       if (this.enabled) {
-        this.applySettings()
+        this.chatMaskDisposer?.()
+    this.chatMaskDisposer = startChatFadeMaskDriver()
+    this.applySettings()
       }
       this.sync()
     } catch {}
@@ -232,6 +296,7 @@ export class LiquidGlassLayer {
   }
 
     private sidebarObserver: MutationObserver | null = null
+  private chatMaskDisposer: (() => void) | null = null
 
   private syncSidebarWidth(underlay?: HTMLElement): void {
     const el = underlay || document.getElementById('dsh-sidebar-underlay')
@@ -347,7 +412,11 @@ export class LiquidGlassLayer {
       this.shaderHandle.dispose()
       this.shaderHandle = null
     }
-        if (this.sidebarObserver) {
+        if (this.chatMaskDisposer) {
+      this.chatMaskDisposer()
+      this.chatMaskDisposer = null
+    }
+    if (this.sidebarObserver) {
       this.sidebarObserver.disconnect()
       this.sidebarObserver = null
     }
