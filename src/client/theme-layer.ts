@@ -66,10 +66,10 @@ function startChatFadeMaskDriver(): () => void {
     const composerEl = scroller.querySelector<HTMLElement>('[class*="composerSeat"], [data-conversation-composer], [data-composer-card]')
     const composerH = composerEl && composerEl.offsetHeight > 0 ? composerEl.offsetHeight : 120
 
-    const fadeStart = Math.max(0, s + h - composerH - 100)
-    const fadeMid1 = Math.max(0, s + h - composerH - 65)
-    const fadeMid2 = Math.max(0, s + h - composerH - 30)
-    const fadeEnd = Math.max(0, s + h - composerH)
+        const fadeStart = Math.max(0, s + h - composerH - 60)
+    const fadeMid1 = Math.max(0, s + h - composerH - 30)
+    const fadeMid2 = Math.max(0, s + h - composerH - 10)
+    const fadeEnd = Math.max(0, s + h - composerH + 15)
 
     const maskStr = `linear-gradient(to bottom, #000 0px, #000 ${fadeStart}px, rgba(0, 0, 0, 0.75) ${fadeMid1}px, rgba(0, 0, 0, 0.25) ${fadeMid2}px, transparent ${fadeEnd}px, transparent 100%)`
     viewArea.style.setProperty('-webkit-mask-image', maskStr, 'important')
