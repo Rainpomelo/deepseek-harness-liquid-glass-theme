@@ -403,7 +403,7 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
       url.includes('.webm') ||
       url.includes('.mov') ||
       url.includes('default_')
-    let cleanUrl = url.startsWith('video:') ? url.slice(6) : url
+    let cleanUrl = url.replace(/^(video:)+/, '')
     let posterUrl = ''
     if (isVideo && cleanUrl.includes('|')) {
       const parts = cleanUrl.split('|')

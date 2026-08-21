@@ -626,7 +626,7 @@ export function LiquidGlassAppearanceRow(props: LiquidGlassAppearanceRowComponen
                     onClick={() => {
                       if (!dragInfo.current.hasMoved) {
                         setActiveBuiltinId(wp.id)
-                        setWallpaper(wp.type === 'video' ? `video:${wp.url}` : wp.url)
+                        const clean = wp.url.replace(/^(video:)+/, ''); setWallpaper(wp.type === 'video' ? `video:${clean}` : clean)
                         void saveWallpaperStore({ customWallpapers, activeBuiltinId: wp.id, activeCustomId })
                       }
                     }}

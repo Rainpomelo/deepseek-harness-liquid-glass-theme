@@ -16,21 +16,21 @@ export const BUILTIN_WALLPAPERS: BuiltinWallpaper[] = [
     "id": "builtin-video-1",
     "name": "DeepSeek",
     "type": "video",
-    "url": "video:/api/liquid-glass/wallpaper-file?id=default_deepseek&ext=mp4",
+    "url": "/api/liquid-glass/wallpaper-file?id=default_deepseek&ext=mp4",
     "isBuiltin": true
   },
   {
     "id": "builtin-video-2",
     "name": "ELDEN RING™",
     "type": "video",
-    "url": "video:/api/liquid-glass/wallpaper-file?id=default_elden_ring&ext=mp4",
+    "url": "/api/liquid-glass/wallpaper-file?id=default_elden_ring&ext=mp4",
     "isBuiltin": true
   },
   {
     "id": "builtin-video-3",
     "name": "雷暴预感 1080p",
     "type": "video",
-    "url": "video:/api/liquid-glass/wallpaper-file?id=default_thunderstorm&ext=mp4",
+    "url": "/api/liquid-glass/wallpaper-file?id=default_thunderstorm&ext=mp4",
     "isBuiltin": true
   },
   {
