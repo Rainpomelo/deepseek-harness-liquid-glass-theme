@@ -1,5 +1,3 @@
-import { DEFAULT_ELDEN_RING_VIDEO } from './default-videos-data'
-
 export interface LiquidGlassSettings {
   enabled: boolean
   l1Blur: number
@@ -51,7 +49,7 @@ export const LIQUID_GLASS_DEFAULTS: LiquidGlassSettings = {
   dropShadowBlur: 48,
   dropShadowY: 16,
   background: 'gradient',
-  wallpaper: 'video:' + DEFAULT_ELDEN_RING_VIDEO,
+  wallpaper: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23030712'/><stop offset='40%' stop-color='%2306283d'/><stop offset='70%' stop-color='%23005b60'/><stop offset='100%' stop-color='%2300dfa2'/></linearGradient></defs><rect width='100%' height='100%' fill='url(%23g)'/></svg>",
   bgBlur: 0,
   bgLiquidEnabled: true,
   bgLiquidAmp: 0.55,

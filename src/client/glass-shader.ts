@@ -566,8 +566,9 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
     // 3. 回退保底底图（极简深邃暗色渐变）
     sceneCtx!.clearRect(0, 0, w, h)
     const bg = sceneCtx!.createLinearGradient(0, 0, w, h)
-    bg.addColorStop(0, '#0b0f19')
-    bg.addColorStop(1, '#030712')
+    bg.addColorStop(0, '#040d1a')
+    bg.addColorStop(0.5, '#071e3d')
+    bg.addColorStop(1, '#020617')
     sceneCtx!.fillStyle = bg
     sceneCtx!.fillRect(0, 0, w, h)
   }
