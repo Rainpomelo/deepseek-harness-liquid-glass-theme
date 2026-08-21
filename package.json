@@ -1,7 +1,7 @@
 {
   "name": "@deepseek-ai/dsh-client-ui-liquid-glass",
-  "description": "Liquid Glass & Live Wallpaper (Web Edition): a physical Snell-refraction fluid glassmorphism theme and dynamic wallpaper engine optimized for Web surfaces",
-  "version": "1.0.0",
+  "description": "Liquid Glass & Live Wallpaper (Desktop Edition): a physical Snell-refraction fluid glassmorphism theme and dynamic wallpaper engine optimized for deepseek-harness-desktop",
+  "version": "2.0.0",
   "publishConfig": {
     "access": "public"
   },
@@ -18,7 +18,8 @@
       "default": "./lib/client.js"
     },
     "./src/*": "./src/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml"
   },
   "dsh": {
     "bundle": {
@@ -31,7 +32,8 @@
         "@deepseek-ai/dsh-client-ui-theme",
         "@deepseek-ai/dsh-client-ui-settings",
         "@deepseek-ai/dsh-client-ui-slots",
-        "@deepseek-ai/dsh-client-ui-primitives"
+        "@deepseek-ai/dsh-client-ui-primitives",
+        "@deepseek-ai/dsh-client-ui-model-selection"
       ],
       "platform": "web"
     }
@@ -72,6 +74,7 @@
   "files": [
     "lib/index.js",
     "lib/client.js",
-    "lib/types/**/*.d.ts"
+    "lib/types/**/*.d.ts",
+    "assets/**/*"
   ]
 }
