@@ -11,7 +11,7 @@ export function ensureGlassAmbientScene(): HTMLElement {
   const existing = document.querySelector<HTMLElement>('[data-dsh-glass-ambient]')
   if (existing !== null) return existing
   const holder = document.createElement('div')
-  holder.innerHTML = `<div data-dsh-glass-ambient aria-hidden="true" style="position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; background: #060b18;">${AMBIENT_MARKUP}</div>`
+  holder.innerHTML = `<div data-dsh-glass-ambient aria-hidden="true" style="position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; background: transparent;">${AMBIENT_MARKUP}</div>`
   const node = holder.firstElementChild
   if (!(node instanceof HTMLElement)) throw new Error('ui-liquid-glass: ambient scene failed to parse')
   document.body.prepend(node)

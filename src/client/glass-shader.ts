@@ -65,6 +65,8 @@ const FS_SRC = `
   uniform int u_has_chat;
   uniform vec4 u_chat_rect; // xy: centerPx, zw: halfPx
   uniform float u_chat_radius;
+  uniform int u_has_header;
+  uniform vec4 u_header_rect;
   #define MAX_POPOVERS 16
   uniform vec4 u_popovers[MAX_POPOVERS]; // xy: centerPx, zw: halfPx
   uniform float u_popover_radii[MAX_POPOVERS];
@@ -194,81 +196,99 @@ const FS_SRC = `
     return acc / totalW;
   }
 
-  vec3 getBaseColor(vec2 uvSample, vec2 fragPxSample, int isOverModal, float blurPx) {
-          float chatDist = 10000.0;
-      if (u_has_chat == 1) {
-        chatDist = sdRoundedBox(fragPx - u_chat_rect.xy, u_chat_rect.zw, u_chat_radius);
-      }
-      float headerDist = 10000.0;
-      if (u_has_header == 1) {
-        headerDist = sdRoundedBox(fragPx - u_header_rect.xy, u_header_rect.zw, 0.0);
-      }
+  vec3 sampleBackdrop(vec2 uvSample, vec2 fragPxSample, float blurPx) {
+    vec3 color = blurPx > 0.2
+      ? sampleGaussianFrosted(uvSample, blurPx, fragPxSample)
+      : texture2D(u_texture, vec2(uvSample.x, 1.0 - uvSample.y)).rgb;
+    if (u_l1_opacity > 0.001) {
+      color = mix(color, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
+    }
+    return color;
+  }
 
-      if (u_sidebar_width_px > 10.0 && fragPx.x <= u_sidebar_width_px) {
-        vec3 sidebarBg = sampleGaussianFrosted(finalBgUv, u_l1_blur, fragPx);
-        if (u_l1_opacity > 0.001) {
-          sidebarBg = mix(sidebarBg, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
-        }
-        if (u_l1_border > 0.001) {
-          float distToEdge = abs(fragPx.x - u_sidebar_width_px);
-          if (distToEdge <= 2.0) {
-            float glint = smoothstep(2.0, 0.0, distToEdge) * u_l1_border;
-            sidebarBg = mix(sidebarBg, vec3(0.92, 0.96, 1.0), glint);
-          }
-        }
-        underlyingColor = sidebarBg * (1.0 - shadow);
-      } else if (u_has_header == 1 && headerDist <= 0.0) {
-        vec3 headerBg = sampleGaussianFrosted(finalBgUv, u_l1_blur, fragPx);
-        if (u_l1_opacity > 0.001) {
-          headerBg = mix(headerBg, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
-        }
-        if (u_l1_border > 0.001) {
-          float distToBottom = abs(fragPx.y - (u_header_rect.y - u_header_rect.w));
-          if (distToBottom <= 1.5) {
-            float glint = smoothstep(1.5, 0.0, distToBottom) * u_l1_border;
-            headerBg = mix(headerBg, vec3(0.92, 0.96, 1.0), glint);
-          }
-        }
-        underlyingColor = headerBg * (1.0 - shadow);
-      } else if (u_has_chat == 1 && chatDist <= 0.0) {
-        vec3 chatBg = sampleGaussianFrosted(finalBgUv, u_l1_blur, fragPx);
-        if (u_l1_opacity > 0.001) {
-          chatBg = mix(chatBg, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
-        }
-        if (u_l1_border > 0.001 && abs(chatDist) <= 1.5) {
-          float glint = smoothstep(1.5, 0.0, abs(chatDist)) * u_l1_border;
-          chatBg = mix(chatBg, vec3(0.92, 0.96, 1.0), glint);
-        }
-        underlyingColor = chatBg * (1.0 - shadow);
-      } else {
-        vec3 bg;
-        if (u_bg_liquid_enabled == 1 && u_bg_dispersion > 0.0001 && u_bg_amp > 0.0001) {
-          vec2 uvR = clamp(finalBgUv - bgFlowOffset * u_bg_dispersion * 10.0, 0.001, 0.999);
-          vec2 uvG = clamp(finalBgUv, 0.001, 0.999);
-          vec2 uvB = clamp(finalBgUv + bgFlowOffset * u_bg_dispersion * 10.0, 0.001, 0.999);
-          bg = vec3(
-            texture2D(u_texture, vec2(uvR.x, 1.0 - uvR.y)).r,
-            texture2D(u_texture, vec2(uvG.x, 1.0 - uvG.y)).g,
-            texture2D(u_texture, vec2(uvB.x, 1.0 - uvB.y)).b
-          );
-        } else {
-          bg = texture2D(u_texture, vec2(finalBgUv.x, 1.0 - finalBgUv.y)).rgb;
-        }
-        underlyingColor = bg * (1.0 - shadow);
+  vec3 sampleDispersed(vec2 uv, vec2 offset, float dispersion) {
+    vec2 uvR = clamp(uv + offset * (1.0 - dispersion), 0.001, 0.999);
+    vec2 uvG = clamp(uv + offset, 0.001, 0.999);
+    vec2 uvB = clamp(uv + offset * (1.0 + dispersion), 0.001, 0.999);
+    return vec3(
+      texture2D(u_texture, vec2(uvR.x, 1.0 - uvR.y)).r,
+      texture2D(u_texture, vec2(uvG.x, 1.0 - uvG.y)).g,
+      texture2D(u_texture, vec2(uvB.x, 1.0 - uvB.y)).b
+    );
+  }
+
+  void main() {
+    vec2 fragPx = gl_FragCoord.xy;
+    vec2 uv = fragPx / u_resolution;
+    vec2 flowOffset = vec2(0.0);
+    if (u_bg_liquid_enabled == 1 && u_bg_amp > 0.0001) {
+      flowOffset = waterStreamTurbulence(uv, u_time * u_bg_speed);
+    }
+    vec2 backdropUv = clamp(uv + flowOffset, 0.001, 0.999);
+
+    vec3 color = sampleDispersed(backdropUv, flowOffset, u_bg_dispersion);
+    float bestD = 10000.0;
+    vec2 bestCenter = vec2(0.0);
+    vec2 bestHalf = vec2(0.0);
+    float bestRadius = 0.0;
+
+    for (int i = 0; i < MAX_LENSES; i++) {
+      if (i >= u_lens_count) break;
+      float d = sdRoundedBox(fragPx - u_lenses[i].xy, u_lenses[i].zw, u_lens_radii[i]);
+      if (d < bestD) {
+        bestD = d;
+        bestCenter = u_lenses[i].xy;
+        bestHalf = u_lenses[i].zw;
+        bestRadius = u_lens_radii[i];
       }
     }
 
-    // =========================================================================
-    // 2. 模态对话框 (Layer 3): 纯正 DOM 物理高斯模糊已由 CSS 在 DOM 层级执行
-    // Shader 仅保持底层纯净自然渲染，彻底消除着色器伪模糊噪点与色斑
-    // =========================================================================
+    if (bestD <= 0.0) {
+      vec2 p = fragPx - bestCenter;
+      float eps = 2.0;
+      vec2 grad = vec2(
+        sdRoundedBox(p + vec2(eps, 0.0), bestHalf, bestRadius) - sdRoundedBox(p - vec2(eps, 0.0), bestHalf, bestRadius),
+        sdRoundedBox(p + vec2(0.0, eps), bestHalf, bestRadius) - sdRoundedBox(p - vec2(0.0, eps), bestHalf, bestRadius)
+      );
+      vec2 edgeDir = length(grad) > 0.0001 ? normalize(grad) : vec2(0.0);
+      vec2 normPos = clamp(p / max(bestHalf, vec2(1.0)), -1.0, 1.0);
+      float bevelPx = max(u_bevel_width * u_resolution.y, 4.0);
+      float edgeSlope = sin(clamp(-bestD / bevelPx, 0.0, 1.0) * 3.14159265);
+      vec2 bulgeOffset = normPos * (1.0 - min(length(normPos), 1.0)) * 0.08 * u_bulge;
+      vec2 edgeOffset = edgeDir * edgeSlope * 0.025;
+      vec2 lensOffset = (bulgeOffset + edgeOffset) * max(u_ior - 1.0, 0.02) + flowOffset;
 
-    // 3. 输出最终合成画面
-    gl_FragColor = vec4(underlyingColor, 1.0);
+      float disp = u_dispersion * mix(0.3, 1.0, edgeSlope);
+      color = sampleDispersed(uv, lensOffset, disp);
+      if (u_lens_blur > 0.2) {
+        color = mix(color, sampleGaussianFrosted(clamp(uv + lensOffset, 0.001, 0.999), u_lens_blur, fragPx), clamp(u_lens_blur / 20.0, 0.0, 0.8));
+      }
+      float lum = dot(color, vec3(0.2126, 0.7152, 0.0722));
+      color = mix(vec3(lum), color, u_vibrancy);
+      color = mix(color, vec3(0.04, 0.07, 0.12), clamp(u_darkening, 0.0, 0.85));
+      if (u_rim_intensity > 0.001) {
+        float angle = radians(u_light_angle);
+        float specular = max(dot(edgeDir, vec2(cos(angle), sin(angle))), 0.0);
+        color += vec3(0.92, 0.96, 1.0) * pow(specular, 12.0) * edgeSlope * u_rim_intensity;
+      }
+    }
+
+    float chatDist = u_has_chat == 1 ? sdRoundedBox(fragPx - u_chat_rect.xy, u_chat_rect.zw, u_chat_radius) : 10000.0;
+    float headerDist = u_has_header == 1 ? sdRoundedBox(fragPx - u_header_rect.xy, u_header_rect.zw, 0.0) : 10000.0;
+    float modalDist = u_has_modal == 1 ? sdRoundedBox(fragPx - u_modal_rect.xy, u_modal_rect.zw, u_modal_radius) : 10000.0;
+    if (u_sidebar_width_px > 10.0 && fragPx.x <= u_sidebar_width_px) {
+      color = sampleBackdrop(backdropUv, fragPx, u_l1_blur);
+    } else if (headerDist <= 0.0 || chatDist <= 0.0) {
+      color = sampleBackdrop(backdropUv, fragPx, u_l1_blur);
+    } else if (modalDist <= 0.0) {
+      color = sampleBackdrop(backdropUv, fragPx, u_modal_blur * u_modal_progress);
+    }
+
+    gl_FragColor = vec4(color, 1.0);
   }
 `
 
-export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: ShaderOptions): GlassShaderHandle {
+function createLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: ShaderOptions): GlassShaderHandle {
   let opts = { ...currentOpts }
   let disposed = false
   let animId = 0
@@ -291,6 +311,11 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
     if (!s) return null
     gl!.shaderSource(s, src)
     gl!.compileShader(s)
+    if (!gl!.getShaderParameter(s, gl!.COMPILE_STATUS)) {
+      console.error('[LiquidGlass] shader compile failed:', gl!.getShaderInfoLog(s))
+      gl!.deleteShader(s)
+      return null
+    }
     return s
   }
 
@@ -303,6 +328,13 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
   gl.attachShader(prog, vs)
   gl.attachShader(prog, fs)
   gl.linkProgram(prog)
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    console.error('[LiquidGlass] shader link failed:', gl.getProgramInfoLog(prog))
+    gl.deleteProgram(prog)
+    gl.deleteShader(vs)
+    gl.deleteShader(fs)
+    return { update: () => {}, dispose: () => {} }
+  }
   gl.useProgram(prog)
 
   const buf = gl.createBuffer()
@@ -613,25 +645,24 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
       // 0. 禁用 popover 扫描与 WebGL 着色，避免在菜单和按钮下方渲染粗糙的矩形遮罩
       gl!.uniform1i(uPopoverCountLoc, 0)
 
-                  // 1. 探测 Layer 1 (侧边栏) 几何尺寸：展开态 260px，收起 Rail 态 56px
-      const frameEl = document.querySelector('[data-sidebar-collapsed], [class*="frame"]')
-      const isFrameCollapsed = frameEl ? frameEl.hasAttribute('data-sidebar-collapsed') : false
-      const collapsedEl = document.querySelector('[class*="hHd-Xa_collapsed"], [class*="SidebarRoot_collapsed"], [class*="sidebarCol"] [class*="collapsed"]')
-      const isSidebarCollapsed = isFrameCollapsed || collapsedEl !== null
-
-      let sidebarWidthPx = 56 * dpr
-      if (!isSidebarCollapsed) {
-        const sidebarEl = document.querySelector<HTMLElement>('[class*="hHd-Xa_root"], [class*="SidebarRoot_root"], [class*="sidebarCol"]')
-        if (sidebarEl) {
-          const sRect = sidebarEl.getBoundingClientRect()
-          if (sRect.width > 100) {
-            sidebarWidthPx = sRect.width * dpr
-          } else {
-            sidebarWidthPx = 260 * dpr
-          }
-        } else {
-          sidebarWidthPx = 260 * dpr
+      // 1. 探测 Layer 1 (侧边栏) 几何尺寸与折叠状态
+      const sidebarEl = document.querySelector<HTMLElement>('[class*="sidebarCol"], [data-dsh-sidebar-root], [class*="SidebarRoot_root"]')
+      let sidebarWidthPx = 0
+      let sidebarRight = 0
+      let isSidebarCollapsed = false
+      let isSidebarFading = false
+      if (sidebarEl) {
+        const sRect = sidebarEl.getBoundingClientRect()
+        if (sRect.width > 0) {
+          sidebarWidthPx = (sRect.left + sRect.width) * dpr
+          sidebarRight = sRect.right
+          if (sRect.width < 140) isSidebarCollapsed = true
         }
+        const rootEl = sidebarEl.querySelector<HTMLElement>('[class*="root"]') || sidebarEl
+        const classStr = typeof rootEl.className === 'string'
+          ? rootEl.className
+          : (typeof (rootEl.className as any)?.baseVal === 'string' ? (rootEl.className as any).baseVal : '')
+        if (classStr.includes('fading') || classStr.includes('collapsed')) isSidebarFading = true
       }
       gl!.uniform1f(uSidebarWidthPx, sidebarWidthPx)
 
@@ -919,6 +950,56 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
       cancelAnimationFrame(animId)
       window.removeEventListener('pointerdown', onPointerDown)
       window.removeEventListener('resize', resize)
+      if (customVideo) {
+        try {
+          customVideo.pause()
+          customVideo.removeAttribute('src')
+          customVideo.load()
+          customVideo.remove()
+        } catch {}
+        customVideo = null
+      }
+      customImg = null
+    },
+  }
+}
+
+/**
+ * Keeps the public shader handle stable while rebuilding all WebGL resources
+ * after Chromium restores a lost context.
+ */
+export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: ShaderOptions): GlassShaderHandle {
+  let lastOpts = { ...currentOpts }
+  let active = createLiquidGlassShader(canvas, lastOpts)
+  let disposed = false
+  let contextLost = false
+
+  const onContextLost = (event: Event) => {
+    event.preventDefault()
+    contextLost = true
+    active.dispose()
+  }
+
+  const onContextRestored = () => {
+    if (disposed || !contextLost) return
+    contextLost = false
+    active = createLiquidGlassShader(canvas, lastOpts)
+  }
+
+  canvas.addEventListener('webglcontextlost', onContextLost, { passive: false })
+  canvas.addEventListener('webglcontextrestored', onContextRestored)
+
+  return {
+    update: (next) => {
+      lastOpts = { ...lastOpts, ...next }
+      if (!contextLost && !disposed) active.update(next)
+    },
+    dispose: () => {
+      if (disposed) return
+      disposed = true
+      canvas.removeEventListener('webglcontextlost', onContextLost)
+      canvas.removeEventListener('webglcontextrestored', onContextRestored)
+      active.dispose()
     },
   }
 }

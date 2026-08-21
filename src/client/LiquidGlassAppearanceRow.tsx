@@ -9,6 +9,11 @@ import css from './LiquidGlassAppearanceRow.module.css'
 
 export const USER_PRESET_KEY = 'dsh.ui-liquid-glass.user-preset'
 
+// `video:` is the plugin's wallpaper marker, not a browser media scheme.
+export function normalizeVideoSource(url: string): string {
+  return url.replace(/^(video:)+/, '')
+}
+
 export interface LiquidGlassAppearanceRowInjected {
   applyPreset: (preset: Partial<LiquidGlassSettings>) => void
   // 一层基底玻璃参数
@@ -634,7 +639,7 @@ export function LiquidGlassAppearanceRow(props: LiquidGlassAppearanceRowComponen
                   >
                     {wp.type === 'video' ? (
                       <video
-                        src={wp.url}
+                        src={normalizeVideoSource(wp.url)}
                         className={css.slotThumb}
                         muted
                         loop
@@ -643,7 +648,7 @@ export function LiquidGlassAppearanceRow(props: LiquidGlassAppearanceRowComponen
                       />
                     ) : (
                       <img
-                        src={wp.url}
+                        src={normalizeVideoSource(wp.url)}
                         alt={wp.name}
                         className={css.slotThumb}
                       />

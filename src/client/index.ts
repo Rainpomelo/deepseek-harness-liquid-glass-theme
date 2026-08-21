@@ -13,7 +13,7 @@ import { en, NS, zh } from './locales.ts'
 import { LiquidGlassLayer } from './theme-layer.ts'
 import './liquid-glass.module.css'
 
-export const inject = ['theme', 'slots', 'locale']
+export const inject = ['theme', 'slots', 'locale', 'sessions']
 
 export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-liquid-glass: locale dictionaries')
@@ -660,17 +660,18 @@ html[data-dsh-liquid-glass] .dsh-model-select-group {
 
 html[data-dsh-liquid-glass] .dsh-model-select-group-title,
 html[data-dsh-liquid-glass] [class*="ModelSelect_groupTitle"] {
-  color: #38bdf8 !important;
+  color: rgba(255, 255, 255, 0.9) !important;
   font-size: 11px !important;
   font-weight: 600 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em !important;
   padding: 4px 8px 2px 8px !important;
   position: sticky;
   top: 0;
-  background: rgba(10, 16, 28, 0.85) !important;
-  backdrop-filter: blur(12px) !important;
-  border-radius: 6px !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 0 !important;
   z-index: 1;
 }
 
@@ -2177,7 +2178,9 @@ html[data-dsh-liquid-glass] ::-webkit-scrollbar-thumb:active {
     scope.slots.inject('conversation.input.model', () => scope.slots.register({
       name: 'conversation.input.model',
       priority: -10,
-      locale: '@deepseek-ai/dsh-client-ui-model-selection',
+      // Bind to the model-selection plugin's registered `model` namespace.
+      // Passing the package id here makes the slot renderer print translation keys.
+      locale: 'model',
       inject: (sessionId: string) => {
         const directory = models.directoryFor(sessionId)
         const available = sessions ? sessions.subagentAddress(sessionId) === void 0 : true

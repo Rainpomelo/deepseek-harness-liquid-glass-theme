@@ -46,10 +46,27 @@
 [data-dsh-liquid-glass] [data-dsh-glass-ambient] {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  background: #060b18;
+  background: transparent !important;
+}
+
+[data-dsh-liquid-glass] [data-dsh-glass-canvas] {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Keep the app content above the ambient scene while allowing its surfaces
+ * to remain transparent so the wallpaper can show through. */
+[data-dsh-liquid-glass] > body,
+[data-dsh-liquid-glass] body > #root,
+[data-dsh-liquid-glass] #root {
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
 }
 
 /* Frame and layout transparency piercing */
@@ -901,7 +918,11 @@ html[data-dsh-liquid-glass] [class*="_7KE1Ra_menu"] {
   flex-direction: column;
   gap: 4px;
   border-radius: 16px !important;
-  background: var(--dsh-l3-mask-bg, rgba(10, 16, 28, 0.75)) !important;
+  --dsh-model-menu-bg: rgba(13, 20, 34, 0.88);
+  --dsh-model-panel-bg: rgba(22, 31, 49, 0.74);
+  --dsh-model-provider-color: rgba(255, 255, 255, 0.9);
+  --dsh-model-provider-bg: transparent;
+  background: var(--dsh-model-menu-bg) !important;
   backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
   -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) !important;
   border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
@@ -986,7 +1007,7 @@ html[data-dsh-liquid-glass] [class*="effortCollapseWrap"] {
 
 html[data-dsh-liquid-glass] .dsh-model-inline-panel,
 html[data-dsh-liquid-glass] [class*="modelInlinePanel"] {
-  background: rgba(255, 255, 255, 0.06) !important;
+  background: var(--dsh-model-panel-bg, rgba(22, 31, 49, 0.74)) !important;
   backdrop-filter: blur(var(--dsh-modal-blur, 24px)) saturate(140%) !important;
   -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) saturate(140%) !important;
   border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
@@ -1048,17 +1069,18 @@ html[data-dsh-liquid-glass] .dsh-model-select-group {
 
 html[data-dsh-liquid-glass] .dsh-model-select-group-title,
 html[data-dsh-liquid-glass] [class*="ModelSelect_groupTitle"] {
-  color: #38bdf8 !important;
+  color: var(--dsh-model-provider-color, rgba(255, 255, 255, 0.9)) !important;
   font-size: 11px !important;
   font-weight: 600 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em !important;
   padding: 4px 8px 2px 8px !important;
   position: sticky;
   top: 0;
-  background: rgba(10, 16, 28, 0.85) !important;
-  backdrop-filter: blur(12px) !important;
-  border-radius: 6px !important;
+  background: var(--dsh-model-provider-bg, transparent) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 0 !important;
   z-index: 1;
 }
 
@@ -1124,7 +1146,7 @@ html[data-dsh-liquid-glass] .dsh-model-select-check {
 
 html[data-dsh-liquid-glass] .dsh-effort-inline-panel,
 html[data-dsh-liquid-glass] [class*="effortInlinePanel"] {
-  background: rgba(255, 255, 255, 0.06) !important;
+  background: var(--dsh-model-panel-bg, rgba(22, 31, 49, 0.74)) !important;
   backdrop-filter: blur(var(--dsh-modal-blur, 24px)) saturate(140%) !important;
   -webkit-backdrop-filter: blur(var(--dsh-modal-blur, 24px)) saturate(140%) !important;
   border: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.18)) !important;
@@ -1155,7 +1177,7 @@ html[data-dsh-liquid-glass] .dsh-effort-glow-dot {
 html[data-dsh-liquid-glass] .dsh-effort-current-label {
   font-size: 12px;
   font-weight: 600;
-  color: #ffffff !important;
+  color: rgba(235, 242, 252, 0.92) !important;
 }
 
 html[data-dsh-liquid-glass] .dsh-segmented-slider-track,

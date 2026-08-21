@@ -70,11 +70,12 @@ export function AccordionModelSelect({
   const reasoning = currentChoice?.model?.reasoning
   const effectiveEffort = state?.current?.reasoningEffort ?? reasoning?.defaultEffort
   const displayedEffort = isDragging && dragPreviewEffort !== undefined ? dragPreviewEffort : effectiveEffort
+  const providerDefaultLabel = '默认'
   const effortLabel =
     reasoning === void 0
       ? void 0
       : displayedEffort === void 0
-      ? t ? t('effort.providerDefault') : 'Default'
+      ? providerDefaultLabel
       : reasoning.efforts?.find((level: any) => level.id === displayedEffort)?.name ?? displayedEffort
 
   const effortChoices = useMemo(() => {
@@ -85,7 +86,7 @@ export function AccordionModelSelect({
             {
               key: 'provider-default',
               effort: void 0,
-              label: t ? t('effort.providerDefault') : 'Default',
+              label: providerDefaultLabel,
             },
           ]
         : []

@@ -10,6 +10,39 @@ interface Seam {
   readonly first?: boolean
 }
 
+const TRANSPARENT_FRAME_SELECTORS = [
+  '#root',
+  '.pI_x6G_frame',
+  '[data-dsh-frame]',
+  '[data-shell-overlay]',
+  '[data-primary-page]',
+  '[class*="AppFrame_frame"]',
+  '[class*="AppFrame_centerCol"]',
+  '[class*="AppFrame_sidebarCol"]',
+  '[class*="AppFrame_detailsCol"]',
+  '[class*="centerCol"]',
+  '[class*="centerSurface"]',
+  '[class*="sidebarCol"]',
+  '[class*="detailsCol"]',
+] as const
+
+const TRANSPARENT_TOKENS = [
+  '--dsw-alias-bg-base',
+  '--dsw-alias-bg-layer-1',
+  '--dsw-alias-bg-layer-2',
+  '--dsw-alias-bg-layer-3',
+  '--dsw-alias-bg-overlay',
+  '--dsw-alias-bg-module-platform',
+  '--dsw-alias-bg-multi-select',
+] as const
+
+interface SavedStyle {
+  readonly value: string
+  readonly priority: string
+}
+
+const FRAME_STYLE_PROPERTIES = ['background', 'background-color', 'background-image'] as const
+
 const SEAMS: readonly Seam[] = [
   { attribute: 'data-dsh-frame', selector: ':has(> [class*="sidebarCol"])' },
   { attribute: 'data-dsh-sidebar-root', selector: '[class*="sidebarCol"] [class*="root"]', first: true },
@@ -40,8 +73,62 @@ function stampAll(): void {
 }
 
 export function startSeamStamper(): () => void {
+  const savedTokens = new Map<string, SavedStyle>()
+  const savedFrameStyles = new Map<HTMLElement, Map<string, SavedStyle>>()
+
+  for (const token of TRANSPARENT_TOKENS) {
+    savedTokens.set(token, {
+      value: document.documentElement.style.getPropertyValue(token),
+      priority: document.documentElement.style.getPropertyPriority(token),
+    })
+  }
+
+  const saveFrameStyles = (el: HTMLElement) => {
+    if (savedFrameStyles.has(el)) return
+    const styles = new Map<string, SavedStyle>()
+    for (const property of FRAME_STYLE_PROPERTIES) {
+      styles.set(property, {
+        value: el.style.getPropertyValue(property),
+        priority: el.style.getPropertyPriority(property),
+      })
+    }
+    savedFrameStyles.set(el, styles)
+  }
+
+  const stampRuntimeTransparency = () => {
+    for (const token of TRANSPARENT_TOKENS) {
+      document.documentElement.style.setProperty(token, 'transparent', 'important')
+    }
+    for (const selector of TRANSPARENT_FRAME_SELECTORS) {
+      for (const el of document.querySelectorAll<HTMLElement>(selector)) {
+        if (el === document.body || el === document.documentElement) continue
+        saveFrameStyles(el)
+        el.style.setProperty('background', 'transparent', 'important')
+        el.style.setProperty('background-color', 'transparent', 'important')
+        el.style.setProperty('background-image', 'none', 'important')
+      }
+    }
+  }
+
   stampAll()
-  const observer = new MutationObserver(() => { stampAll() })
+  stampRuntimeTransparency()
+  const observer = new MutationObserver(() => {
+    stampAll()
+    stampRuntimeTransparency()
+  })
   observer.observe(document.documentElement, { childList: true, subtree: true })
-  return () => { observer.disconnect() }
+  return () => {
+    observer.disconnect()
+    for (const [token, saved] of savedTokens) {
+      if (saved.value) document.documentElement.style.setProperty(token, saved.value, saved.priority)
+      else document.documentElement.style.removeProperty(token)
+    }
+    for (const [el, styles] of savedFrameStyles) {
+      if (!el.isConnected) continue
+      for (const [property, saved] of styles) {
+        if (saved.value) el.style.setProperty(property, saved.value, saved.priority)
+        else el.style.removeProperty(property)
+      }
+    }
+  }
 }
