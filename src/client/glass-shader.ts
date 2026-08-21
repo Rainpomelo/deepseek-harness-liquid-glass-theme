@@ -439,8 +439,10 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
           }
           return
         }
-        const nextVideo = document.createElement('video')
-        nextVideo.crossOrigin = 'anonymous'
+                const nextVideo = document.createElement('video')
+        if (!cleanUrl.startsWith('data:') && !cleanUrl.startsWith('blob:')) {
+          nextVideo.crossOrigin = 'anonymous'
+        }
         nextVideo.autoplay = true
         nextVideo.loop = true
         nextVideo.muted = true
@@ -459,19 +461,17 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
         }
         nextVideo.onloadeddata = () => {
           if (customVideo && customVideo !== nextVideo) {
-            customVideo.pause()
-            customVideo.removeAttribute('src')
-            customVideo.load()
+            try {
+              customVideo.pause()
+              customVideo.removeAttribute('src')
+              customVideo.load()
+            } catch {}
           }
-          if (currentWallpaperUrl.includes(cleanUrl)) {
-            customVideo = nextVideo
-            tryPlay()
-          }
+          customVideo = nextVideo
+          tryPlay()
         }
         nextVideo.oncanplay = () => {
-          if (!customVideo && currentWallpaperUrl.includes(cleanUrl)) {
-            customVideo = nextVideo
-          }
+          customVideo = nextVideo
           tryPlay()
         }
         nextVideo.load()
@@ -520,24 +520,26 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
   window.addEventListener('resize', resize)
   resize()
 
-  function drawCover(media: HTMLImageElement | HTMLVideoElement, w: number, h: number) {
-    const mw = media instanceof HTMLVideoElement ? media.videoWidth : media.naturalWidth
-    const mh = media instanceof HTMLVideoElement ? media.videoHeight : media.naturalHeight
-    if (mw <= 0 || mh <= 0) return
-    const sRatio = w / h
-    const mRatio = mw / mh
-    let dw = w
-    let dh = h
-    let dx = 0
-    let dy = 0
-    if (sRatio > mRatio) {
-      dh = w / mRatio
-      dy = (h - dh) * 0.5
-    } else {
-      dw = h * mRatio
-      dx = (w - dw) * 0.5
-    }
-    sceneCtx!.drawImage(media, dx, dy, dw, dh)
+    function drawCover(media: HTMLImageElement | HTMLVideoElement, w: number, h: number) {
+    try {
+      const mw = media instanceof HTMLVideoElement ? media.videoWidth : media.naturalWidth
+      const mh = media instanceof HTMLVideoElement ? media.videoHeight : media.naturalHeight
+      if (mw <= 0 || mh <= 0) return
+      const sRatio = w / h
+      const mRatio = mw / mh
+      let dw = w
+      let dh = h
+      let dx = 0
+      let dy = 0
+      if (sRatio > mRatio) {
+        dh = w / mRatio
+        dy = (h - dh) * 0.5
+      } else {
+        dw = h * mRatio
+        dx = (w - dw) * 0.5
+      }
+      sceneCtx!.drawImage(media, dx, dy, dw, dh)
+    } catch {}
   }
 
   function drawScene() {
