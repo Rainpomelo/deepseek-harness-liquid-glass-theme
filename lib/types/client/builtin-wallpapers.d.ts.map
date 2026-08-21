@@ -1,0 +1,1 @@
+{"version":3,"file":"builtin-wallpapers.d.ts","sourceRoot":"","sources":["../../../src/client/builtin-wallpapers.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAEH,MAAM,WAAW,gBAAgB;IAC/B,EAAE,EAAE,MAAM,CAAA;IACV,IAAI,EAAE,MAAM,CAAA;IACZ,IAAI,EAAE,OAAO,GAAG,OAAO,CAAA;IACvB,GAAG,EAAE,MAAM,CAAA;IACX,SAAS,EAAE,IAAI,CAAA;CAChB;AAED,eAAO,MAAM,kBAAkB,EAAE,gBAAgB,EA2ChD,CAAC"}

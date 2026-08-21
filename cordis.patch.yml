@@ -1,0 +1,3 @@
+- insert:
+    - id: ui-liquid-glass
+      name: '@deepseek-ai/dsh-client-ui-liquid-glass'
