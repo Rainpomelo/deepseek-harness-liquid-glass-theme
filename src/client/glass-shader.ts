@@ -195,231 +195,13 @@ const FS_SRC = `
   }
 
   vec3 getBaseColor(vec2 uvSample, vec2 fragPxSample, int isOverModal, float blurPx) {
-    float chatDist = 10000.0;
-    if (u_has_chat == 1) {
-      chatDist = sdRoundedBox(fragPxSample - u_chat_rect.xy, u_chat_rect.zw, u_chat_radius);
-    }
-
-    if (isOverModal == 1) {
-      vec3 modalFrosted = sampleGaussianFrosted(uvSample, max(u_modal_blur, blurPx), fragPxSample);
-      if (u_l1_opacity > 0.001) {
-        modalFrosted = mix(modalFrosted, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
-      }
-      return modalFrosted;
-    } else if ((u_sidebar_width_px > 10.0 && fragPxSample.x <= u_sidebar_width_px) ||
-               (u_has_chat == 1 && chatDist <= 0.0)) {
-      vec3 l1Frosted = sampleGaussianFrosted(uvSample, max(u_l1_blur, blurPx), fragPxSample);
-      if (u_l1_opacity > 0.001) {
-        l1Frosted = mix(l1Frosted, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
-      }
-      return l1Frosted;
-    } else if (blurPx > 0.5) {
-      return sampleGaussianFrosted(uvSample, blurPx, fragPxSample);
-    } else {
-      return texture2D(u_texture, vec2(uvSample.x, 1.0 - uvSample.y)).rgb;
-    }
-  }
-
-  vec3 calculateLensColor(vec2 center, vec2 halfSize, float radius, float d, vec2 fragPx, vec2 uv, vec2 bgFlowOffset, float progress, int isOverModal) {
-    vec2 p = fragPx - center;
-
-    // 1. 边缘法线梯度向量
-    float eps = 2.0;
-    vec2 grad = vec2(
-      sdRoundedBox(p + vec2(eps, 0.0), halfSize, radius) - sdRoundedBox(p - vec2(eps, 0.0), halfSize, radius),
-      sdRoundedBox(p + vec2(0.0, eps), halfSize, radius) - sdRoundedBox(p - vec2(0.0, eps), halfSize, radius)
-    );
-    float gradLen = length(grad);
-    vec2 edgeDir = gradLen > 1e-4 ? grad / gradLen : vec2(0.0);
-
-    // 2. 全域连续体积深度与透镜曲率场 (随 progress 动态物理生长与溶解折射)
-    vec2 normPos = clamp(p / max(halfSize, vec2(1.0)), -1.0, 1.0);
-    vec2 internalBulge = normPos * (1.0 - length(normPos) * 0.35) * 0.35 * u_bulge * progress;
-
-    // 边缘倒角曲率折射与棱镜折射
-    vec2 edgeRefract = vec2(0.0);
-    float edgeSlope = 0.0;
-    float bevelPx = max(u_bevel_width * u_resolution.y, 8.0);
-    float tBevel = clamp(-d / bevelPx, 0.0, 1.0);
-    edgeSlope = sin(tBevel * 3.14159265);
-    edgeRefract = edgeDir * (edgeSlope * 0.35 + exp(-(-d) * 0.08) * 0.18) * progress;
-
-    // 斯涅尔折射合成向量
-    vec2 totalOffset = (internalBulge + edgeRefract) * max(u_ior - 1.0, 0.08) * 1.6 + bgFlowOffset;
-
-    // 3. 手势水波动态叠加
-    if (u_ripple_amp > 0.001) {
-      vec2 normP = p / u_resolution.y;
-      float t0 = u_time - u_ripple0.z;
-      if (t0 > 0.0 && t0 < 2.5 && u_ripple0.w > 0.0) {
-        float r0 = length(normP - u_ripple0.xy);
-        float w0 = sin(r0 * 36.0 - t0 * 15.0) * exp(-r0 * 4.5 - t0 * 2.0);
-        totalOffset += normalize(normP - u_ripple0.xy + 1e-4) * w0 * 0.035 * u_ripple0.w * u_ripple_amp * progress;
-      }
-
-      float t1 = u_time - u_ripple1.z;
-      if (t1 > 0.0 && t1 < 2.5 && u_ripple1.w > 0.0) {
-        float r1 = length(normP - u_ripple1.xy);
-        float w1 = sin(r1 * 36.0 - t1 * 15.0) * exp(-r1 * 4.5 - t1 * 2.0);
-        totalOffset += normalize(normP - u_ripple1.xy + 1e-4) * w1 * 0.035 * u_ripple1.w * u_ripple_amp * progress;
-      }
-    }
-
-    // 4. RGB 色散分离采样 (折射处于最上层：折射采样底层已虚化的画面)
-    float disp = u_dispersion * 3.0 * mix(0.5, 2.5, edgeSlope) * progress;
-    vec2 uvR = clamp(uv + totalOffset * (1.0 - disp), 0.001, 0.999);
-    vec2 uvG = clamp(uv + totalOffset, 0.001, 0.999);
-    vec2 uvB = clamp(uv + totalOffset * (1.0 + disp), 0.001, 0.999);
-
-    float blurAmt = u_lens_blur * progress;
-    float cR = getBaseColor(uvR, fragPx, isOverModal, blurAmt).r;
-    float cG = getBaseColor(uvG, fragPx, isOverModal, blurAmt).g;
-    float cB = getBaseColor(uvB, fragPx, isOverModal, blurAmt).b;
-    vec3 color = vec3(cR, cG, cB);
-
-    // 6. Vibrancy 鲜艳度
-    if (abs(u_vibrancy - 1.0) > 0.001) {
-      float lum = dot(color, vec3(0.2126, 0.7152, 0.0722));
-      color = mix(vec3(lum), color, mix(1.0, u_vibrancy, progress));
-    }
-
-    // 7. 透镜暗化遮光度
-    if (u_darkening > 0.001) {
-      color = mix(color, vec3(0.04, 0.07, 0.12), clamp(u_darkening * progress, 0.0, 0.85));
-    }
-
-    // 8. 3D 表面高光倒角亮边
-    if (u_rim_intensity > 0.001) {
-      float rad = radians(u_light_angle);
-      vec2 lightDir = vec2(cos(rad), sin(rad));
-      float spec = max(dot(edgeDir, lightDir), 0.0);
-      float dynamicRim = pow(spec, 16.0) * 0.70 + 0.30;
-      float edgeRim = smoothstep(-14.0, -1.0, d) * 0.45;
-      color += vec3(0.92, 0.96, 1.0) * edgeRim * dynamicRim * u_rim_intensity * progress;
-    }
-
-    return color;
-  }
-
-  void main() {
-    vec2 fragPx = gl_FragCoord.xy;
-    vec2 uv = fragPx / u_resolution;
-
-    // 计算背景流水湍流偏移
-    vec2 bgFlowOffset = vec2(0.0);
-    if (u_bg_liquid_enabled == 1 && u_bg_amp > 0.0001) {
-      float t = u_time * u_bg_speed;
-      bgFlowOffset = waterStreamTurbulence(uv, t);
-    }
-    vec2 finalBgUv = uv + bgFlowOffset;
-
-    // =========================================================================
-    // 0. Layer 1 气泡胶囊与弹出视窗 (具有顶层绝对优先级，直接执行 16-Tap 物理高斯雾化与基底暗化)
-    // =========================================================================
-    if (u_popover_count > 0) {
-      for (int pIdx = 0; pIdx < MAX_POPOVERS; pIdx++) {
-        if (pIdx >= u_popover_count) break;
-        vec2 pCenter = u_popovers[pIdx].xy;
-        vec2 pHalf = u_popovers[pIdx].zw;
-        float pRadius = u_popover_radii[pIdx];
-        float pDist = sdRoundedBox(fragPx - pCenter, pHalf, pRadius);
-        if (pDist <= 0.0) {
-          // 如果当前像素在模态弹窗内部，且这个 popover 位于底层背景，则不在此处提前 return，交给模态弹窗着色
-          if (u_has_modal == 1 && u_modal_progress > 0.001) {
-            float mDist = sdRoundedBox(fragPx - u_modal_rect.xy, u_modal_rect.zw, u_modal_radius);
-            if (mDist <= 0.0) {
-              continue;
-            }
-          }
-          vec3 popBg = sampleGaussianFrosted(finalBgUv, max(u_l1_blur, u_modal_blur), fragPx);
-          if (u_l1_opacity > 0.001) {
-            popBg = mix(popBg, vec3(0.04, 0.07, 0.12), clamp(max(u_l1_opacity, 0.45), 0.0, 0.95));
-          }
-          if (u_l1_border > 0.001 && abs(pDist) <= 1.0) {
-            float glint = smoothstep(1.0, 0.0, abs(pDist)) * u_l1_border;
-            popBg = mix(popBg, vec3(0.92, 0.96, 1.0), glint);
-          }
-          gl_FragColor = vec4(popBg, 1.0);
-          return;
-        }
-      }
-    }
-
-    // =========================================================================
-    // 1. 分离前台透镜 (设置弹窗内部) 与 背景透镜 (底层对话框/输入框)
-    // =========================================================================
-    float minFgD = 10000.0;
-    vec2 bestFgCenter = vec2(0.0);
-    vec2 bestFgHalf = vec2(0.0);
-    float bestFgRadius = 0.0;
-    int hitFgLens = 0;
-
-    float minBgD = 10000.0;
-    vec2 bestBgCenter = vec2(0.0);
-    vec2 bestBgHalf = vec2(0.0);
-    float bestBgRadius = 0.0;
-    int hitBgLens = 0;
-
-    for (int i = 0; i < MAX_LENSES; i++) {
-      if (i >= u_lens_count) break;
-      vec2 c = u_lenses[i].xy;
-      vec2 h = u_lenses[i].zw;
-      float r = u_lens_radii[i];
-      float isFg = u_lens_layers[i];
-      float dist = sdRoundedBox(fragPx - c, h, r);
-
-      if (isFg > 0.5) {
-        if (dist < minFgD) {
-          minFgD = dist;
-          bestFgCenter = c;
-          bestFgHalf = h;
-          bestFgRadius = r;
-        }
-      } else {
-        if (dist < minBgD) {
-          minBgD = dist;
-          bestBgCenter = c;
-          bestBgHalf = h;
-          bestBgRadius = r;
-        }
-      }
-    }
-
-    if (minFgD <= 0.0) hitFgLens = 1;
-    if (minBgD <= 0.0) hitBgLens = 1;
-
-    // 如果当前像素位于上层弹窗内部，平滑抑制底层输入框透镜的倒角亮边与多层玻璃重叠
-    float inModal = 0.0;
-    if (u_has_modal == 1 && u_modal_progress > 0.001) {
-      float mDist = sdRoundedBox(fragPx - u_modal_rect.xy, u_modal_rect.zw, u_modal_radius);
-      if (mDist <= 0.0) {
-        inModal = u_modal_progress;
-      }
-    }
-
-    // 计算底层背景画面 (包含底层对话框液态折射、侧边栏或全景壁纸)
-    vec3 underlyingColor;
-    if (hitBgLens == 1 && inModal < 0.99) {
-      float lensProgress = 1.0 - inModal;
-      underlyingColor = calculateLensColor(bestBgCenter, bestBgHalf, bestBgRadius, minBgD, fragPx, uv, bgFlowOffset, lensProgress, 0);
-    } else {
-      float shadow = 0.0;
-      if (u_lens_count > 0 && u_shadow_opacity > 0.001) {
-        float minShadowDist = 10000.0;
-        for (int i = 0; i < MAX_LENSES; i++) {
-          if (i >= u_lens_count) break;
-          vec2 sCenter = u_lenses[i].xy - vec2(0.0, u_shadow_offset_y);
-          vec2 sHalf = u_lenses[i].zw;
-          float sRadius = u_lens_radii[i];
-          float sDist = sdRoundedBox(fragPx - sCenter, sHalf, sRadius);
-          minShadowDist = min(minShadowDist, sDist);
-        }
-        shadow = smoothstep(max(u_shadow_blur, 1.0), 0.0, minShadowDist) * u_shadow_opacity;
-      }
-
-      float chatDist = 10000.0;
+          float chatDist = 10000.0;
       if (u_has_chat == 1) {
         chatDist = sdRoundedBox(fragPx - u_chat_rect.xy, u_chat_rect.zw, u_chat_radius);
+      }
+      float headerDist = 10000.0;
+      if (u_has_header == 1) {
+        headerDist = sdRoundedBox(fragPx - u_header_rect.xy, u_header_rect.zw, 0.0);
       }
 
       if (u_sidebar_width_px > 10.0 && fragPx.x <= u_sidebar_width_px) {
@@ -435,6 +217,19 @@ const FS_SRC = `
           }
         }
         underlyingColor = sidebarBg * (1.0 - shadow);
+      } else if (u_has_header == 1 && headerDist <= 0.0) {
+        vec3 headerBg = sampleGaussianFrosted(finalBgUv, u_l1_blur, fragPx);
+        if (u_l1_opacity > 0.001) {
+          headerBg = mix(headerBg, vec3(0.04, 0.07, 0.12), clamp(u_l1_opacity, 0.0, 0.95));
+        }
+        if (u_l1_border > 0.001) {
+          float distToBottom = abs(fragPx.y - (u_header_rect.y - u_header_rect.w));
+          if (distToBottom <= 1.5) {
+            float glint = smoothstep(1.5, 0.0, distToBottom) * u_l1_border;
+            headerBg = mix(headerBg, vec3(0.92, 0.96, 1.0), glint);
+          }
+        }
+        underlyingColor = headerBg * (1.0 - shadow);
       } else if (u_has_chat == 1 && chatDist <= 0.0) {
         vec3 chatBg = sampleGaussianFrosted(finalBgUv, u_l1_blur, fragPx);
         if (u_l1_opacity > 0.001) {
@@ -546,6 +341,8 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
   const uHasChatLoc = gl.getUniformLocation(prog, 'u_has_chat')
   const uChatRectLoc = gl.getUniformLocation(prog, 'u_chat_rect')
   const uChatRadiusLoc = gl.getUniformLocation(prog, 'u_chat_radius')
+  const uHasHeaderLoc = gl.getUniformLocation(prog, 'u_has_header')
+  const uHeaderRectLoc = gl.getUniformLocation(prog, 'u_header_rect')
 
   // Layer 2 Multi-Lens Array Uniforms (兼容 Windows / ANGLE 驱动的 uniform array[0] 规范)
   const uLensesLoc = gl.getUniformLocation(prog, 'u_lenses[0]') || gl.getUniformLocation(prog, 'u_lenses')
@@ -853,6 +650,31 @@ export function attachLiquidGlassShader(canvas: HTMLCanvasElement, currentOpts: 
       gl!.uniform1i(uHasChatLoc, hasChat)
       gl!.uniform4f(uChatRectLoc, chatCenterX, chatCenterY, chatHalfW, chatHalfH)
       gl!.uniform1f(uChatRadiusLoc, chatRadius)
+
+      // 1.08 探测 Layer 1 顶部会话导航栏 (Session Header Bar)
+      let headerEl: HTMLElement | null = null
+      if (!isHero) {
+        headerEl = document.querySelector<HTMLElement>(
+          '[data-phase="active"] [class*="header"]:has([class*="title"]), [data-phase="active"] [class*="wSkVaW_header"], [class*="ConversationRoot_header"]'
+        ) || document.querySelector<HTMLElement>('[class*="wSkVaW_header"]')
+      }
+      let hasHeader = 0
+      let headerCenterX = 0
+      let headerCenterY = 0
+      let headerHalfW = 0
+      let headerHalfH = 0
+      if (headerEl && headerEl.offsetWidth > 0 && headerEl.offsetHeight > 0) {
+        const hRect = headerEl.getBoundingClientRect()
+        if (hRect.width > 20 && hRect.height > 10 && hRect.top < screenH) {
+          hasHeader = 1
+          headerCenterX = (hRect.left + hRect.width * 0.5) * dpr
+          headerCenterY = (screenH - (hRect.top + hRect.height * 0.5)) * dpr
+          headerHalfW = (hRect.width * 0.5) * dpr
+          headerHalfH = (hRect.height * 0.5) * dpr
+        }
+      }
+      gl!.uniform1i(uHasHeaderLoc, hasHeader)
+      gl!.uniform4f(uHeaderRectLoc, headerCenterX, headerCenterY, headerHalfW, headerHalfH)
 
       // 1.1 探测 Layer 3 (仅在真实模态弹窗/设置面板打开时激活)
       const candidates = document.querySelectorAll<HTMLElement>(

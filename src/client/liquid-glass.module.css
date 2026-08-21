@@ -1,3 +1,23 @@
+
+/* ============================================================================
+ * Layer 1: 顶部会话导航栏 (Session Header Bar 接入 L1 磨砂玻璃底板)
+ * ========================================================================== */
+[data-dsh-liquid-glass] [data-phase='active'] [class*='wSkVaW_header'],
+[data-dsh-liquid-glass] [data-phase='active'] [class*='ConversationRoot_header'],
+[data-dsh-liquid-glass] [data-phase='active'] [class*='header']:has([class*='title']),
+[data-dsh-liquid-glass] [data-phase='active'] [class*='JObwrW_header'] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: 1px solid var(--dsh-l1-border, rgba(255, 255, 255, 0.16)) !important;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-dsh-liquid-glass] [class*='wSkVaW_header']:after,
+[data-dsh-liquid-glass] [class*='ConversationRoot_header']:after {
+  display: none !important;
+}
+
 /* ============================================================================
  * Liquid Glass Theme Layer — Multi-Tier VisionOS Architecture
  * ========================================================================== */
