@@ -66,12 +66,51 @@
 }
 
 
-/* 彻底清除 composerSeat 自带的生硬渐变背景，保持 100% 透通 */
-[data-dsh-liquid-glass] [class*='composerSeat'],
-[data-dsh-liquid-glass] [class*='wSkVaW_composerSeat'] {
-  background: transparent !important;
-  box-shadow: none !important;
+
+/* ============================================================================
+ * 对话输入栏上方平滑渐隐羽化区 (文字滑入输入栏前平滑淡出，彻底消除文字穿插透视)
+ * ========================================================================== */
+[data-dsh-liquid-glass] [data-phase='active'] [class*='composerSeat'],
+[data-dsh-liquid-glass] [data-phase='active'] [class*='wSkVaW_composerSeat'],
+[data-dsh-liquid-glass] [data-phase='active'] [class*='ConversationRoot_composerSeat'] {
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 10 !important;
+  background: linear-gradient(
+    to bottom,
+    transparent 0px,
+    rgba(6, 11, 24, 0.35) 24px,
+    rgba(6, 11, 24, 0.75) 55px,
+    rgba(6, 11, 24, 0.92) 100%
+  ) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  padding-top: 36px !important;
+  margin-top: -36px !important;
+  border-bottom-left-radius: 17px !important;
+  border-bottom-right-radius: 17px !important;
 }
+
+/* 保证消息流底部有充足安全留白，最后一条消息默认完整展示在输入框上方 */
+[data-dsh-liquid-glass] [data-phase='active'] [class*='viewArea'],
+[data-dsh-liquid-glass] [data-phase='active'] [class*='wSkVaW_viewArea'],
+[data-dsh-liquid-glass] [data-phase='active'] [class*='ChatView_scroll'],
+[data-dsh-liquid-glass] [data-phase='active'] [class*='Md3f7G_scroll'] {
+  padding-bottom: 24px !important;
+}
+
+/* 新建会话 hero / settling 状态下保持 100% 透通无背景 */
+[data-dsh-liquid-glass] [data-phase='hero'] [class*='composerSeat'],
+[data-dsh-liquid-glass] [data-phase='settling'] [class*='composerSeat'],
+[data-dsh-liquid-glass] [class*='ConversationRoot_scrollBody']:has([class*='composerHero']) [class*='composerSeat'],
+[data-dsh-liquid-glass] [class*='wSkVaW_scrollBody']:has([class*='wSkVaW_composerHero']) [class*='composerSeat'] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
 
 /* 新建会话 hero 状态下不启用渐隐遮罩 */
 [data-dsh-liquid-glass] [data-phase='hero'] [data-dsh-chat-view],
