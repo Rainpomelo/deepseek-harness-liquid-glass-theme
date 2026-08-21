@@ -66,37 +66,6 @@
 }
 
 
-/* ============================================================================
- * 对话消息流底部渐隐遮罩 (滑动到底部输入框区域时文字平滑渐隐消失，避免与悬浮输入框生硬穿插)
- * ========================================================================== */
-[data-dsh-liquid-glass] [data-phase='active'] [class*='ConversationRoot_scrollBody'] > [class*='viewArea'],
-[data-dsh-liquid-glass] [data-phase='active'] [class*='wSkVaW_scrollBody'] > [class*='viewArea'],
-[data-dsh-liquid-glass] [data-phase='active'] [class*='ConversationRoot_scrollBody'] > div:first-child,
-[data-dsh-liquid-glass] [data-phase='active'] [class*='wSkVaW_scrollBody'] > div:first-child,
-[data-dsh-liquid-glass] [data-phase='active'] [data-conversation-scroll] > div:first-child,
-[data-dsh-liquid-glass] [data-phase='active'] [class*='ChatView_root'],
-[data-dsh-liquid-glass] [data-phase='active'] [class*='Md3f7G_root'],
-[data-dsh-liquid-glass] [data-phase='active'] [class*='ChatView_scroll'],
-[data-dsh-liquid-glass] [data-phase='active'] [class*='Md3f7G_scroll'],
-[data-dsh-liquid-glass] [data-phase='active'] [data-dsh-chat-view] {
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 calc(100% - 150px),
-    rgba(0, 0, 0, 0.70) calc(100% - 100px),
-    rgba(0, 0, 0, 0.25) calc(100% - 50px),
-    transparent 100%
-  ) !important;
-  mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 calc(100% - 150px),
-    rgba(0, 0, 0, 0.70) calc(100% - 100px),
-    rgba(0, 0, 0, 0.25) calc(100% - 50px),
-    transparent 100%
-  ) !important;
-}
-
 /* 彻底清除 composerSeat 自带的生硬渐变背景，保持 100% 透通 */
 [data-dsh-liquid-glass] [class*='composerSeat'],
 [data-dsh-liquid-glass] [class*='wSkVaW_composerSeat'] {
