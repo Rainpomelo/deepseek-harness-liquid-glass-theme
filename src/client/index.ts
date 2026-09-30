@@ -13,7 +13,11 @@ import { en, NS, zh } from './locales.ts'
 import { LiquidGlassLayer } from './theme-layer.ts'
 import './liquid-glass.module.css'
 
-export const inject = ['theme', 'slots', 'locale', 'sessions', 'remote', 'remote.session']
+// Only the services both DSH generations publish. `remote.session` exists from
+// the 0.1.2 line onward but not on 0.1.0-rc.x/0.1.1-rc.x, and a static inject
+// that never resolves leaves the whole plugin pending — the theme would simply
+// never apply on those hosts. Nothing below reads `remote` directly either.
+export const inject = ['theme', 'slots', 'locale', 'sessions']
 
 export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-liquid-glass: locale dictionaries')
@@ -2172,7 +2176,11 @@ html[data-dsh-liquid-glass] ::-webkit-scrollbar-thumb:active {
     setTimeout(() => { injectPluginCardIfMissing() }, 100)
   }
 
-  ctx.inject(['slots', 'modelDirectories', 'sessions', 'remote', 'remote.session'], (scope: any) => {
+  // `remote`/`remote.session` are deliberately absent: this callback only reads
+  // `modelDirectories`, `sessions` and `slots`, and requiring a service that
+  // 0.1.0-rc.x/0.1.1-rc.x do not publish would silently skip the registration
+  // instead of degrading.
+  ctx.inject(['slots', 'modelDirectories', 'sessions'], (scope: any) => {
     const models = scope.modelDirectories
     const sessions = scope.sessions
     scope.slots.inject('conversation.input.model', () => scope.slots.register({
