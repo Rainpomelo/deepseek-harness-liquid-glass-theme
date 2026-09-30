@@ -1,7 +1,7 @@
 import { build, context } from 'esbuild'
 import { transform } from 'lightningcss'
 import { readFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
+import { dirname, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = dirname(fileURLToPath(import.meta.url))
@@ -11,15 +11,27 @@ const clientOut = resolve(root, 'lib/client.js')
 const nodeOut = resolve(root, 'lib/index.js')
 const pluginId = '@deepseek-ai/dsh-client-ui-liquid-glass'
 
+/** Repository-relative, POSIX-separated path — identical on every machine. */
+const repoPath = (absolute) => relative(root, absolute).split(sep).join('/')
+
 function cssModulesPlugin() {
   return {
     name: 'dsh-css-modules-inline',
     setup(buildApi) {
-      buildApi.onResolve({ filter: /\.module\.css$/ }, (args) => ({ path: resolve(args.resolveDir, args.path), namespace: 'dsh-css' }))
+      // Hand esbuild a repository-relative module path. It is only used as the
+      // module identity and as this module's `sources` entry in the source map,
+      // so an absolute path would bake the builder's local directory into both
+      // the published bundle's CSS tag id and the committed map — making the
+      // build machine-dependent and unverifiable in CI.
+      buildApi.onResolve({ filter: /\.module\.css$/ }, (args) => {
+        const absolute = resolve(args.resolveDir, args.path)
+        return { path: repoPath(absolute), namespace: 'dsh-css', pluginData: { absolute } }
+      })
       buildApi.onLoad({ filter: /.*/, namespace: 'dsh-css' }, async (args) => {
+        const file = args.pluginData?.absolute ?? args.path
         const result = transform({
-          filename: args.path,
-          code: await readFile(args.path),
+          filename: file,
+          code: await readFile(file),
           cssModules: { pattern: '[hash]_[local]' },
           minify: true,
         })
@@ -44,7 +56,7 @@ function cssModulesPlugin() {
           '}',
           'export default classes;',
         ].join('\n')
-        return { contents, loader: 'js', resolveDir: dirname(args.path) }
+        return { contents, loader: 'js', resolveDir: dirname(file) }
       })
     },
   }
