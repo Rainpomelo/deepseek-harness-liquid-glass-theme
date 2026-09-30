@@ -8,6 +8,18 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as os from 'node:os'
+import { fileURLToPath } from 'node:url'
+
+/**
+ * Directory holding this bundle.
+ *
+ * The host half is built as ESM, where `__dirname` does not exist. Referring to
+ * it threw a ReferenceError on the first line of `seedDefaultAssets`, and that
+ * helper's own try/catch swallowed it — so a fresh install silently never got its
+ * bundled default wallpapers. Confirmed on DSH 0.2.0-rc.2: deleting
+ * `~/.dsh/wallpapers/default_elden_ring.mp4` and restarting did not bring it back.
+ */
+const moduleDir = path.dirname(fileURLToPath(import.meta.url))
 
 export const name = 'ui-liquid-glass'
 export const inject = ['webServer']
@@ -68,7 +80,7 @@ const DEFAULT_SETTINGS = {
 
 function seedDefaultAssets(wallpapersDir: string, settingsFile: string, wallpapersFile: string): void {
   try {
-    const assetDir = path.join(__dirname, '../assets')
+    const assetDir = path.join(moduleDir, '../assets')
     const videos = [
       { file: 'DeepSeek.mp4', target: 'default_deepseek.mp4' },
       { file: 'EldenRing.mp4', target: 'default_elden_ring.mp4' },
