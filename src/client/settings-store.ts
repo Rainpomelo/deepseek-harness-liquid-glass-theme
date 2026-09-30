@@ -1,4 +1,85 @@
-import { defineStore } from '@deepseek-ai/dsh-client-store'
+/**
+ * The store engine moved between DSH generations, so this module resolves it at
+ * runtime instead of importing one fixed specifier:
+ *
+ *   0.1.0-rc.x … 0.1.1-rc.2  →  `@deepseek-ai/dsh-client-runtime/client`
+ *   0.1.2-alpha.2 and later  →  `@deepseek-ai/dsh-client-store`
+ *
+ * Both are host-provided externals; the host's own module table answers
+ * `require`, and an unregistered specifier throws, which is what the fallback
+ * catches. Version-axis evidence: `dsh-client-runtime` was published up to
+ * 0.1.1-rc.2 only, `dsh-client-store` starts at 0.1.2-alpha.2.
+ */
+
+/** Minimal shape of whichever store engine the host provides. */
+export interface StoreEngine {
+  /**
+   * `defineStore` as the host ships it. The signature differs between the two
+   * packages, so the return stays untyped here and consumers keep deriving the
+   * handle with `ReturnType<typeof createLiquidGlassRowStore>`.
+   */
+  defineStore: (options: unknown) => any
+}
+
+/** Store engine locations, newest layout first. */
+export const STORE_ENGINE_MODULES = [
+  '@deepseek-ai/dsh-client-store',
+  '@deepseek-ai/dsh-client-runtime/client',
+] as const
+
+/** Host-provided CommonJS resolver handed to every client bundle factory. */
+type HostRequire = (id: string) => unknown
+
+declare const require: HostRequire
+
+/**
+ * Pick the store engine from the modules this host can actually load.
+ *
+ * Exported for tests: pass a fake resolver to exercise either layout without a
+ * host runtime.
+ * @param load - Resolver for one module specifier; throws when unavailable.
+ * @param candidates - Specifiers to try, in order.
+ * @returns The first engine that exposes `defineStore`.
+ * @throws {Error} When no candidate provides the engine, listing every attempt.
+ */
+export function pickStoreEngine(
+  load: HostRequire,
+  candidates: readonly string[] = STORE_ENGINE_MODULES,
+): StoreEngine {
+  const failures: string[] = []
+  for (const id of candidates) {
+    try {
+      const candidate = load(id) as Partial<StoreEngine> | undefined
+      if (candidate !== undefined && typeof candidate.defineStore === 'function') {
+        return candidate as StoreEngine
+      }
+      failures.push(`${id}: no defineStore export`)
+    } catch (error) {
+      failures.push(`${id}: ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
+  throw new Error(`ui-liquid-glass: no store engine on this host — ${failures.join('; ')}`)
+}
+
+/** Resolve one engine specifier through the host module table. */
+function loadFromHost(id: string): unknown {
+  switch (id) {
+    case '@deepseek-ai/dsh-client-store':
+      return require('@deepseek-ai/dsh-client-store')
+    case '@deepseek-ai/dsh-client-runtime/client':
+      return require('@deepseek-ai/dsh-client-runtime/client')
+    default:
+      throw new Error(`unknown store module ${id}`)
+  }
+}
+
+let engine: StoreEngine | undefined
+
+/** The host's store engine, resolved once on first use. */
+function storeEngine(): StoreEngine {
+  if (engine === undefined) engine = pickStoreEngine(loadFromHost)
+  return engine
+}
 
 export interface LiquidGlassSettings {
   enabled: boolean
@@ -85,7 +166,7 @@ export type LiquidGlassRowActions = {
 export type LiquidGlassRowHandle = ReturnType<typeof createLiquidGlassRowStore>
 
 export function createLiquidGlassRowStore() {
-  return defineStore({
+  return storeEngine().defineStore({
     init: () => ({ ...LIQUID_GLASS_DEFAULTS, revision: -1 }),
     actions: {
       sync: (draft: LiquidGlassRowState, next: LiquidGlassSettingsPayload, revision: number) => {
