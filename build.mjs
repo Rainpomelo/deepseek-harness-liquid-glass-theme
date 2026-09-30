@@ -1,6 +1,6 @@
 import { build, context } from 'esbuild'
 import { transform } from 'lightningcss'
-import { readFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -79,6 +79,25 @@ const nodeConfig = {
   external: ['node:*', '@deepseek-ai/*'],
 }
 
+/**
+ * Rewrite a source map so it does not depend on the checkout's line endings.
+ *
+ * esbuild copies each source into `sourcesContent` verbatim, so a Windows
+ * checkout (where `core.autocrlf` hands out CRLF) produces a different map from
+ * the LF one a Linux runner gets — which is why CI could not verify that the
+ * committed `lib/` matches `src/`. The map is a debugging aid; normalising it
+ * keeps it useful and makes the build reproducible.
+ * @param mapPath - the `.map` file esbuild just wrote.
+ */
+async function normalizeSourceMap(mapPath) {
+  const map = JSON.parse(await readFile(mapPath, 'utf8'))
+  if (!Array.isArray(map.sourcesContent)) return
+  map.sourcesContent = map.sourcesContent.map((content) =>
+    typeof content === 'string' ? content.replace(/\r\n/g, '\n') : content,
+  )
+  await writeFile(mapPath, JSON.stringify(map))
+}
+
 await build(nodeConfig)
 if (process.argv.includes('--watch')) {
   const watcher = await context(clientConfig)
@@ -86,4 +105,6 @@ if (process.argv.includes('--watch')) {
   console.log('Watching client sources...')
 } else {
   await build(clientConfig)
+  await normalizeSourceMap(`${clientOut}.map`)
+  await normalizeSourceMap(`${nodeOut}.map`)
 }
