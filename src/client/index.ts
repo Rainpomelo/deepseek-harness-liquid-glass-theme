@@ -1,7 +1,7 @@
 /**
  * Liquid Glass client plugin body — Multi-Tier VisionOS Architecture.
  */
-import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client'
+import type { Context as ClientContext } from '@deepseek-ai/cordis'
 import type { BoundActions } from '@deepseek-ai/dsh-client-ui-slots'
 import type {} from '@deepseek-ai/dsh-client-ui-settings-plugins/client'
 import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
@@ -13,7 +13,7 @@ import { en, NS, zh } from './locales.ts'
 import { LiquidGlassLayer } from './theme-layer.ts'
 import './liquid-glass.module.css'
 
-export const inject = ['theme', 'slots', 'locale', 'sessions']
+export const inject = ['theme', 'slots', 'locale', 'sessions', 'remote', 'remote.session']
 
 export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-liquid-glass: locale dictionaries')
@@ -2172,7 +2172,7 @@ html[data-dsh-liquid-glass] ::-webkit-scrollbar-thumb:active {
     setTimeout(() => { injectPluginCardIfMissing() }, 100)
   }
 
-  ctx.inject(['slots', 'modelDirectories'], (scope: any) => {
+  ctx.inject(['slots', 'modelDirectories', 'sessions', 'remote', 'remote.session'], (scope: any) => {
     const models = scope.modelDirectories
     const sessions = scope.sessions
     scope.slots.inject('conversation.input.model', () => scope.slots.register({

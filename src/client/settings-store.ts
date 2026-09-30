@@ -1,4 +1,4 @@
-import { defineStore, type EngineStoreHandle } from '@deepseek-ai/dsh-client-runtime/client'
+import { defineStore } from '@deepseek-ai/dsh-client-store'
 
 export interface LiquidGlassSettings {
   enabled: boolean
@@ -68,15 +68,27 @@ export interface LiquidGlassRowState extends LiquidGlassSettings {
 
 export interface LiquidGlassSettingsPayload extends LiquidGlassSettings {}
 
-type LiquidGlassRowActions = {
+/** Actions applied by the settings sync channel. */
+export type LiquidGlassRowActions = {
   sync: (draft: LiquidGlassRowState, next: LiquidGlassSettingsPayload, revision: number) => void
 }
 
-export function createLiquidGlassRowStore(): EngineStoreHandle<LiquidGlassRowState, LiquidGlassRowActions> {
+/**
+ * Handle of one settings row store, derived from the factory.
+ *
+ * The handle type used to be written as `EngineStoreHandle`, imported from
+ * `@deepseek-ai/dsh-client-runtime`. Official DSH 0.2.0-rc.2 replaced that
+ * package with `@deepseek-ai/dsh-client-store`, which exports no such name, so
+ * the handle is derived here instead. Both consumers already derive it this way
+ * (`PropsStore<ReturnType<typeof createLiquidGlassRowStore>>`).
+ */
+export type LiquidGlassRowHandle = ReturnType<typeof createLiquidGlassRowStore>
+
+export function createLiquidGlassRowStore() {
   return defineStore({
     init: () => ({ ...LIQUID_GLASS_DEFAULTS, revision: -1 }),
     actions: {
-      sync: (draft, next, revision) => {
+      sync: (draft: LiquidGlassRowState, next: LiquidGlassSettingsPayload, revision: number) => {
         if (revision <= draft.revision) return
         Object.assign(draft, next)
         draft.revision = revision
