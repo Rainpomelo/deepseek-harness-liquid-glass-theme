@@ -132,6 +132,26 @@ function seedDefaultAssets(wallpapersDir: string, settingsFile: string, wallpape
   } catch {}
 }
 
+/**
+ * Whether this plugin may answer a request from that Origin cross-origin.
+ *
+ * The theme's client half is served by the DSH web UI and calls these routes with
+ * relative URLs, so a same-origin page never consults this. The allowance exists
+ * for the desktop renderer, whose pages may be served from the app's own scheme
+ * rather than the loopback HTTP origin.
+ * @param origin - the request's `Origin` header.
+ * @returns whether the origin belongs to one of the two hosts.
+ */
+export function isAppOrigin(origin: string): boolean {
+  const value = origin.toLowerCase()
+  // Sandboxed frames send `null` from anywhere: it names no host.
+  if (value === 'null') return false
+  // A real website always sends an http(s) origin, so any other scheme is the
+  // desktop application's own (e.g. `dsh-app://`).
+  if (!value.startsWith('http://') && !value.startsWith('https://')) return true
+  return /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/.test(value)
+}
+
 export function apply(ctx: Context): void {
   seedDefaultAssets(getWallpapersDir(), getSettingsFilePath(), getWallpapersFilePath())
   const settingsFile = getSettingsFilePath()
@@ -148,9 +168,22 @@ export function apply(ctx: Context): void {
         const urlObj = new URL(rawUrl, 'http://localhost')
         const pathname = urlObj.pathname
 
-        res.setHeader('Access-Control-Allow-Origin', '*')
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, DELETE')
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+        // Answer cross-origin only for this plugin's own hosts.
+        //
+        // These routes are unauthenticated (the Host's own /api/* needs a token,
+        // this prefix does not) and one of them copies an arbitrary local path
+        // into the folder the file route then serves — so echoing a blanket `*`
+        // let any website the user visits read those responses back. The client
+        // half calls these routes with relative URLs, so a same-origin page needs
+        // no header at all; only the desktop renderer, which may be served from
+        // the app's own scheme, has to be echoed.
+        const origin = req.headers.origin
+        if (typeof origin === 'string' && isAppOrigin(origin)) {
+          res.setHeader('Access-Control-Allow-Origin', origin)
+          res.setHeader('Vary', 'Origin')
+          res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, DELETE')
+          res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+        }
 
         if (method === 'OPTIONS') {
           res.statusCode = 204
