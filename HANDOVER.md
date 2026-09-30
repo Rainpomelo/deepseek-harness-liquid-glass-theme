@@ -2,10 +2,10 @@
 
 ## 1. 项目概况与基础信息
 
-- **项目名称**：`deepseek-harness-liquid-glass-theme`
-- **NPM 包名**：`@deepseek-ai/dsh-client-ui-liquid-glass` (v2.0.0)
+- **项目名称**：`dsh-liquid-glass-theme`
+- **NPM 包名**：`@deepseek-ai/dsh-client-ui-liquid-glass` (v2.0.1)
 - **本地源码路径**：`C:\Agent code\deepseek-harness-插件\deepseek-harness-Liquid glass-Live Wallpaper`
-- **GitHub 远程仓库**：`https://github.com/Rainpomelo/deepseek-harness-liquid-glass-theme.git` (主分支: `main`)
+- **GitHub 远程仓库**：`https://github.com/Rainpomelo/dsh-liquid-glass-theme.git` (主分支: `main`)
 - **适用宿主**：DeepSeek Harness Desktop (Electron 43.4.0 / Cordis 4.0.1 / React 18) 及 Web 运行态
 
 ---

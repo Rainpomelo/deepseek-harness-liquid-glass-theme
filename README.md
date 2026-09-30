@@ -27,7 +27,7 @@ DSH 在 0.2.0 换代时把 store 引擎从 `@deepseek-ai/dsh-client-runtime` 挪
 ### Web 版
 
 ```sh
-dsh plugin --profile web add "github:Rainpomelo/deepseek-harness-liquid-glass-theme#v2.0.1"
+dsh plugin --profile web add "github:Rainpomelo/dsh-liquid-glass-theme#v2.0.1"
 ```
 
 装完重启 `dsh web` 即可。
@@ -40,7 +40,7 @@ dsh plugin --profile web add "github:Rainpomelo/deepseek-harness-liquid-glass-th
 2. 输入：
 
 ```
-github:Rainpomelo/deepseek-harness-liquid-glass-theme#v2.0.1
+github:Rainpomelo/dsh-liquid-glass-theme#v2.0.1
 ```
 
 3. 启用后重启应用。
@@ -56,7 +56,7 @@ github:Rainpomelo/deepseek-harness-liquid-glass-theme#v2.0.1
 ```json
 {
   "dependencies": {
-    "@deepseek-ai/dsh-client-ui-liquid-glass": "file:C:/path/to/deepseek-harness-liquid-glass-theme"
+    "@deepseek-ai/dsh-client-ui-liquid-glass": "file:C:/path/to/dsh-liquid-glass-theme"
   },
   "dsh": {
     "profile": {
@@ -71,7 +71,7 @@ github:Rainpomelo/deepseek-harness-liquid-glass-theme#v2.0.1
 也可以直接用 GitHub 引用：
 
 ```json
-"@deepseek-ai/dsh-client-ui-liquid-glass": "github:Rainpomelo/deepseek-harness-liquid-glass-theme#v2.0.1"
+"@deepseek-ai/dsh-client-ui-liquid-glass": "github:Rainpomelo/dsh-liquid-glass-theme#v2.0.1"
 ```
 
 ---
