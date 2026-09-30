@@ -27,7 +27,7 @@
     },
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-store",
         "@deepseek-ai/dsh-client-locale",
         "@deepseek-ai/dsh-client-ui-theme",
         "@deepseek-ai/dsh-client-ui-settings",
@@ -45,14 +45,15 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@deepseek-ai/dsh-client-locale": "^0.1.0-rc.5",
-    "@deepseek-ai/dsh-client-runtime": "^0.1.0-rc.5",
-    "@deepseek-ai/dsh-client-ui-primitives": "^0.1.0-rc.5",
-    "@deepseek-ai/dsh-client-ui-settings": "^0.1.0-rc.5",
-    "@deepseek-ai/dsh-client-ui-settings-plugins": "^0.1.0-rc.5",
-    "@deepseek-ai/dsh-client-ui-slots": "^0.1.0-rc.5",
-    "@deepseek-ai/dsh-client-ui-theme": "^0.1.0-rc.5",
-    "@deepseek-ai/dsh-invariants": "^0.1.0-rc.5",
+    "@deepseek-ai/dsh-client-locale": "^0.1.0-rc.5 || ^0.2.0-rc.2",
+    "@deepseek-ai/dsh-client-store": "^0.1.0-rc.5 || ^0.2.0-rc.2",
+    "@deepseek-ai/dsh-client-runtime": "^0.1.0-rc.5 || ^0.2.0-rc.2",
+    "@deepseek-ai/dsh-client-ui-primitives": "^0.1.0-rc.5 || ^0.2.0-rc.2",
+    "@deepseek-ai/dsh-client-ui-settings": "^0.1.0-rc.5 || ^0.2.0-rc.2",
+    "@deepseek-ai/dsh-client-ui-settings-plugins": "^0.1.0-rc.5 || ^0.2.0-rc.2",
+    "@deepseek-ai/dsh-client-ui-slots": "^0.1.0-rc.5 || ^0.2.0-rc.2",
+    "@deepseek-ai/dsh-client-ui-theme": "^0.1.0-rc.5 || ^0.2.0-rc.2",
+    "@deepseek-ai/dsh-invariants": "^0.1.0-rc.5 || ^0.2.0-rc.2",
     "@deepseek-ai/cordis": "^4.0.1",
     "react": "^18.2.0"
   },
@@ -68,6 +69,7 @@
     "lib/index.js",
     "lib/client.js",
     "lib/types/**/*.d.ts",
-    "assets/**/*"
+    "assets/**/*",
+    "cordis.patch.yml"
   ]
 }
