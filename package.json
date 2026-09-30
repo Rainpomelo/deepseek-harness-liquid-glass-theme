@@ -1,7 +1,7 @@
 {
   "name": "@deepseek-ai/dsh-client-ui-liquid-glass",
   "description": "Liquid Glass & Live Wallpaper: a physical Snell-refraction fluid glassmorphism theme and dynamic wallpaper engine for DeepSeek Harness (web profile and desktop app)",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "homepage": "https://github.com/Rainpomelo/dsh-liquid-glass-theme#readme",
   "repository": {
     "type": "git",

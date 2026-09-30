@@ -4,7 +4,7 @@
 
 基于 WebGL 的液态透镜折射、水波交互、分层毛玻璃，以及自定义图片/视频壁纸。
 
-**一个版本同时支持 DSH Web 与官方桌面版**（当前版本：`v2.0.1`）。
+**一个版本同时支持 DSH Web 与官方桌面版**（当前版本：`v2.0.2`）。
 
 ---
 
@@ -27,7 +27,7 @@ DSH 在 0.2.0 换代时把 store 引擎从 `@deepseek-ai/dsh-client-runtime` 挪
 ### Web 版
 
 ```sh
-dsh plugin --profile web add "github:Rainpomelo/dsh-liquid-glass-theme#v2.0.1"
+dsh plugin --profile web add "github:Rainpomelo/dsh-liquid-glass-theme#v2.0.2"
 ```
 
 装完重启 `dsh web` 即可。
@@ -40,7 +40,7 @@ dsh plugin --profile web add "github:Rainpomelo/dsh-liquid-glass-theme#v2.0.1"
 2. 输入：
 
 ```
-github:Rainpomelo/dsh-liquid-glass-theme#v2.0.1
+github:Rainpomelo/dsh-liquid-glass-theme#v2.0.2
 ```
 
 3. 启用后重启应用。
@@ -71,7 +71,7 @@ github:Rainpomelo/dsh-liquid-glass-theme#v2.0.1
 也可以直接用 GitHub 引用：
 
 ```json
-"@deepseek-ai/dsh-client-ui-liquid-glass": "github:Rainpomelo/dsh-liquid-glass-theme#v2.0.1"
+"@deepseek-ai/dsh-client-ui-liquid-glass": "github:Rainpomelo/dsh-liquid-glass-theme#v2.0.2"
 ```
 
 ---
@@ -229,7 +229,7 @@ node --test tests/*.test.mjs   # 测试
 确认插件已在该 profile 的 `dsh.profile.bundles` 中，且重启了宿主。若仍无效，检查宿主版本是否在下方兼容区间内。
 
 **安装后报 `bundle patch is missing: ./cordis.patch.yml`？**
-这是 v2.0.1 之前版本的打包缺陷（`files` 白名单漏掉了 `cordis.patch.yml`）。升级到 `#v2.0.1` 即可。
+这是 v2.0.1 之前版本的打包缺陷（`files` 白名单漏掉了 `cordis.patch.yml`），v2.0.1 起已修复。升级到 `#v2.0.2` 即可。
 
 **为什么官方桌面版不能一键安装？**
 桌面 profile 由桌面应用独占管理，命令行无法操作；请使用应用内的「插件 → 添加插件」。
