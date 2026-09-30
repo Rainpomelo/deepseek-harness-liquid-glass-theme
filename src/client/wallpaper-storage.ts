@@ -13,6 +13,12 @@ export interface WallpaperItem {
   url: string
   poster?: string
   isBuiltin?: boolean
+  /**
+   * Filesystem path a Host-side upload came from; only present for wallpapers
+   * the Host persisted itself. Read back in the store below to re-resolve the
+   * file after a reload, so it has to survive the JSON round-trip with the item.
+   */
+  localPath?: string
 }
 
 export interface WallpaperStoreState {

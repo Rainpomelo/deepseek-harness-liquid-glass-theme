@@ -23,7 +23,15 @@ function cssModulesPlugin() {
           cssModules: { pattern: '[hash]_[local]' },
           minify: true,
         })
-        const classes = Object.fromEntries(Object.entries(result.exports ?? {}).map(([key, value]) => [key, value.name]))
+        // lightningcss hands back `exports` in a process-varying order, so the
+        // generated class map used to differ between identical builds. Sort the
+        // keys: the map is only ever read by name, and a stable bundle is what
+        // lets CI assert that `lib/` matches `src/`.
+        const classes = Object.fromEntries(
+          Object.entries(result.exports ?? {})
+            .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+            .map(([key, value]) => [key, value.name]),
+        )
         const tagId = `${pluginId}/${args.path}`
         const contents = [
           `const css = ${JSON.stringify(result.code.toString())};`,

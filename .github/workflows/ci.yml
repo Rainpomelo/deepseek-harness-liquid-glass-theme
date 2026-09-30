@@ -33,6 +33,16 @@ jobs:
       - name: Build
         run: node build.mjs
 
+      - name: Verify the committed bundle matches the sources
+        run: |
+          if ! git diff --quiet -- lib/; then
+            echo '::error::lib/ is out of date with src/ — the skin market installs'
+            echo 'the committed bundle, so a source change without a rebuild ships'
+            echo 'stale code. Run `node build.mjs` and commit the result.'
+            git diff --stat -- lib/
+            exit 1
+          fi
+
       - name: Unit tests
         run: node --test tests/*.test.mjs
 

@@ -1990,6 +1990,12 @@ html[data-dsh-liquid-glass] ::-webkit-scrollbar-thumb:active {
     }
   }
 
+  // `settings.plugin.item` is the per-plugin row slot of DSH 0.1.x. DSH 0.2.0-rc.2
+  // removed that slot (`@deepseek-ai/dsh-client-ui-settings-plugins` keeps only
+  // `settings.plugins` / `settings.plugins.tab`), so on 0.2.x this registration
+  // simply never fires — which is why the card is also injected straight into the
+  // plugin-list DOM by `injectPluginCardIfMissing` below. Do not delete the
+  // registration: on 0.1.x it is the path that renders the card.
   ctx.slots.inject('settings.plugin.item', () => ctx.slots.register({
     name: 'settings.plugin.item',
     key: 'liquid-glass',
