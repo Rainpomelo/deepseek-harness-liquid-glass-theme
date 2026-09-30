@@ -109,8 +109,11 @@ function seedDefaultAssets(wallpapersDir: string, settingsFile: string, wallpape
             url: '/api/liquid-glass/wallpaper-file?id=default_thunderstorm&ext=mp4',
           },
         ],
-        activeBuiltinId: 'builtin-video-1',
-        activeCustomId: 'default_deepseek',
+        // Must stay equal to `DEFAULT_BUILTIN_ID` in
+        // `src/client/builtin-wallpapers.ts`: a fresh install has to open on the
+        // same wallpaper the client paints before hydration.
+        activeBuiltinId: 'builtin-video-2',
+        activeCustomId: 'default_elden_ring',
       }
       fs.writeFileSync(wallpapersFile, JSON.stringify(defaultWallpapers), 'utf8')
     }
@@ -221,7 +224,7 @@ export function apply(ctx: Context): void {
               }
             } catch {}
             res.statusCode = 200
-            res.end(JSON.stringify({ customWallpapers: [], activeBuiltinId: 'builtin-1', activeCustomId: '' }))
+            res.end(JSON.stringify({ customWallpapers: [], activeBuiltinId: 'builtin-video-2', activeCustomId: '' }))
             return
           } else if (method === 'POST') {
             let body = ''

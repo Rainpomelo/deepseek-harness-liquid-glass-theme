@@ -21,6 +21,11 @@ const EXPECTED_DEFAULTS = {
   dropShadowOpacity: '0',
   dropShadowBlur: '48',
   dropShadowY: '16',
+  // 'gradient' is the misleading internal name of the user-facing
+  // 「默认推荐 / Recommended Default」 mode, which paints a built-in wallpaper.
+  // 'wallpaper' means the custom-upload list. Both ends must agree or a fresh
+  // install opens on a different backdrop than the one the client paints.
+  background: "'gradient'",
   bgBlur: '0',
   bgLiquidEnabled: 'true',
   bgLiquidAmp: '0.55',
@@ -64,4 +69,37 @@ test('host and client defaults match the verified liquid glass parameters', asyn
     /if \(!fs\.existsSync\(settingsFile\)\)\s*{\s*fs\.writeFileSync\(settingsFile,/,
     'existing user settings must not be overwritten during startup',
   )
+})
+
+test('a fresh install opens on the same built-in wallpaper on both ends', async () => {
+  const [hostSource, catalogueSource] = await Promise.all([
+    readFile(new URL('../src/index.ts', import.meta.url), 'utf8'),
+    readFile(new URL('../src/client/builtin-wallpapers.ts', import.meta.url), 'utf8'),
+  ])
+
+  const hostId = hostSource.match(/activeBuiltinId:\s*'([^']+)'/)?.[1]
+  const catalogueDefault = catalogueSource.match(/DEFAULT_BUILTIN_ID\s*=\s*'([^']+)'/)?.[1]
+  assert.ok(hostId, 'the Host seeds an activeBuiltinId')
+  assert.ok(catalogueDefault, 'the client declares DEFAULT_BUILTIN_ID')
+  assert.equal(
+    hostId,
+    catalogueDefault,
+    'the Host-seeded wallpaper and the client fallback must be the same built-in',
+  )
+
+  // The id has to exist in the catalogue, or the client falls back to
+  // BUILTIN_WALLPAPERS[0] and silently shows a different wallpaper.
+  assert.match(
+    catalogueSource,
+    new RegExp(`"id":\\s*"${hostId}"`),
+    `default builtin ${hostId} is missing from BUILTIN_WALLPAPERS`,
+  )
+
+  // And the settings default must resolve through that id, not a copied literal.
+  const settingsSource = await readFile(
+    new URL('../src/client/settings-store.ts', import.meta.url),
+    'utf8',
+  )
+  assert.match(settingsSource, /wallpaper:\s*DEFAULT_WALLPAPER,/)
+  assert.match(settingsSource, /DEFAULT_BUILTIN_ID/)
 })

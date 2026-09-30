@@ -1,0 +1,47 @@
+name: CI
+
+# The repository has no other automation: `lib/` is committed and the skin
+# market installs straight from it, so nothing catches a source change that was
+# never rebuilt, or a test that quietly rotted. This job is the minimum that
+# does.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build
+        run: node build.mjs
+
+      - name: Unit tests
+        run: node --test tests/*.test.mjs
+
+      - name: Verify the package still carries its bundle patch
+        run: |
+          npm pack --dry-run --no-audit --no-fund 2>&1 | tee /tmp/pack.txt
+          grep -q 'cordis.patch.yml' /tmp/pack.txt || {
+            echo '::error::cordis.patch.yml is not in the npm pack output.'
+            echo 'A package-manager install would fail at boot with'
+            echo '"bundle patch is missing". Check the "files" whitelist.'
+            exit 1
+          }

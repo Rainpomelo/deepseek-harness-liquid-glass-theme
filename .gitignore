@@ -3,3 +3,8 @@ node_modules/
 *.log
 .system_generated/
 .deployment-backups/
+
+# Build artifacts. lib/client.js and lib/index.js stay tracked on purpose —
+# the skin market installs straight from the repository.
+lib/types/
+*.tsbuildinfo

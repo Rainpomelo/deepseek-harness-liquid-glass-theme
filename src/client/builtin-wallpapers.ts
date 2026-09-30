@@ -7,6 +7,16 @@ export interface BuiltinWallpaper {
   isBuiltin: boolean
 }
 
+/**
+ * Wallpaper a fresh install lands on.
+ *
+ * The Host seeds `activeBuiltinId` with this same id (`seedDefaultAssets` in
+ * `src/index.ts`), and the settings defaults below resolve their placeholder
+ * wallpaper from it. Keep the three in sync: a fresh install must show this
+ * wallpaper, not whichever id happened to be first in the catalogue.
+ */
+export const DEFAULT_BUILTIN_ID = 'builtin-video-2'
+
 export const BUILTIN_WALLPAPERS: BuiltinWallpaper[] = [
   {
     "id": "builtin-video-1",

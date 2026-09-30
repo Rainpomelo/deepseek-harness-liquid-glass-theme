@@ -212,11 +212,14 @@ github:Rainpomelo/dsh-liquid-glass-theme#v2.0.1
 
 ```sh
 npm install
-node build.mjs                 # 构建
+node build.mjs                 # 构建（esbuild）
 node --test tests/*.test.mjs   # 测试
 ```
 
-> 注意：`build.mjs` 使用 esbuild，**不做类型检查**。类型问题需要另行运行 `tsc --noEmit` 检查。
+推送到 `main` 或开 PR 时，GitHub Actions 会自动跑构建、测试，并检查安装包里仍然带有 `cordis.patch.yml`。
+
+> **关于类型**：`build.mjs` 只做打包（esbuild），**不做类型检查**；本包也**不发布类型声明**。
+> 历史上 `lib/types/**` 曾随包发布，但它在 2026-08-21 之后再没更新过，且内容有误（宿主侧只声明了 `apply(): void`），已删除。`src/` 是全量 TypeScript 源码，需要类型信息请直接阅读源码，或自行安装 TypeScript 后运行 `tsc --noEmit`。
 
 ---
 

@@ -21,7 +21,7 @@
   "name": "dsh-profile-web",
   "private": true,
   "dependencies": {
-    "@deepseek-ai/dsh-client-ui-liquid-glass": "file:C:/Agent code/deepseek-harness-插件/deepseek-harness-Liquid glass-Live Wallpaper"
+    "@deepseek-ai/dsh-client-ui-liquid-glass": "file:C:/path/to/dsh-liquid-glass-theme"
   },
   "dsh": {
     "profile": {
@@ -60,7 +60,7 @@ dsh --profile web
 
 1. 打开左下角 **「设置」** -> **「通用设置」**；
 2. 在 **「分级液态玻璃与动态壁纸」** 面板中可直接调节：
-   - **推荐壁纸与本地上传**：滑动选择内置 4K 壁纸，或点击添加本地图片/视频；
+   - **推荐壁纸与本地上传**：横向滑动选择 9 款内置壁纸，或点击添加本地图片/视频；
    - **Layer 2 (悬浮液态透镜)**：调节输入框透镜折射率（IOR）、曲率、倒角宽度；
    - **Layer 3 (模态弹窗玻璃)**：调节弹窗展开时底层高斯模糊半径与遮罩暗化深度；
    - **预设管理**：点击「保存当前预设」将当前光学参数存至本地。
@@ -70,5 +70,7 @@ dsh --profile web
 ## 常见问题
 
 - **界面样式未更新**：按 `Ctrl + F5` 强制刷新浏览器缓存，并确认后台 node 进程已重启。
-- **源码修改后重新编译**：若修改了 `src/` 下的代码，在插件根目录运行 `npx tsdown` 即可重新生成 `lib/` 产物。
+- **源码修改后重新编译**：若修改了 `src/` 下的代码，在插件根目录运行 `node build.mjs` 即可重新生成 `lib/` 产物（`lib/client.js` 与 `lib/index.js` 都是必需的）。
+  - 本项目用 esbuild 构建。**不要用 `tsdown`**：它既不是本项目的依赖，早期文档里提到的 `npx tsdown` 会从网上拉一个无关的包，产出错误或不完整的 `lib/`。
+  - 构建脚本不做类型检查；如需检查类型，另行安装 TypeScript 并运行 `tsc --noEmit`（本仓库目前未随包发布类型声明）。
 
