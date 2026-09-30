@@ -1,0 +1,21 @@
+# Line endings, normalised across platforms.
+#
+# Without this file `core.autocrlf=true` hands Windows a CRLF checkout while CI
+# gets LF, and this repository ended up mixing both styles — `src/index.ts` was
+# LF while `src/client/index.ts` was CRLF. That mismatch is what made
+# `lib/client.js.map` unreproducible (see `normalizeSourceMap` in build.mjs).
+#
+# `eol=lf` normalises to LF in the repository *and* in the working tree, so a
+# build here produces the same bytes as a build on the CI runner.
+* text=auto eol=lf
+
+# Binaries: never normalise, diff, or merge these.
+*.mp4 binary
+*.webm binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
