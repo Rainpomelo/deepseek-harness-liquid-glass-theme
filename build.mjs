@@ -30,7 +30,11 @@ function cssModulesPlugin() {
       buildApi.onLoad({ filter: /.*/, namespace: 'dsh-css' }, async (args) => {
         const file = args.pluginData?.absolute ?? args.path
         const result = transform({
-          filename: file,
+          // lightningcss mixes `filename` into the CSS-module hash, so this has to
+          // be the repository-relative path: with an absolute one, the same
+          // stylesheet produces different class names on Windows and on Linux and
+          // the bundle can never be reproduced by CI.
+          filename: repoPath(file),
           code: await readFile(file),
           cssModules: { pattern: '[hash]_[local]' },
           minify: true,
