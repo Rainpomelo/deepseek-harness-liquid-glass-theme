@@ -35,13 +35,28 @@ jobs:
 
       - name: Verify the committed bundle matches the sources
         run: |
-          if ! git diff --quiet -- lib/; then
-            echo '::error::lib/ is out of date with src/ — the skin market installs'
-            echo 'the committed bundle, so a source change without a rebuild ships'
-            echo 'stale code. Run `node build.mjs` and commit the result.'
-            git diff --stat -- lib/
-            exit 1
+          if git diff --quiet -- lib/; then
+            exit 0
           fi
+          echo '::error::lib/ is out of date with src/ — the skin market installs the committed bundle, so a source change without a rebuild ships stale code. Run `node build.mjs` and commit the result.'
+          git diff --stat -- lib/
+          echo '--- first byte difference per artifact ---'
+          for f in lib/index.js lib/index.js.map lib/client.js lib/client.js.map; do
+            git show "HEAD:$f" > /tmp/committed 2>/dev/null || continue
+            cmp -s /tmp/committed "$f" && continue
+            off=$(cmp /tmp/committed "$f" 2>&1 | grep -oE '[0-9]+' | head -1)
+            echo "### $f differs near byte ${off:-unknown}"
+            if [ -n "$off" ]; then
+              start=$((off > 150 ? off - 150 : 0))
+              echo "  committed: $(dd if=/tmp/committed bs=1 skip=$start count=300 2>/dev/null | tr -d '\n')"
+              echo "  generated: $(dd if="$f" bs=1 skip=$start count=300 2>/dev/null | tr -d '\n')"
+            fi
+          done
+          if ! cmp -s <(git show HEAD:lib/client.js.map) lib/client.js.map; then
+            git show HEAD:lib/client.js.map > /tmp/committed.map
+            node -e "const fs=require('fs');const a=JSON.parse(fs.readFileSync('/tmp/committed.map','utf8'));const b=JSON.parse(fs.readFileSync('lib/client.js.map','utf8'));console.log('sources equal       :',JSON.stringify(a.sources)===JSON.stringify(b.sources));console.log('sourcesContent equal:',JSON.stringify(a.sourcesContent)===JSON.stringify(b.sourcesContent));console.log('mappings equal      :',a.mappings===b.mappings);console.log('names equal         :',JSON.stringify(a.names)===JSON.stringify(b.names));console.log('committed sources:',a.sources.join(' | '));console.log('generated sources:',b.sources.join(' | '));"
+          fi
+          exit 1
 
       - name: Unit tests
         run: node --test tests/*.test.mjs
